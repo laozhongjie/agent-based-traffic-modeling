@@ -1,4 +1,4 @@
-# PC5253 Final Project Overview
+# Project Overview
 
 ## Agent-Based Modeling of Traffic Congestion on Road Networks
 
