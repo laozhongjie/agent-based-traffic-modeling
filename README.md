@@ -1,6 +1,6 @@
-# PC5253 Final Project: Agent-Based Modeling of Traffic Flow
+# Agent-Based Modeling of Traffic Congestion on Road Networks
 
-Group project for PC5253 Complex System Analysis and Modelling (NUS). The project studies the transition from free flow to congestion as a nonequilibrium phase transition, first on a highway ring road and then on a city road network.
+This project studies the transition from free flow to congestion as a nonequilibrium phase transition, first on a highway ring road and then on a city road network.
 
 ## Project overview
 
