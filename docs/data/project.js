@@ -11,17 +11,17 @@ window.PROJECT = {
   deadlines: [
     {
       date: "2026-11-05T18:00:00+08:00",
-      label: { en: "Presentation slides", zh: "展示幻灯片" },
+      label: { en: "Presentation slides", zh: "提交展示幻灯片" },
       detail: { en: "Submit to the group in Canvas › People › Groups", zh: "在 Canvas › People › Groups 中提交给小组" }
     },
     {
       date: "2026-11-15T23:59:00+08:00",
-      label: { en: "Peer grading", zh: "互评" },
+      label: { en: "Peer grading", zh: "完成互评" },
       detail: { en: "Canvas Quiz: Final project peer grading", zh: "Canvas Quiz：Final project peer grading" }
     },
     {
       date: "2026-11-22T23:59:00+08:00",
-      label: { en: "Group report, data & code; individual report", zh: "小组报告、数据与代码；个人报告" },
+      label: { en: "Group report, data & code; individual report", zh: "提交小组报告、数据与代码及个人报告" },
       detail: {
         en: "Group files in Canvas › People › Groups; individual report in Canvas › Quizzes",
         zh: "小组文件提交到 Canvas › People › Groups；个人报告提交到 Canvas › Quizzes"
@@ -38,7 +38,7 @@ window.PROJECT = {
     { date: "2026-11-22", label: { en: "Report due", zh: "报告截止" }, kind: "deadline" }
   ],
 
-  timelineStatus: { en: "Draft schedule, to be confirmed at kick-off.", zh: "草稿时间表，待 kick-off 时确认。" },
+  timelineStatus: { en: "Draft schedule, to be confirmed at kick-off.", zh: "以下为草拟的时间安排，将在 kick-off 时确认。" },
   timeline: [
     {
       start: "2026-10-01", end: "2026-10-07",
@@ -56,7 +56,7 @@ window.PROJECT = {
       items: [
         { en: "NaSch, OVM and IDM on the ring road, with validation checks", zh: "在环路上实现 NaSch、OVM 和 IDM，并完成验证检查" },
         { en: "Import an OSM district into SUMO; validate on a 4×4 grid", zh: "将一片 OSM 城区导入 SUMO，并用 4×4 网格验证" },
-        { en: "Shared analysis script and congestion criteria", zh: "共用的分析脚本和拥堵判据" },
+        { en: "Shared analysis script and congestion criteria", zh: "统一的分析脚本和拥堵判据" },
         { en: "Request PeMS / highD data access", zh: "申请 PeMS / highD 数据" }
       ]
     },
@@ -67,7 +67,7 @@ window.PROJECT = {
         { en: "Ring-road sweeps: density, system size, randomness, bottleneck", zh: "环路扫描：密度、系统尺寸、随机性、瓶颈" },
         { en: "Critical-point analysis for the highway", zh: "高速公路的临界点分析" },
         { en: "Network density sweeps and MFD", zh: "路网密度扫描与宏观基本图" },
-        { en: "In-browser ring-road simulation on this site", zh: "在本网站上实现浏览器内环路模拟" }
+        { en: "In-browser ring-road simulation on this site", zh: "在本网站实现浏览器内的环路模拟" }
       ]
     },
     {
@@ -178,7 +178,7 @@ window.PROJECT = {
         { text: { en: "In-browser ring-road simulation (NaSch / OVM / IDM)", zh: "浏览器内环路模拟（NaSch / OVM / IDM）" }, status: "todo" },
         { text: { en: "Linked charts: fundamental diagram, space–time diagram", zh: "联动图表：基本图、时空图" }, status: "todo" },
         { text: { en: "City-network view with link speeds and MFD", zh: "城市路网视图：路段速度和宏观基本图" }, status: "todo" },
-        { text: { en: "Connect the page to SUMO runs on the backend", zh: "网页连接后端的 SUMO 运行" }, status: "todo" }
+        { text: { en: "Run SUMO from the page via the backend", zh: "网页调用后端运行 SUMO" }, status: "todo" }
       ]
     },
     {
@@ -192,7 +192,7 @@ window.PROJECT = {
       tasks: [
         { text: { en: "Project overview (EN / ZH) and repository", zh: "项目概览（中英文）与仓库" }, status: "done" },
         { text: { en: "Literature survey: models, variations, applications", zh: "文献综述：模型、变体与应用" }, status: "todo" },
-        { text: { en: "Experiment registry: configs, seeds, outputs", zh: "实验登记：配置、随机种子、输出" }, status: "todo" },
+        { text: { en: "Experiment log: configs, seeds and outputs", zh: "实验记录：配置、随机种子和输出" }, status: "todo" },
         { text: { en: "Slides and rehearsal", zh: "幻灯片与排练" }, status: "todo" },
         { text: { en: "Group report and AI prompt appendix", zh: "小组报告及 AI prompt 附录" }, status: "todo" }
       ]

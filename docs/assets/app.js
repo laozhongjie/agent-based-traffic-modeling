@@ -87,11 +87,15 @@
     const big = days >= 1 ? String(days) : String(Math.max(1, Math.ceil(ms / 3600000)));
     const unit = days >= 1 ? (days === 1 ? U().dayLeft : U().daysLeft) : U().hoursLeft;
     const when = lang === "zh"
-      ? fmtDay(next.at, { weekday: "short" }) + " " + fmtTime(next.at) + U().tz
+      ? fmtDay(next.at, { weekday: "short" }) + " " + fmtTime(next.at) + "（" + U().tz + "）"
       : fmtDay(next.at, { weekday: "short" }) + ", " + fmtTime(next.at) + " " + U().tz;
     box.append(
       h("div", { class: "days" }, [big, h("small", { text: unit })]),
-      h("div", { class: "what" }, [h("strong", { text: U().next + tr(next.label) }), when + " · " + tr(next.detail)])
+      h("div", { class: "what" }, [
+        h("strong", { text: U().next + tr(next.label) }),
+        h("span", { text: when }),
+        h("span", { text: tr(next.detail) })
+      ])
     );
   }
 
@@ -175,12 +179,14 @@
     const grid = clear("workstreams");
     P.workstreams.forEach((w) => {
       const k = counts(w.tasks);
-      grid.append(h("article", { class: "card" }, [
-        h("p", { class: "tag", text: tr(w.stage) }),
-        h("div", { class: "ws-head" }, [h("h3", { text: tr(w.name) }), h("span", { class: "pct", text: k.pct + "%" })]),
-        h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.owner) : U().unclaimed }),
-        h("p", { class: "ws-summary", text: tr(w.summary) }),
-        barEl(k),
+      grid.append(h("article", { class: "card ws" }, [
+        h("div", { class: "ws-main" }, [
+          h("p", { class: "tag", text: tr(w.stage) }),
+          h("div", { class: "ws-head" }, [h("h3", { text: tr(w.name) }), h("span", { class: "pct", text: k.pct + "%" })]),
+          h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.owner) : U().unclaimed }),
+          h("p", { class: "ws-summary", text: tr(w.summary) }),
+          barEl(k)
+        ]),
         h("ul", { class: "tasks" }, w.tasks.map((t) => {
           const st = t.status in U().status ? t.status : "todo";
           return h("li", { class: st }, [

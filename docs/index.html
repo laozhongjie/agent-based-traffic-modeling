@@ -29,7 +29,7 @@
       <div class="hero-text">
         <p class="eyebrow" data-i18n="hero.eyebrow">Group project hub</p>
         <h1 data-i18n="hero.title">Agent-Based Modeling of Traffic Congestion on Road Networks</h1>
-        <p class="lede" data-i18n="hero.lede">How does free-flowing traffic tip into a jam? We simulate individual vehicles on a highway and on a real city network, locate the critical density where congestion takes over, and test how planning changes move it.</p>
+        <p class="lede" data-i18n="hero.lede">How does free-flowing traffic tip into a jam? We simulate individual vehicles on a highway and on a real city network, locate the critical density at which free flow breaks down, and test how planning changes shift it.</p>
         <div class="next-deadline" id="next-deadline" aria-live="polite"></div>
       </div>
 
@@ -44,7 +44,7 @@
           </div>
           <div class="legend"><span class="swatch jam"></span><span data-i18n="demo.stopped">stopped</span><span class="ramp" aria-hidden="true"></span><span class="swatch free"></span><span data-i18n="demo.free">free flow</span></div>
         </div>
-        <figcaption data-i18n="demo.caption">Preview: a NaSch ring road. Raise the density and watch jams appear and drift backwards. The full simulation environment will live on this site.</figcaption>
+        <figcaption data-i18n="demo.caption">Preview: a NaSch ring road. Raise the density and watch jams form and drift backwards. The full simulation environment will be built on this site.</figcaption>
       </figure>
     </section>
 
@@ -69,7 +69,7 @@
         <li data-i18n="overview.step3">City-network critical density</li>
         <li data-i18n="overview.step4">How planning shifts the critical point</li>
       </ol>
-      <p class="note" data-i18n="overview.note">One new factor per step, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview →</a></p>
+      <p class="note" data-i18n="overview.note">Each step adds exactly one new factor, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview →</a></p>
     </section>
 
     <section id="research" class="wrap section">
@@ -98,18 +98,18 @@
           <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th></tr></thead>
           <tbody>
             <tr><td><strong>NaSch</strong></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td></tr>
-            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, V′(h) &gt; a/2</td><td data-i18n="models.ovm.role">Theoretical threshold to check simulations</td></tr>
-            <tr><td><strong>IDM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Most realistic; also used in SUMO</td></tr>
+            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, V′(h) &gt; a/2</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td></tr>
+            <tr><td><strong>IDM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Closest to real driving; built into SUMO</td></tr>
           </tbody>
         </table>
       </div>
 
       <h3 class="subhead" data-i18n="critical.h">How we find the critical point</h3>
       <div class="grid four">
-        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">Fraction of jammed vehicles, near 0 in free flow, rising sharply past the critical density.</span></div>
-        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">Variance of the order parameter or flow peaks near the transition.</span></div>
-        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat with longer roads: the transition should sharpen.</span></div>
-        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">For the city network, where network flow stops rising with density.</span></div>
+        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">The share of jammed vehicles: near zero in free flow, rising sharply past the critical density.</span></div>
+        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">The variance of the order parameter, or of the flow, peaks at the transition.</span></div>
+        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat on longer roads; a true transition gets sharper.</span></div>
+        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">In the city network, the density at which total flow stops increasing.</span></div>
       </div>
     </section>
 
@@ -123,7 +123,7 @@
     <section id="progress" class="wrap section">
       <h2 data-i18n="progress.h">Progress</h2>
       <div class="progress-summary" id="progress-summary"></div>
-      <p class="section-intro" data-i18n="progress.intro">Five workstreams of similar size. Pick one at kick-off; owners will be filled in here.</p>
+      <p class="section-intro" data-i18n="progress.intro">Five workstreams of similar size. Each member claims one at kick-off, and owners will appear here.</p>
       <div class="grid workstreams" id="workstreams"></div>
     </section>
 
@@ -134,32 +134,32 @@
           <h3 data-i18n="req.pres">Presentation</h3>
           <ul>
             <li data-i18n="req.pres1">15 minutes + 3 minutes Q&amp;A per group</li>
-            <li data-i18n="req.pres2">Slides submitted to the group in Canvas › People › Groups by <strong>5 Nov, 6:00 pm</strong></li>
-            <li data-i18n="req.pres3">Peer grading via Canvas Quiz by <strong>15 Nov, 11:59 pm</strong></li>
+            <li data-i18n="req.pres2">Submit slides to the group in Canvas › People › Groups by <strong>5 Nov, 6:00 pm</strong></li>
+            <li data-i18n="req.pres3">Complete peer grading (Canvas Quiz) by <strong>15 Nov, 11:59 pm</strong></li>
           </ul>
         </article>
         <article class="card">
           <h3 data-i18n="req.report">Report</h3>
           <ul>
             <li data-i18n="req.report1">One group report, at least 10 pages excluding code, data and references</li>
-            <li data-i18n="req.report2">Group report, data and code, plus individual reports, by <strong>22 Nov, 11:59 pm</strong></li>
-            <li data-i18n="req.report3">AI prompts used in the project are attached to the report</li>
+            <li data-i18n="req.report2">Submit the group report, data and code, and individual reports by <strong>22 Nov, 11:59 pm</strong></li>
+            <li data-i18n="req.report3">Attach the AI prompts used in the project to the report</li>
           </ul>
         </article>
       </div>
-      <p class="note warn" data-i18n="req.late">Late submissions lose 20% per day.</p>
+      <p class="note warn" data-i18n="req.late">Late submissions lose 20% for each day late.</p>
     </section>
 
     <section id="resources" class="wrap section">
       <h2 data-i18n="resources.h">Resources</h2>
-      <div class="grid two" id="resources-list"></div>
+      <div class="res-columns" id="resources-list"></div>
     </section>
   </main>
 
   <footer class="footer">
     <div class="wrap footer-inner">
       <span id="updated"></span>
-      <span data-i18n="footer.howto">Progress lives in <code>docs/data/project.js</code>. Edit, commit, push.</span>
+      <span data-i18n="footer.howto">To update progress, edit <code>docs/data/project.js</code> and push.</span>
     </div>
   </footer>
 
