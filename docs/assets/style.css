@@ -16,6 +16,9 @@
   --warn-text: #8a4b00;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  --shadow-hover: 0 10px 24px rgba(16, 24, 40, .10), 0 2px 6px rgba(16, 24, 40, .06);
+  --dur: 180ms;
+  --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: light;
 }
 
@@ -37,6 +40,7 @@
     --warn-bg: #3a2a12;
     --warn-text: #f3c27a;
     --shadow: none;
+    --shadow-hover: 0 10px 28px rgba(0, 0, 0, .45);
     color-scheme: dark;
   }
 }
@@ -58,6 +62,7 @@
   --warn-bg: #3a2a12;
   --warn-text: #f3c27a;
   --shadow: none;
+  --shadow-hover: 0 10px 28px rgba(0, 0, 0, .45);
   color-scheme: dark;
 }
 
@@ -282,12 +287,11 @@ tr:last-child td { border-bottom: none; }
   display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
   padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
 }
-.exp-card { display: flex; flex-direction: column; color: inherit; transition: border-color .15s, transform .15s; }
-.exp-card:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-2px); }
+.exp-card { display: flex; flex-direction: column; color: inherit; }
+.exp-card:hover { text-decoration: none; }
 .exp-card h3 { color: var(--text); }
 .exp-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; }
 .exp-open { font-size: 14px; font-weight: 600; color: var(--accent); }
-@media (prefers-reduced-motion: reduce) { .exp-card, .exp-card:hover { transition: none; transform: none; } }
 
 /* Current page in the top bar */
 nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); font-weight: 600; }
@@ -317,3 +321,85 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 .placeholder > span:not(.chip) { max-width: 46ch; }
 .lab-data { margin-top: 16px; }
 .lab-data p { font-size: 14px; }
+
+/* ==========================================================================
+   Hover & motion
+   One set of timings for the whole site. Clickable things lift and take the
+   accent colour; informational cards only deepen their shadow and border.
+   Hover styles apply only on devices that can hover; reduced motion turns
+   all movement off.
+   ========================================================================== */
+
+a, button, .card, .metric, .phase, .placeholder, .btn, .lang-toggle, .flow li, .flow li::before,
+nav a, .tasks li, .status, tbody tr, .res-list a, .exp-open, .timeline-bar .marker, .next-deadline, .demo, .brand {
+  transition:
+    color var(--dur) var(--ease), background-color var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
+}
+
+/* Nav links: an underline that grows from the centre */
+nav a { position: relative; }
+nav a::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: 2px; height: 2px; border-radius: 1px;
+  background: var(--accent); transform: scaleX(0); transition: transform var(--dur) var(--ease);
+}
+nav a[aria-current="page"]::after { transform: scaleX(1); }
+
+/* Keyboard focus mirrors hover */
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px;
+}
+
+@media (hover: hover) {
+  .brand:hover { color: var(--accent); }
+  nav a:hover::after { transform: scaleX(1); }
+
+  /* Buttons */
+  .btn:hover, .lang-toggle:hover, .demo-row button:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+  .btn:active, .lang-toggle:active, .demo-row button:active { transform: translateY(0); box-shadow: none; }
+
+  /* Clickable cards */
+  .exp-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--shadow-hover); }
+  .exp-open { display: inline-block; }
+  .exp-card:hover .exp-open { transform: translateX(4px); }
+
+  /* Informational cards: no lift, only depth */
+  .card:not(.exp-card):hover, .metric:hover, .next-deadline:hover, .demo:hover {
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); box-shadow: var(--shadow-hover);
+  }
+  .phase:hover { box-shadow: var(--shadow-hover); border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
+  .phase.upcoming:hover { border-left-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+  .phase.past:hover { opacity: .85; }
+
+  /* Research chain pills */
+  .flow li:hover { background: color-mix(in srgb, var(--accent) 22%, var(--surface)); }
+  .flow li:hover::before { transform: scale(1.12); }
+
+  /* Table rows */
+  tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+  /* Task items: tint without shifting the layout */
+  .ws .tasks li { border-radius: 6px; margin-left: -6px !important; margin-right: -6px !important; padding: 2px 6px; }
+  .tasks li:hover { background: var(--surface-2); }
+  .tasks li:hover .status { transform: scale(1.06); }
+
+  /* Resource links: arrow appears */
+  .res-list a::after { content: " →"; display: inline-block; opacity: 0; transform: translateX(-4px); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+  .res-list a:hover { text-decoration: none; }
+  .res-list a:hover::after { opacity: 1; transform: translateX(0); }
+
+  /* Timeline markers grow */
+  .timeline-bar .marker:not(.today):hover { transform: translateX(-1px) scaleY(1.35); }
+
+  /* Reserved experiment areas: stripes drift slowly */
+  .placeholder { background-size: 34px 34px; }
+  .placeholder:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); animation: stripes 1.6s linear infinite; }
+}
+
+@keyframes stripes { to { background-position: 34px 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .exp-card:hover, .btn:hover, .lang-toggle:hover, .demo-row button:hover,
+  .exp-card:hover .exp-open, .res-list a:hover::after, .timeline-bar .marker:hover, .flow li:hover::before, .tasks li:hover .status { transform: none !important; }
+}
