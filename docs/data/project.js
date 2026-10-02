@@ -54,7 +54,7 @@ window.PROJECT = {
       start: "2026-10-08", end: "2026-10-14",
       title: { en: "Build & validate", zh: "搭建与验证" },
       items: [
-        { en: "NaSch, OVM and IDM on the ring road, with validation checks", zh: "在环路上实现 NaSch、OVM 和 IDM，并完成验证检查" },
+        { en: "Build SUMO from source and add OVM; ring road with NaSch / OVM / IDM and validation checks", zh: "从源码编译 SUMO 并加入 OVM；搭建环路，完成 NaSch / OVM / IDM 的验证" },
         { en: "Import an OSM district into SUMO; validate on a 4×4 grid", zh: "将一片 OSM 城区导入 SUMO，并用 4×4 网格验证" },
         { en: "Shared analysis script and congestion criteria", zh: "统一的分析脚本和拥堵判据" },
         { en: "Request PeMS / highD data access", zh: "申请 PeMS / highD 数据" }
@@ -67,7 +67,7 @@ window.PROJECT = {
         { en: "Ring-road sweeps: density, system size, randomness, bottleneck", zh: "环路扫描：密度、系统尺寸、随机性、瓶颈" },
         { en: "Critical-point analysis for the highway", zh: "高速公路的临界点分析" },
         { en: "Network density sweeps and MFD", zh: "路网密度扫描与宏观基本图" },
-        { en: "In-browser ring-road simulation on this site", zh: "在本网站实现浏览器内的环路模拟" }
+        { en: "In-browser ring-road illustration on this site", zh: "在本网站实现浏览器内的环路示意演示" }
       ]
     },
     {
@@ -122,15 +122,15 @@ window.PROJECT = {
       stage: { en: "Stage 1", zh: "阶段一" },
       owner: null,
       summary: {
-        en: "Ring-road implementations of NaSch, OVM and IDM, and the Stage 1 experiments.",
-        zh: "在环路上实现 NaSch、OVM 和 IDM，并完成阶段一实验。"
+        en: "SUMO build, the OVM implementation, the ring-road setup and the Stage 1 experiments.",
+        zh: "编译 SUMO、实现 OVM、搭建环路，并完成阶段一实验。"
       },
       tasks: [
-        { text: { en: "Implement NaSch on a ring road", zh: "在环路上实现 NaSch" }, status: "todo" },
-        { text: { en: "Implement OVM and IDM on a ring road", zh: "在环路上实现 OVM 和 IDM" }, status: "todo" },
-        { text: { en: "Validation checks: no overlaps, vehicle conservation, units", zh: "验证检查：车辆不重叠、车辆数守恒、单位正确" }, status: "todo" },
-        { text: { en: "Sweeps: density, system size, randomness", zh: "扫描：密度、系统尺寸、随机性" }, status: "todo" },
-        { text: { en: "Bottleneck runs: reduced-speed section, optional traffic light", zh: "瓶颈实验：限速路段，可选红绿灯" }, status: "todo" }
+        { text: { en: "Build SUMO from source at a pinned commit", zh: "从源码编译 SUMO，并固定 commit" }, status: "todo" },
+        { text: { en: "Implement OVM in SUMO (C++)", zh: "用 C++ 在 SUMO 中实现 OVM" }, status: "todo" },
+        { text: { en: "Ring road in SUMO with NaSch / OVM / IDM settings", zh: "在 SUMO 中搭建环路，配置 NaSch / OVM / IDM 参数" }, status: "todo" },
+        { text: { en: "Validation: NaSch exact result at p = 0, OVM stability vs theory", zh: "模型验证：NaSch 在 p = 0 时的解析结果、OVM 稳定性与理论对照" }, status: "todo" },
+        { text: { en: "Sweeps: density, system size, randomness, bottleneck", zh: "扫描：密度、系统尺寸、随机性、瓶颈" }, status: "todo" }
       ]
     },
     {
@@ -176,8 +176,8 @@ window.PROJECT = {
       },
       tasks: [
         { text: { en: "Project hub page (this site)", zh: "项目主页（本网站）" }, status: "doing" },
-        { text: { en: "In-browser ring-road simulation (NaSch / OVM / IDM)", zh: "浏览器内环路模拟（NaSch / OVM / IDM）" }, status: "todo" },
-        { text: { en: "Linked charts: fundamental diagram, space–time diagram", zh: "联动图表：基本图、时空图" }, status: "todo" },
+        { text: { en: "In-browser ring-road illustration (NaSch / OVM / IDM)", zh: "浏览器内的环路示意演示（NaSch / OVM / IDM）" }, status: "todo" },
+        { text: { en: "Ring-road results view: SUMO fundamental and space–time diagrams", zh: "环路结果视图：SUMO 的基本图和时空图" }, status: "todo" },
         { text: { en: "City-network view: replay SUMO results (link speeds, MFD)", zh: "城市路网视图：回放 SUMO 结果（路段速度、宏观基本图）" }, status: "todo" },
         { text: { en: "Optional: local backend for live SUMO runs", zh: "可选：本地后端实时运行 SUMO" }, status: "todo" }
       ]

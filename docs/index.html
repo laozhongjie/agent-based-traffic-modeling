@@ -30,10 +30,12 @@
         <p class="eyebrow" data-i18n="hero.eyebrow">Group project hub</p>
         <h1 data-i18n="hero.title">Agent-Based Modeling of Traffic Congestion on Road Networks</h1>
         <p class="lede" data-i18n="hero.lede">How does free-flowing traffic tip into a jam? We simulate individual vehicles on a highway and on a real city network, locate the critical density at which free flow breaks down, and test how planning changes shift it.</p>
+        <p class="hero-actions" data-i18n="hero.cta"><a class="btn primary" href="https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview</a><a class="btn" href="https://github.com/laozhongjie/agent-based-traffic-modeling">Open the repository</a></p>
         <div class="next-deadline" id="next-deadline" aria-live="polite"></div>
       </div>
 
       <figure class="demo">
+        <p class="tag demo-tag" data-i18n="demo.badge">Illustration · not report data</p>
         <canvas id="ring" width="360" height="360" aria-label="Animated ring road: vehicles following the Nagel–Schreckenberg rules" data-i18n-aria="demo.aria"></canvas>
         <div class="demo-controls">
           <label for="density"><span data-i18n="demo.density">Vehicle density</span> <output id="density-out"></output></label>
@@ -44,7 +46,7 @@
           </div>
           <div class="legend"><span class="swatch jam"></span><span data-i18n="demo.stopped">stopped</span><span class="ramp" aria-hidden="true"></span><span class="swatch free"></span><span data-i18n="demo.free">free flow</span></div>
         </div>
-        <figcaption data-i18n="demo.caption">Preview: a NaSch ring road. Raise the density and watch jams form and drift backwards. The full simulation environment will be built on this site.</figcaption>
+        <figcaption data-i18n="demo.caption">A NaSch ring road computed live in your browser. Raise the density and watch jams form and drift backwards. Every result in the report comes from SUMO.</figcaption>
       </figure>
     </section>
 
@@ -55,7 +57,7 @@
         <article class="card">
           <p class="tag" data-i18n="overview.hwTag">Stage 1 · Uninterrupted flow</p>
           <h3 data-i18n="overview.hwTitle">Highway</h3>
-          <p data-i18n="overview.hwText">A single-lane ring road with no traffic lights. Three vehicle models, a density sweep, and a single bottleneck to separate spontaneous jams from bottleneck-induced ones.</p>
+          <p data-i18n="overview.hwText">A single-lane ring road in SUMO with no traffic lights. Three vehicle models, a density sweep, and a single bottleneck to separate spontaneous jams from bottleneck-induced ones.</p>
         </article>
         <article class="card">
           <p class="tag" data-i18n="overview.cityTag">Stages 2 &amp; 3 · Interrupted flow</p>
@@ -95,14 +97,15 @@
       <h3 class="subhead" data-i18n="models.h">Vehicle models</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th></tr></thead>
+          <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th><th data-i18n="models.col5">In SUMO</th></tr></thead>
           <tbody>
-            <tr><td><strong>NaSch</strong></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td></tr>
-            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, V′(h) &gt; a/2</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td></tr>
-            <tr><td><strong>IDM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Closest to real driving; built into SUMO</td></tr>
+            <tr><td><strong>NaSch</strong></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td><td data-i18n="models.nasch.sumo">Built in (development branch)</td></tr>
+            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, V′(h) &gt; a/2</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td><td data-i18n="models.ovm.sumo"><strong>Our C++ implementation</strong></td></tr>
+            <tr><td><strong>IDM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Closest to real driving; main model for the city network</td><td data-i18n="models.idm.sumo">Built in</td></tr>
           </tbody>
         </table>
       </div>
+      <p class="note" data-i18n="models.note">All formal simulations, on the ring road and the city network, run on one SUMO build compiled from source at a fixed version, so every result is directly comparable.</p>
 
       <h3 class="subhead" data-i18n="critical.h">How we find the critical point</h3>
       <div class="grid four">
