@@ -146,6 +146,7 @@ window.PROJECT = {
         { text: { en: "Validate the pipeline on a 4×4 grid", zh: "用 4×4 网格验证整个流程" }, status: "todo" },
         { text: { en: "TraCI controller that keeps network density constant", zh: "用 TraCI 编写保持网络密度恒定的控制器" }, status: "todo" },
         { text: { en: "Network density sweeps", zh: "网络密度扫描" }, status: "todo" },
+        { text: { en: "Batch SUMO runs and export results for the site", zh: "批量运行 SUMO，并导出网站所需的结果" }, status: "todo" },
         { text: { en: "Planning scenarios: road closure, new link", zh: "规划场景：封路、新增道路" }, status: "todo" }
       ]
     },
@@ -177,8 +178,8 @@ window.PROJECT = {
         { text: { en: "Project hub page (this site)", zh: "项目主页（本网站）" }, status: "doing" },
         { text: { en: "In-browser ring-road simulation (NaSch / OVM / IDM)", zh: "浏览器内环路模拟（NaSch / OVM / IDM）" }, status: "todo" },
         { text: { en: "Linked charts: fundamental diagram, space–time diagram", zh: "联动图表：基本图、时空图" }, status: "todo" },
-        { text: { en: "City-network view with link speeds and MFD", zh: "城市路网视图：路段速度和宏观基本图" }, status: "todo" },
-        { text: { en: "Run SUMO from the page via the backend", zh: "网页调用后端运行 SUMO" }, status: "todo" }
+        { text: { en: "City-network view: replay SUMO results (link speeds, MFD)", zh: "城市路网视图：回放 SUMO 结果（路段速度、宏观基本图）" }, status: "todo" },
+        { text: { en: "Optional: local backend for live SUMO runs", zh: "可选：本地后端实时运行 SUMO" }, status: "todo" }
       ]
     },
     {

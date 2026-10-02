@@ -295,17 +295,17 @@ The city network uses real topology, but the number of vehicles and their destin
 
 ## 9. Interactive Simulation Environment
 
-The web page is not just a player for pre-recorded results. It is the project's **experiment console and visualization interface**. Users choose a model and a vehicle or network density, click run, and the simulation engine computes vehicle states while the page displays roads, vehicles and statistics in real time or near real time.
-
-The page and the simulation engines are organized in two layers:
+The web page is the project's **experiment console and visualization interface**. Ring-road experiments are computed live in the browser. City-network results come from SUMO: the formal runs are computed in advance and published with the site, and the page is used to pick parameters, replay runs and compare results.
 
 ```mermaid
 flowchart LR
     A[Web console<br/>choose model and parameters] --> B{Experiment type}
-    B --> C[In-browser engine<br/>ring road NaSch / OVM / IDM]
-    B --> D[Python backend<br/>city network with SUMO]
+    B --> C[Live in the browser<br/>ring road NaSch / OVM / IDM]
+    B --> D[Precomputed SUMO results<br/>city network]
+    B -. when a local backend is running .-> G[Python backend<br/>live SUMO runs]
     C --> E[Vehicle trajectories and statistics]
     D --> E
+    G --> E
     E --> F[Animation, charts and run records on the page]
 ```
 
@@ -315,28 +315,35 @@ The ring-road versions of NaSch, OVM and IDM are small enough to run in JavaScri
 
 This mode is for live exploration: change one parameter and immediately see traffic go from smooth to jammed. It is also a good way to show how simple individual rules produce collective behavior.
 
-### 9.2 City-network experiments launched from the page
+The ring-road results in the report are computed in batch with the Python version. The browser and Python versions share the same rules and parameters, and a common set of tests checks that they agree.
 
-Experiments with many intersections, traffic lights and routes run on a Python backend with SUMO. The page is still the entry point: the user selects a network density, a network scenario and a run ID; the front end sends the configuration to the backend, which runs SUMO and returns vehicle trajectories, link speeds, network flow and congested regions.
+### 9.2 City-network experiments: SUMO is the reference
 
-A full SUMO network simulation is too heavy to run inside a browser. "Running experiments on the web page" therefore does not mean every computation happens in the browser. It means that setup, execution control and result viewing all happen on the page, while the underlying computation runs on whichever engine is appropriate.
+City networks involve intersections, traffic lights, lane changes and routing. All of this is computed by SUMO, so the results are reliable and close to real traffic.
 
-### 9.3 Exploration versus formal runs
+The site is hosted on GitHub Pages, which serves static files only and cannot run Python or SUMO. City-network experiments therefore run in two ways:
 
-The page supports two kinds of use:
-
-| Use | How it runs | Purpose |
+| Mode | How it works | Purpose |
 |---|---|---|
-| Exploration | Change parameters on the page and run a few quick simulations | Build intuition and find the interesting density ranges |
-| Formal experiments | Submit a fixed configuration from the page; the backend runs it in batch over many random seeds | Produce the statistics, error bars and threshold estimates in the report |
+| **Precomputed (main)** | Run every experiment combination locally with SUMO (network density × network scenario × random seed), export the results as data files, and publish them with the site | Formal results for the report; anyone opening the site can switch parameters, replay runs and compare scenarios |
+| **Live local runs (supplementary)** | Start the Python backend locally; the page sends a configuration to it, and it runs SUMO and returns the results | Trying parameters outside the precomputed grid during group discussions or a live demo |
 
-Formal runs must still save the configuration, random seeds, code version and output data. Saving results does not replace the web page; it ensures that re-running on the page, plotting for the report, and reproduction by others all rely on the same records.
+The data published with the site are mostly aggregated: speed and flow on each link per time interval, network-level density–flow points, and short vehicle-trajectory clips from a few representative runs for the replay animation. Full raw outputs are stored separately and not published with the site.
+
+### 9.3 Exploration versus formal results
+
+| Use | Ring road | City network |
+|---|---|---|
+| Exploration | Change any parameter in the browser and run it live | Switch between precomputed parameter combinations; use the local backend for new ones |
+| Formal results | Batch runs of the Python version over many random seeds | Batch SUMO runs over many random seeds, published with the site |
+
+Every formal result must save its configuration, random seeds, code version and output data, so that the page, the report figures and anyone reproducing the work all rely on the same records.
 
 Suggested views:
 
 1. **Ring road:** set the model, vehicle density and bottleneck on/off; watch the animation along with mean speed, flow and the space–time diagram.
-2. **City network:** set the network density; view links colored by speed, congested regions and the MFD.
-3. **Planning comparison:** pick a network modification and compare its MFD and critical density side by side with the baseline.
+2. **City network:** choose a network density; replay how link speeds evolve in the SUMO results, and view congested regions and the MFD.
+3. **Planning comparison:** pick a network modification and compare its SUMO-derived MFD and critical density side by side with the baseline.
 
 A top-down 2D view is sufficient; photorealistic 3D buildings are not a goal. Vehicles are drawn as simple shapes colored by speed, and every data point on a chart links to a viewable run record.
 
