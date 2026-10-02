@@ -1,6 +1,6 @@
 # 项目概述
 
-## 道路网络中的车流拥堵：基于 Agent-Based Modeling 的研究
+## 道路网络中的车流拥堵：Agent-Based Modeling 研究
 
 **英文题目：** *Agent-Based Modeling of Traffic Congestion on Road Networks*  
 **研究方向：** complex systems、network science、nonequilibrium dynamics、agent-based modeling

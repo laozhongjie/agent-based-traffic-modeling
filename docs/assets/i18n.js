@@ -15,7 +15,7 @@ window.I18N = {
       "nav.resources": "资料",
 
       "hero.eyebrow": "小组项目主页",
-      "hero.title": "<span class=\"line\">道路网络中的车流拥堵</span><span class=\"line\">基于 Agent-Based Modeling 的研究</span>",
+      "hero.title": "<span class=\"line\">道路网络中的车流拥堵</span><span class=\"line\">Agent-Based Modeling 研究</span>",
       "hero.lede": "畅通的车流为什么会突然堵住？我们在高速公路和真实城市路网上模拟每一辆车，找出车流由畅通转为拥堵的临界密度，并检验城市规划改动能否移动这个临界点。",
 
       "hero.cta": "<a class=\"btn primary\" href=\"https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview.md\">阅读完整概览</a><a class=\"btn\" href=\"https://github.com/laozhongjie/agent-based-traffic-modeling\">打开仓库</a>",
