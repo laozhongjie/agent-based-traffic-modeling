@@ -12,8 +12,10 @@ Traffic congestion is a textbook example of a complex system. Each driver makes 
 
 This project models traffic as a dynamical system of vehicle agents moving on a road network, and treats the transition from free flow to congestion as a nonequilibrium phase transition. The work covers two scales:
 
-- **Highway (uninterrupted flow):** On a single-lane ring road with no traffic lights, we compare three agent-based microscopic models (NaSch, OVM and IDM), sweep the vehicle density, and estimate the critical density. Adding a single bottleneck to the ring lets us separate congestion that emerges spontaneously from density alone from congestion caused by a bottleneck.
+- **Highway (uninterrupted flow):** On a single-lane ring road built in SUMO with no traffic lights, we compare three agent-based microscopic models (NaSch, OVM and IDM), sweep the vehicle density, and estimate the critical density. Adding a single bottleneck to the ring lets us separate congestion that emerges spontaneously from density alone from congestion caused by a bottleneck.
 - **City network (interrupted flow):** On a real urban road network imported from OpenStreetMap, complete with intersections, traffic lights and varying speed limits, we sweep the network density, estimate a network-wide critical density, and study how local jams grow into large congested regions.
+
+All formal simulations run on a single SUMO build: NaSch and IDM use SUMO's built-in implementations, and we implement OVM in C++ and add it to SUMO. Highway and city-network results therefore come from the same implementation and can be compared directly.
 
 The application focuses on urban planning: how do changes to the network, such as closing a road or adding a new link, shift the critical density? Real traffic data are used as a reference for the simulated fundamental diagrams and congestion locations. The final deliverables are a research report, reproducible simulation code, figures, and an interactive web-based simulation environment.
 
@@ -73,13 +75,24 @@ NaSch divides the road into cells of equal length and updates vehicle speeds in 
 
 The rules are simple and fast to compute, which makes NaSch well suited to validating the implementation, sweeping many densities, and producing the fundamental diagram that shows the change from free flow to congested flow. Original paper: [Nagel & Schreckenberg, 1992](https://doi.org/10.1051/jp1:1992277).
 
+**Implementation in SUMO:** we use SUMO's built-in `carFollowModel="NaSch"`. It reproduces the four original rules inside SUMO's continuous-space framework and is equivalent to the original model with the following settings:
+
+| Original NaSch | SUMO setting |
+|---|---|
+| 7.5 m cells, 1 s time step | `accel=7.5` (the acceleration parameter doubles as the cell length), `step-length=1` |
+| One vehicle per cell | `length=7.5`, `minGap=0`, initial positions spaced 7.5 m apart |
+| Same maximum speed for every vehicle | `speedDev=0`, `maxSpeed` a multiple of 7.5 m/s |
+| Random slowdown probability p | `sigma=p` (defaults to 0.5, so it must be set explicitly) |
+
+This model was added to SUMO's development branch in August 2026 and is not yet in the latest release (1.27.1), so the project uses a SUMO build compiled from source (see 4.8).
+
 ### 4.3 Intelligent Driver Model (IDM)
 
 IDM uses continuous positions and speeds. A vehicle's acceleration depends on its desired speed, its current speed, the net gap to the vehicle ahead, and the speed difference between the two. It captures smooth car-following, gradual acceleration and anticipatory braking.
 
 The equations and an interactive demo are available in [Treiber's IDM page](https://traffic-simulation.de/info/info_IDM.html) and [Microsimulation of Traffic Flow](https://traffic-simulation.de/).
 
-IDM is collision-free, its parameters have clear physical meaning, and it is one of the car-following models built into SUMO. This means the same driving rules can be used in both the ring-road and the city-network experiments.
+IDM is collision-free and its parameters have clear physical meaning. We use SUMO's built-in `carFollowModel="IDM"` with the same parameters in the ring-road and city-network experiments. In ring-road runs we set `speedDev=0` to remove differences in desired speed between vehicles.
 
 ### 4.4 Optimal Velocity Model (OVM)
 
@@ -87,15 +100,17 @@ OVM also uses continuous positions and speeds. Each vehicle computes an "optimal
 
 What makes OVM useful here is that its linear stability can be analysed exactly. Uniform flow with headway h becomes unstable when V′(h) > a/2, at which point small perturbations grow into stop-and-go waves. This gives a theoretical density range for the transition that can be compared directly with the simulated threshold. For some parameter choices OVM allows vehicles to overlap, so this needs to be checked in the implementation.
 
+**Implementation in SUMO:** SUMO has no built-in OVM. Following the structure of SUMO's IDM code, we implement OVM in C++ as a subclass of `MSCFModel`, register it as `carFollowModel="OVM"`, and recompile SUMO so it can be used exactly like the built-in models. This is the model code the project writes itself.
+
 ### 4.5 Comparing the three models
 
 All three are agent-based microscopic models, but they produce congestion through different mechanisms. The goal of the comparison is not to make them agree numerically, but to test how sensitive the transition, the jam waves and the capacity drop are to the modeling assumptions.
 
-| Model | Space and time | Source of congestion | Role in the comparison |
-|---|---|---|---|
-| **NaSch** | Discrete cells, discrete time | Random slowdowns; with zero slowdown probability there are no spontaneous jams | Noise-driven congestion |
-| **OVM** | Continuous | Deterministic instability: uniform flow is unstable when V′(h) > a/2 | Provides a theoretical critical condition to validate the simulated threshold |
-| **IDM** | Continuous | Instability, while keeping safe gaps and avoiding collisions | Most realistic behavior; carries over to the SUMO network experiments |
+| Model | Space and time | Source of congestion | Role in the comparison | In SUMO |
+|---|---|---|---|---|
+| **NaSch** | Discrete cells, discrete time | Random slowdowns; with zero slowdown probability there are no spontaneous jams | Congestion caused by random perturbations | Built in (development branch) |
+| **OVM** | Continuous | Deterministic instability: uniform flow is unstable when V′(h) > a/2 | Provides a theoretical critical condition to validate the simulated threshold | Our own C++ implementation |
+| **IDM** | Continuous | Instability, while keeping safe gaps and avoiding collisions | Most realistic behavior; main model for the city network | Built in |
 
 To make results comparable, all models use the same physical units: NaSch uses a cell length of 7.5 m and a time step of 1 s; densities are reported in veh/km and flows in veh/h.
 
@@ -105,8 +120,8 @@ A traffic simulation is made up of several interacting model layers. NaSch, OVM 
 
 | Layer | What it describes | How this project represents it |
 |---|---|---|
-| Vehicle behavior | Acceleration, braking, car-following, safe gaps, random fluctuations | Ring road: NaSch, OVM, IDM; city network: IDM |
-| Road network | Link length, direction, number of lanes, speed limit, connectivity | Ring road: single-lane periodic road; city network: directed weighted graph imported from OpenStreetMap and run in SUMO |
+| Vehicle behavior | Acceleration, braking, car-following, safe gaps, random fluctuations | Ring road: NaSch, OVM, IDM; city network: IDM (NaSch and OVM as optional robustness checks) |
+| Road network | Link length, direction, number of lanes, speed limit, connectivity | Ring road: closed single-lane loop in SUMO; city network: directed weighted graph imported from OpenStreetMap; both run in SUMO |
 | Intersections and signals | Conflicting movements, signal phases, green times, queue storage | SUMO junctions and traffic lights, with fixed-time plans generated by a common rule |
 | Demand | Which vehicles are in the network and where they are going | A fixed number of vehicles set by the target network density; each vehicle gets a new random destination on arrival, so the vehicle count stays constant |
 | Routing | Which roads a vehicle chooses or follows | Shortest path by free-flow travel time; same routing rule across all scenarios |
@@ -129,15 +144,25 @@ CTM/LWR is not an agent-based model. Its role is to provide a cross-scale compar
 
 | Layer | Tools | Purpose |
 |---|---|---|
-| Microscopic vehicle models | Python, NumPy | Our own implementations of NaSch, OVM and IDM on the ring road, for controlled experiments |
+| Microscopic vehicle models | [SUMO](https://sumo.dlr.de/docs/) (built from source at a fixed commit), C++ | NaSch and IDM use SUMO's built-in implementations; OVM is written in C++ and compiled into SUMO |
 | Macroscopic benchmark (optional) | Python, NumPy | CTM/LWR density–flow conservation on a simple link or bottleneck |
 | City network import | [OSMnx](https://osmnx.readthedocs.io/en/stable/getting-started.html), SUMO netconvert | Download an urban network from OpenStreetMap and convert it to a SUMO network |
-| Network simulation | [SUMO](https://sumo.dlr.de/docs/), TraCI | Roads, intersections, traffic lights, routing and vehicle movement; TraCI keeps the vehicle count in the network constant |
+| Simulation and batch runs | SUMO, TraCI, Python | Run the ring-road and city-network experiments; TraCI keeps the vehicle count in the network constant; Python scripts run every parameter combination in batch |
 | Network analysis | [NetworkX](https://networkx.org/documentation/stable/tutorial.html) | Paths, edge betweenness, connectivity and congested clusters |
 | Data analysis | Python, Matplotlib, Pandas | Aggregate repeated runs, compute metrics, produce report figures |
-| Interactive front end | JavaScript, Canvas, ECharts | Set up experiments, launch simulations, watch vehicles and view linked statistics |
+| Interactive front end | JavaScript, Canvas, ECharts | Display, replay and compare SUMO results; in-browser ring-road illustration |
 
-The ring-road models we write ourselves are used to understand and validate the driving rules. SUMO handles intersections and signals in the city network, with vehicles following IDM. SUMO is a simulation platform, not a separate traffic model, so it is not compared side by side with NaSch, OVM and IDM.
+All formal simulations run on the same SUMO build, so ring-road and city-network results can be compared directly. The built-in NaSch model currently exists only in SUMO's development branch, and OVM must be compiled into SUMO, so the project builds SUMO from source and pins the exact code version (commit) to keep results reproducible. One member owns the build and the batch runs, which avoids version differences between computers. SUMO is a simulation platform, not a separate traffic model, so it is not compared side by side with NaSch, OVM and IDM.
+
+### 4.9 Model validation
+
+NaSch (new in SUMO) and OVM (our own code) must pass the following checks before any formal experiment:
+
+| Model | Check | Pass criterion |
+|---|---|---|
+| NaSch | Density sweep with slowdown probability p = 0 | The fundamental diagram matches the exact result: in cell and time-step units, flow J = min(ρ·vmax, 1 − ρ), peaking at ρ = 1/(vmax + 1) |
+| OVM | Several densities on each side of the instability condition V′(h) = a/2, with a small perturbation | On the stable side the perturbation decays; on the unstable side it grows into stop-and-go waves |
+| All | Vehicle count conserved, no negative speeds, no overlapping vehicles | Checked automatically in every run |
 
 ---
 
@@ -172,8 +197,8 @@ For experimental evidence that jams can form without any bottleneck, see [Sugiya
 | Item | Details |
 |---|---|
 | Goal | Find the critical density for the free-flow-to-jam transition on a road without traffic lights; test how it depends on the model, randomness and system size; distinguish spontaneous from bottleneck-induced congestion |
-| Setting | Single-lane ring road; vehicles neither enter nor leave; no traffic lights |
-| Models | NaSch, OVM, IDM |
+| Setting | Closed single-lane ring road in SUMO; vehicles neither enter nor leave; no traffic lights |
+| Models | NaSch, OVM, IDM (all run in SUMO; settings in 4.2–4.4) |
 | Control variables | ① **Vehicle density** (veh/km): swept from low to high, with finer steps near the transition<br>② **System size**: at least three ring lengths<br>③ **Randomness**: NaSch slowdown probability<br>④ **Bottleneck**: none / a reduced-speed section (representing a work zone, tunnel or similar capacity drop); a traffic light on the ring as an optional bridging case |
 | Held fixed | Only one control variable changes per experiment set; all other parameters, simulation length, warm-up period and seed set stay the same |
 | Measurements | Mean speed, flow at a fixed point, order parameter (fraction of jammed vehicles) and its fluctuations, jam locations, jam-wave speed |
@@ -295,13 +320,13 @@ The city network uses real topology, but the number of vehicles and their destin
 
 ## 9. Interactive Simulation Environment
 
-The web page is the project's **experiment console and visualization interface**. Ring-road experiments are computed live in the browser. City-network results come from SUMO: the formal runs are computed in advance and published with the site, and the page is used to pick parameters, replay runs and compare results.
+The web page is the project's **experiment console and visualization interface**. Formal results for both the ring road and the city network are computed in advance with SUMO and published with the site, and the page is used to pick parameters, replay runs and compare results. The page also offers a ring-road illustration that runs live in the browser.
 
 ```mermaid
 flowchart LR
     A[Web console<br/>choose model and parameters] --> B{Experiment type}
-    B --> C[Live in the browser<br/>ring road NaSch / OVM / IDM]
-    B --> D[Precomputed SUMO results<br/>city network]
+    B --> C[In-browser illustration<br/>ring road NaSch / OVM / IDM]
+    B --> D[Precomputed SUMO results<br/>ring road and city network]
     B -. when a local backend is running .-> G[Python backend<br/>live SUMO runs]
     C --> E[Vehicle trajectories and statistics]
     D --> E
@@ -309,39 +334,37 @@ flowchart LR
     E --> F[Animation, charts and run records on the page]
 ```
 
-### 9.1 Ring-road experiments in the browser
+### 9.1 Ring-road illustration in the browser
 
-The ring-road versions of NaSch, OVM and IDM are small enough to run in JavaScript directly in the browser. The page provides controls for the model, number of vehicles, road length, model parameters, perturbations, a bottleneck toggle and simulation length. When the user clicks "Run", the browser computes each time step and draws the animation and charts.
+To show intuitively how driving rules produce jams, the page runs a ring-road demo live in the browser with JavaScript. It has controls for the model, number of vehicles, road length, model parameters, perturbations, a bottleneck toggle and simulation length. Change one parameter and traffic immediately goes from smooth to jammed.
 
-This mode is for live exploration: change one parameter and immediately see traffic go from smooth to jammed. It is also a good way to show how simple individual rules produce collective behavior.
+The demo is for understanding and presentation only and is clearly labelled as an **illustration** on the page; every number in the report comes from SUMO.
 
-The ring-road results in the report are computed in batch with the Python version. The browser and Python versions share the same rules and parameters, and a common set of tests checks that they agree.
+### 9.2 Formal experiments: SUMO is the reference
 
-### 9.2 City-network experiments: SUMO is the reference
+All formal ring-road and city-network experiments are computed by SUMO, so the results are reliable, close to real traffic, and directly comparable across the two settings.
 
-City networks involve intersections, traffic lights, lane changes and routing. All of this is computed by SUMO, so the results are reliable and close to real traffic.
-
-The site is hosted on GitHub Pages, which serves static files only and cannot run Python or SUMO. City-network experiments therefore run in two ways:
+The site is hosted on GitHub Pages, which serves static files only and cannot run Python or SUMO. SUMO experiments therefore run in two ways:
 
 | Mode | How it works | Purpose |
 |---|---|---|
-| **Precomputed (main)** | Run every experiment combination locally with SUMO (network density × network scenario × random seed), export the results as data files, and publish them with the site | Formal results for the report; anyone opening the site can switch parameters, replay runs and compare scenarios |
+| **Precomputed (main)** | Run every experiment combination locally with SUMO (density × scenario × random seed), export the results as data files, and publish them with the site | Formal results for the report; anyone opening the site can switch parameters, replay runs and compare scenarios |
 | **Live local runs (supplementary)** | Start the Python backend locally; the page sends a configuration to it, and it runs SUMO and returns the results | Trying parameters outside the precomputed grid during group discussions or a live demo |
 
-The data published with the site are mostly aggregated: speed and flow on each link per time interval, network-level density–flow points, and short vehicle-trajectory clips from a few representative runs for the replay animation. Full raw outputs are stored separately and not published with the site.
+The data published with the site are mostly aggregated: fundamental-diagram and space–time data from the ring road, speed and flow on each link per time interval, network-level density–flow points, and short vehicle-trajectory clips from a few representative runs for the replay animation. Full raw outputs are stored separately and not published with the site.
 
 ### 9.3 Exploration versus formal results
 
 | Use | Ring road | City network |
 |---|---|---|
-| Exploration | Change any parameter in the browser and run it live | Switch between precomputed parameter combinations; use the local backend for new ones |
-| Formal results | Batch runs of the Python version over many random seeds | Batch SUMO runs over many random seeds, published with the site |
+| Exploration | Change any parameter in the browser illustration; switch between precomputed SUMO combinations | Switch between precomputed parameter combinations; use the local backend for new ones |
+| Formal results | Batch SUMO runs over many random seeds, published with the site | Batch SUMO runs over many random seeds, published with the site |
 
 Every formal result must save its configuration, random seeds, code version and output data, so that the page, the report figures and anyone reproducing the work all rely on the same records.
 
 Suggested views:
 
-1. **Ring road:** set the model, vehicle density and bottleneck on/off; watch the animation along with mean speed, flow and the space–time diagram.
+1. **Ring road:** view the fundamental diagrams, order parameter and space–time diagrams of the three models from SUMO, with the in-browser illustration alongside for intuition.
 2. **City network:** choose a network density; replay how link speeds evolve in the SUMO results, and view congested regions and the MFD.
 3. **Planning comparison:** pick a network modification and compare its SUMO-derived MFD and critical density side by side with the baseline.
 
@@ -356,10 +379,10 @@ For reference, see the traffic playback on [Traffic Simulation](https://traffic-
 | Deliverable | Contents |
 |---|---|
 | Research report | Model review, network representation, experimental design, critical-point analysis for highway and city network, planning application, discussion and limitations |
-| Simulation code | NaSch, OVM and IDM ring-road models, SUMO network scenarios, batch-run and analysis scripts |
+| Simulation code | OVM implementation in SUMO (C++), ring-road and network scenario configurations, model validation tests, batch-run and analysis scripts, web illustration |
 | Experimental data | Configurations, random seeds, summary statistics and representative vehicle trajectories |
 | Key figures | Fundamental diagrams for the three models, order parameter and fluctuation plots, with/without-bottleneck comparisons, space–time diagrams, MFDs, network heat maps, planning-scenario comparisons |
-| Interactive web page | Parameter setup, simulation runs, vehicle visualization, metric charts, model/scenario switching and explanations of results |
+| Interactive web page | Visualization, replay and comparison of SUMO results, ring-road illustration, model and scenario switching, explanations of results |
 | Presentation slides | About 15 minutes covering the research questions, methods, evidence and conclusions |
 
 A sound conclusion should state the observed phenomenon, the experimental conditions it depends on, the statistical uncertainty, and the gap between the model and reality.
