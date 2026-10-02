@@ -5,7 +5,7 @@
 window.I18N = {
   static: {
     zh: {
-      "meta.title": "ABM 交通建模",
+      "meta.title": "基于 Agent 的交通建模",
       "nav.label": "页面导航",
       "nav.overview": "概览",
       "nav.research": "研究",
@@ -37,7 +37,7 @@ window.I18N = {
       "overview.step2": "高速公路临界密度",
       "overview.step3": "城市路网临界密度",
       "overview.step4": "规划改动如何移动临界点",
-      "overview.note": "每一步只引入一个新因素，因此结果中的任何变化都能找到原因。<a href=\"https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview.md\">阅读完整概览 →</a>",
+      "overview.note": "每一步只引入一个新因素，因此结果中的任何变化都能找到原因。<a href=\"https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview.md\">阅读完整概览 →</a>",
 
       "research.h": "研究问题",
       "rq1.tag": "RQ1 · 阶段一",

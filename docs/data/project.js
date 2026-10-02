@@ -5,7 +5,7 @@
 
 window.PROJECT = {
   updated: "2026-10-02",
-  repo: "https://github.com/laozhongjie/abm-traffic-modeling",
+  repo: "https://github.com/laozhongjie/agent-based-traffic-modeling",
 
   // All times are Singapore time (UTC+8).
   deadlines: [
@@ -204,9 +204,9 @@ window.PROJECT = {
     {
       group: { en: "Project documents", zh: "项目文档" },
       links: [
-        { label: { en: "Project overview (English)", zh: "项目概览（英文）" }, url: "https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview_EN.md", note: { en: "Full description of questions, stages and methods", zh: "研究问题、实验阶段和方法的完整说明" } },
-        { label: { en: "Project overview (Chinese)", zh: "项目概览（中文）" }, url: "https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview.md", note: { en: "Chinese version", zh: "中文版" } },
-        { label: { en: "GitHub repository", zh: "GitHub 仓库" }, url: "https://github.com/laozhongjie/abm-traffic-modeling", note: { en: "Code, data and documents (private)", zh: "代码、数据和文档（私有）" } }
+        { label: { en: "Project overview (English)", zh: "项目概览（英文）" }, url: "https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview_EN.md", note: { en: "Full description of questions, stages and methods", zh: "研究问题、实验阶段和方法的完整说明" } },
+        { label: { en: "Project overview (Chinese)", zh: "项目概览（中文）" }, url: "https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview.md", note: { en: "Chinese version", zh: "中文版" } },
+        { label: { en: "GitHub repository", zh: "GitHub 仓库" }, url: "https://github.com/laozhongjie/agent-based-traffic-modeling", note: { en: "Code, data and documents (private)", zh: "代码、数据和文档（私有）" } }
       ]
     },
     {
