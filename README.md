@@ -15,4 +15,8 @@ This project studies the transition from free flow to congestion as a nonequilib
 | 15 Nov, 11:59 pm | Peer grading (Canvas Quiz) |
 | 22 Nov, 11:59 pm | Group report, data and code; individual report |
 
-The interactive experiment environment will be hosted on GitHub Pages (to be set up).
+## Project site
+
+The project hub (overview, timeline, progress) lives in [`docs/`](docs/) and is served by GitHub Pages from the `main` branch, `/docs` folder. The interactive simulation environment will be added to the same site later.
+
+To update the timeline or progress, edit [`docs/data/project.js`](docs/data/project.js): set each task's `status` to `todo`, `doing` or `done`, fill in workstream `owner`s, bump `updated`, then commit and push. To preview locally, open `docs/index.html` in a browser.

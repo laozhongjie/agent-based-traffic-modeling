@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ABM Traffic Modeling</title>
+  <meta name="description" content="Project hub: overview, timeline and progress for agent-based modeling of traffic congestion on road networks.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232f6fde' stroke-width='4'/%3E%3Ccircle cx='16' cy='5' r='3.5' fill='%23d9534f'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#top">ABM Traffic Modeling</a>
+      <nav aria-label="Sections">
+        <a href="#overview">Overview</a>
+        <a href="#research">Research</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#progress">Progress</a>
+        <a href="#requirements">Requirements</a>
+        <a href="#resources">Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero wrap">
+      <div class="hero-text">
+        <p class="eyebrow">Group project hub</p>
+        <h1>Agent-Based Modeling of Traffic Congestion on Road Networks</h1>
+        <p class="lede">How does free-flowing traffic tip into a jam? We simulate individual vehicles on a highway and on a real city network, locate the critical density where congestion takes over, and test how planning changes move it.</p>
+        <div class="next-deadline" id="next-deadline" aria-live="polite"></div>
+      </div>
+
+      <figure class="demo">
+        <canvas id="ring" width="360" height="360" aria-label="Animated ring road: vehicles following the Nagel–Schreckenberg rules"></canvas>
+        <div class="demo-controls">
+          <label for="density">Vehicle density <output id="density-out"></output></label>
+          <input type="range" id="density" min="5" max="60" step="1" value="22">
+          <div class="demo-row">
+            <button type="button" id="play">Pause</button>
+            <span class="demo-stats" id="demo-stats"></span>
+          </div>
+          <div class="legend"><span class="swatch jam"></span>stopped<span class="ramp" aria-hidden="true"></span><span class="swatch free"></span>free flow</div>
+        </div>
+        <figcaption>Preview: a NaSch ring road. Raise the density and watch jams appear and drift backwards. The full simulation environment will live on this site.</figcaption>
+      </figure>
+    </section>
+
+    <section id="overview" class="wrap section">
+      <h2>Overview</h2>
+      <p class="section-intro">Each driver reacts only to the car ahead, yet together they produce queues, stop-and-go waves and a drop in capacity. We treat the switch from free flow to congestion as a <strong>nonequilibrium phase transition</strong> and study it at two scales.</p>
+      <div class="grid two">
+        <article class="card">
+          <p class="tag">Stage 1 · Uninterrupted flow</p>
+          <h3>Highway</h3>
+          <p>A single-lane ring road with no traffic lights. Three vehicle models, a density sweep, and a single bottleneck to separate spontaneous jams from bottleneck-induced ones.</p>
+        </article>
+        <article class="card">
+          <p class="tag">Stages 2 & 3 · Interrupted flow</p>
+          <h3>City network</h3>
+          <p>A real urban district from OpenStreetMap with intersections, signals and speed limits. A network-density sweep, then planning changes such as closing a road or adding a link.</p>
+        </article>
+      </div>
+      <ol class="flow" aria-label="Research chain">
+        <li>Local driving rules</li>
+        <li>Highway critical density</li>
+        <li>City-network critical density</li>
+        <li>How planning shifts the critical point</li>
+      </ol>
+      <p class="note">One new factor per step, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview →</a></p>
+    </section>
+
+    <section id="research" class="wrap section">
+      <h2>Research questions</h2>
+      <div class="grid three">
+        <article class="card rq">
+          <p class="tag">RQ1 · Stage 1</p>
+          <h3>Phase transition on a highway</h3>
+          <p>What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?</p>
+        </article>
+        <article class="card rq">
+          <p class="tag">RQ2 · Stage 2</p>
+          <h3>Network-level critical point</h3>
+          <p>Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?</p>
+        </article>
+        <article class="card rq">
+          <p class="tag">RQ3 · Stage 3</p>
+          <h3>Planning shifts the critical point</h3>
+          <p>Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?</p>
+        </article>
+      </div>
+
+      <h3 class="subhead">Vehicle models</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>Space & time</th><th>Why jams form</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><strong>NaSch</strong></td><td>Discrete cells and steps</td><td>Random slowdowns</td><td>Noise-driven congestion</td></tr>
+            <tr><td><strong>OVM</strong></td><td>Continuous</td><td>Deterministic instability, V′(h) &gt; a/2</td><td>Theoretical threshold to check simulations</td></tr>
+            <tr><td><strong>IDM</strong></td><td>Continuous</td><td>Instability without collisions</td><td>Most realistic; also used in SUMO</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subhead">How we find the critical point</h3>
+      <div class="grid four">
+        <div class="metric"><strong>Order parameter</strong><span>Fraction of jammed vehicles, near 0 in free flow, rising sharply past the critical density.</span></div>
+        <div class="metric"><strong>Fluctuations</strong><span>Variance of the order parameter or flow peaks near the transition.</span></div>
+        <div class="metric"><strong>Finite size</strong><span>Repeat with longer roads: the transition should sharpen.</span></div>
+        <div class="metric"><strong>MFD peak</strong><span>For the city network, where network flow stops rising with density.</span></div>
+      </div>
+    </section>
+
+    <section id="timeline" class="wrap section">
+      <h2>Timeline</h2>
+      <p class="section-intro" id="timeline-status"></p>
+      <div class="timeline-bar" id="timeline-bar" aria-hidden="true"></div>
+      <ol class="phases" id="timeline-list"></ol>
+    </section>
+
+    <section id="progress" class="wrap section">
+      <h2>Progress</h2>
+      <div class="progress-summary" id="progress-summary"></div>
+      <p class="section-intro">Five workstreams of similar size. Pick one at kick-off; owners will be filled in here.</p>
+      <div class="grid workstreams" id="workstreams"></div>
+    </section>
+
+    <section id="requirements" class="wrap section">
+      <h2>Submission requirements</h2>
+      <div class="grid two">
+        <article class="card">
+          <h3>Presentation</h3>
+          <ul>
+            <li>15 minutes + 3 minutes Q&A per group</li>
+            <li>Slides submitted to the group in Canvas › People › Groups by <strong>5 Nov, 6:00 pm</strong></li>
+            <li>Peer grading via Canvas Quiz by <strong>15 Nov, 11:59 pm</strong></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Report</h3>
+          <ul>
+            <li>One group report, at least 10 pages excluding code, data and references</li>
+            <li>Group report, data and code, plus individual reports, by <strong>22 Nov, 11:59 pm</strong></li>
+            <li>AI prompts used in the project are attached to the report</li>
+          </ul>
+        </article>
+      </div>
+      <p class="note warn">Late submissions lose 20% per day.</p>
+    </section>
+
+    <section id="resources" class="wrap section">
+      <h2>Resources</h2>
+      <div class="grid two" id="resources-list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span id="updated"></span>
+      <span>Progress lives in <code>docs/data/project.js</code>. Edit, commit, push.</span>
+    </div>
+  </footer>
+
+  <script src="data/project.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
