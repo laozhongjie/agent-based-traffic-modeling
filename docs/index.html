@@ -12,145 +12,146 @@
   <header class="topbar">
     <div class="wrap topbar-inner">
       <a class="brand" href="#top">ABM Traffic Modeling</a>
-      <nav aria-label="Sections">
-        <a href="#overview">Overview</a>
-        <a href="#research">Research</a>
-        <a href="#timeline">Timeline</a>
-        <a href="#progress">Progress</a>
-        <a href="#requirements">Requirements</a>
-        <a href="#resources">Resources</a>
+      <nav aria-label="Sections" data-i18n-aria="nav.label">
+        <a href="#overview" data-i18n="nav.overview">Overview</a>
+        <a href="#research" data-i18n="nav.research">Research</a>
+        <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
+        <a href="#progress" data-i18n="nav.progress">Progress</a>
+        <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
+        <a href="#resources" data-i18n="nav.resources">Resources</a>
       </nav>
+      <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
     </div>
   </header>
 
   <main id="top">
     <section class="hero wrap">
       <div class="hero-text">
-        <p class="eyebrow">Group project hub</p>
-        <h1>Agent-Based Modeling of Traffic Congestion on Road Networks</h1>
-        <p class="lede">How does free-flowing traffic tip into a jam? We simulate individual vehicles on a highway and on a real city network, locate the critical density where congestion takes over, and test how planning changes move it.</p>
+        <p class="eyebrow" data-i18n="hero.eyebrow">Group project hub</p>
+        <h1 data-i18n="hero.title">Agent-Based Modeling of Traffic Congestion on Road Networks</h1>
+        <p class="lede" data-i18n="hero.lede">How does free-flowing traffic tip into a jam? We simulate individual vehicles on a highway and on a real city network, locate the critical density where congestion takes over, and test how planning changes move it.</p>
         <div class="next-deadline" id="next-deadline" aria-live="polite"></div>
       </div>
 
       <figure class="demo">
-        <canvas id="ring" width="360" height="360" aria-label="Animated ring road: vehicles following the Nagel–Schreckenberg rules"></canvas>
+        <canvas id="ring" width="360" height="360" aria-label="Animated ring road: vehicles following the Nagel–Schreckenberg rules" data-i18n-aria="demo.aria"></canvas>
         <div class="demo-controls">
-          <label for="density">Vehicle density <output id="density-out"></output></label>
+          <label for="density"><span data-i18n="demo.density">Vehicle density</span> <output id="density-out"></output></label>
           <input type="range" id="density" min="5" max="60" step="1" value="22">
           <div class="demo-row">
             <button type="button" id="play">Pause</button>
             <span class="demo-stats" id="demo-stats"></span>
           </div>
-          <div class="legend"><span class="swatch jam"></span>stopped<span class="ramp" aria-hidden="true"></span><span class="swatch free"></span>free flow</div>
+          <div class="legend"><span class="swatch jam"></span><span data-i18n="demo.stopped">stopped</span><span class="ramp" aria-hidden="true"></span><span class="swatch free"></span><span data-i18n="demo.free">free flow</span></div>
         </div>
-        <figcaption>Preview: a NaSch ring road. Raise the density and watch jams appear and drift backwards. The full simulation environment will live on this site.</figcaption>
+        <figcaption data-i18n="demo.caption">Preview: a NaSch ring road. Raise the density and watch jams appear and drift backwards. The full simulation environment will live on this site.</figcaption>
       </figure>
     </section>
 
     <section id="overview" class="wrap section">
-      <h2>Overview</h2>
-      <p class="section-intro">Each driver reacts only to the car ahead, yet together they produce queues, stop-and-go waves and a drop in capacity. We treat the switch from free flow to congestion as a <strong>nonequilibrium phase transition</strong> and study it at two scales.</p>
+      <h2 data-i18n="overview.h">Overview</h2>
+      <p class="section-intro" data-i18n="overview.intro">Each driver reacts only to the car ahead, yet together they produce queues, stop-and-go waves and a drop in capacity. We treat the switch from free flow to congestion as a <strong>nonequilibrium phase transition</strong> and study it at two scales.</p>
       <div class="grid two">
         <article class="card">
-          <p class="tag">Stage 1 · Uninterrupted flow</p>
-          <h3>Highway</h3>
-          <p>A single-lane ring road with no traffic lights. Three vehicle models, a density sweep, and a single bottleneck to separate spontaneous jams from bottleneck-induced ones.</p>
+          <p class="tag" data-i18n="overview.hwTag">Stage 1 · Uninterrupted flow</p>
+          <h3 data-i18n="overview.hwTitle">Highway</h3>
+          <p data-i18n="overview.hwText">A single-lane ring road with no traffic lights. Three vehicle models, a density sweep, and a single bottleneck to separate spontaneous jams from bottleneck-induced ones.</p>
         </article>
         <article class="card">
-          <p class="tag">Stages 2 & 3 · Interrupted flow</p>
-          <h3>City network</h3>
-          <p>A real urban district from OpenStreetMap with intersections, signals and speed limits. A network-density sweep, then planning changes such as closing a road or adding a link.</p>
+          <p class="tag" data-i18n="overview.cityTag">Stages 2 &amp; 3 · Interrupted flow</p>
+          <h3 data-i18n="overview.cityTitle">City network</h3>
+          <p data-i18n="overview.cityText">A real urban district from OpenStreetMap with intersections, signals and speed limits. A network-density sweep, then planning changes such as closing a road or adding a link.</p>
         </article>
       </div>
-      <ol class="flow" aria-label="Research chain">
-        <li>Local driving rules</li>
-        <li>Highway critical density</li>
-        <li>City-network critical density</li>
-        <li>How planning shifts the critical point</li>
+      <ol class="flow" aria-label="Research chain" data-i18n-aria="overview.chain">
+        <li data-i18n="overview.step1">Local driving rules</li>
+        <li data-i18n="overview.step2">Highway critical density</li>
+        <li data-i18n="overview.step3">City-network critical density</li>
+        <li data-i18n="overview.step4">How planning shifts the critical point</li>
       </ol>
-      <p class="note">One new factor per step, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview →</a></p>
+      <p class="note" data-i18n="overview.note">One new factor per step, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/abm-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview →</a></p>
     </section>
 
     <section id="research" class="wrap section">
-      <h2>Research questions</h2>
+      <h2 data-i18n="research.h">Research questions</h2>
       <div class="grid three">
         <article class="card rq">
-          <p class="tag">RQ1 · Stage 1</p>
-          <h3>Phase transition on a highway</h3>
-          <p>What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?</p>
+          <p class="tag" data-i18n="rq1.tag">RQ1 · Stage 1</p>
+          <h3 data-i18n="rq1.title">Phase transition on a highway</h3>
+          <p data-i18n="rq1.text">What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?</p>
         </article>
         <article class="card rq">
-          <p class="tag">RQ2 · Stage 2</p>
-          <h3>Network-level critical point</h3>
-          <p>Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?</p>
+          <p class="tag" data-i18n="rq2.tag">RQ2 · Stage 2</p>
+          <h3 data-i18n="rq2.title">Network-level critical point</h3>
+          <p data-i18n="rq2.text">Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?</p>
         </article>
         <article class="card rq">
-          <p class="tag">RQ3 · Stage 3</p>
-          <h3>Planning shifts the critical point</h3>
-          <p>Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?</p>
+          <p class="tag" data-i18n="rq3.tag">RQ3 · Stage 3</p>
+          <h3 data-i18n="rq3.title">Planning shifts the critical point</h3>
+          <p data-i18n="rq3.text">Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?</p>
         </article>
       </div>
 
-      <h3 class="subhead">Vehicle models</h3>
+      <h3 class="subhead" data-i18n="models.h">Vehicle models</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Model</th><th>Space & time</th><th>Why jams form</th><th>Role</th></tr></thead>
+          <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th></tr></thead>
           <tbody>
-            <tr><td><strong>NaSch</strong></td><td>Discrete cells and steps</td><td>Random slowdowns</td><td>Noise-driven congestion</td></tr>
-            <tr><td><strong>OVM</strong></td><td>Continuous</td><td>Deterministic instability, V′(h) &gt; a/2</td><td>Theoretical threshold to check simulations</td></tr>
-            <tr><td><strong>IDM</strong></td><td>Continuous</td><td>Instability without collisions</td><td>Most realistic; also used in SUMO</td></tr>
+            <tr><td><strong>NaSch</strong></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td></tr>
+            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, V′(h) &gt; a/2</td><td data-i18n="models.ovm.role">Theoretical threshold to check simulations</td></tr>
+            <tr><td><strong>IDM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Most realistic; also used in SUMO</td></tr>
           </tbody>
         </table>
       </div>
 
-      <h3 class="subhead">How we find the critical point</h3>
+      <h3 class="subhead" data-i18n="critical.h">How we find the critical point</h3>
       <div class="grid four">
-        <div class="metric"><strong>Order parameter</strong><span>Fraction of jammed vehicles, near 0 in free flow, rising sharply past the critical density.</span></div>
-        <div class="metric"><strong>Fluctuations</strong><span>Variance of the order parameter or flow peaks near the transition.</span></div>
-        <div class="metric"><strong>Finite size</strong><span>Repeat with longer roads: the transition should sharpen.</span></div>
-        <div class="metric"><strong>MFD peak</strong><span>For the city network, where network flow stops rising with density.</span></div>
+        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">Fraction of jammed vehicles, near 0 in free flow, rising sharply past the critical density.</span></div>
+        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">Variance of the order parameter or flow peaks near the transition.</span></div>
+        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat with longer roads: the transition should sharpen.</span></div>
+        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">For the city network, where network flow stops rising with density.</span></div>
       </div>
     </section>
 
     <section id="timeline" class="wrap section">
-      <h2>Timeline</h2>
+      <h2 data-i18n="timeline.h">Timeline</h2>
       <p class="section-intro" id="timeline-status"></p>
       <div class="timeline-bar" id="timeline-bar" aria-hidden="true"></div>
       <ol class="phases" id="timeline-list"></ol>
     </section>
 
     <section id="progress" class="wrap section">
-      <h2>Progress</h2>
+      <h2 data-i18n="progress.h">Progress</h2>
       <div class="progress-summary" id="progress-summary"></div>
-      <p class="section-intro">Five workstreams of similar size. Pick one at kick-off; owners will be filled in here.</p>
+      <p class="section-intro" data-i18n="progress.intro">Five workstreams of similar size. Pick one at kick-off; owners will be filled in here.</p>
       <div class="grid workstreams" id="workstreams"></div>
     </section>
 
     <section id="requirements" class="wrap section">
-      <h2>Submission requirements</h2>
+      <h2 data-i18n="req.h">Submission requirements</h2>
       <div class="grid two">
         <article class="card">
-          <h3>Presentation</h3>
+          <h3 data-i18n="req.pres">Presentation</h3>
           <ul>
-            <li>15 minutes + 3 minutes Q&A per group</li>
-            <li>Slides submitted to the group in Canvas › People › Groups by <strong>5 Nov, 6:00 pm</strong></li>
-            <li>Peer grading via Canvas Quiz by <strong>15 Nov, 11:59 pm</strong></li>
+            <li data-i18n="req.pres1">15 minutes + 3 minutes Q&amp;A per group</li>
+            <li data-i18n="req.pres2">Slides submitted to the group in Canvas › People › Groups by <strong>5 Nov, 6:00 pm</strong></li>
+            <li data-i18n="req.pres3">Peer grading via Canvas Quiz by <strong>15 Nov, 11:59 pm</strong></li>
           </ul>
         </article>
         <article class="card">
-          <h3>Report</h3>
+          <h3 data-i18n="req.report">Report</h3>
           <ul>
-            <li>One group report, at least 10 pages excluding code, data and references</li>
-            <li>Group report, data and code, plus individual reports, by <strong>22 Nov, 11:59 pm</strong></li>
-            <li>AI prompts used in the project are attached to the report</li>
+            <li data-i18n="req.report1">One group report, at least 10 pages excluding code, data and references</li>
+            <li data-i18n="req.report2">Group report, data and code, plus individual reports, by <strong>22 Nov, 11:59 pm</strong></li>
+            <li data-i18n="req.report3">AI prompts used in the project are attached to the report</li>
           </ul>
         </article>
       </div>
-      <p class="note warn">Late submissions lose 20% per day.</p>
+      <p class="note warn" data-i18n="req.late">Late submissions lose 20% per day.</p>
     </section>
 
     <section id="resources" class="wrap section">
-      <h2>Resources</h2>
+      <h2 data-i18n="resources.h">Resources</h2>
       <div class="grid two" id="resources-list"></div>
     </section>
   </main>
@@ -158,10 +159,11 @@
   <footer class="footer">
     <div class="wrap footer-inner">
       <span id="updated"></span>
-      <span>Progress lives in <code>docs/data/project.js</code>. Edit, commit, push.</span>
+      <span data-i18n="footer.howto">Progress lives in <code>docs/data/project.js</code>. Edit, commit, push.</span>
     </div>
   </footer>
 
+  <script src="assets/i18n.js"></script>
   <script src="data/project.js"></script>
   <script src="assets/app.js"></script>
 </body>

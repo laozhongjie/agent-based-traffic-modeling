@@ -90,11 +90,17 @@ code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; background: v
 .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; }
 .brand { font-weight: 700; color: var(--text); white-space: nowrap; }
 .brand:hover { text-decoration: none; }
-nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin-left: auto; min-width: 0; }
 nav::-webkit-scrollbar { display: none; }
 nav a { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
 nav a:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
-@media (max-width: 720px) { .brand { display: none; } nav { width: 100%; } }
+.lang-toggle {
+  flex: 0 0 auto; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text);
+}
+.lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 720px) { .brand { display: none; } nav { flex: 1; margin-left: 0; } }
 
 /* Hero */
 .hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; padding-top: 48px; padding-bottom: 32px; }
@@ -192,13 +198,13 @@ tr:last-child td { border-bottom: none; }
 
 .phases { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
 .phase {
-  display: grid; grid-template-columns: 140px 1fr; gap: 16px;
+  display: grid; grid-template-columns: 160px 1fr; gap: 16px;
   background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
   border-radius: var(--radius); padding: 14px 18px;
 }
 .phase.past { opacity: .6; border-left-color: var(--done); }
 .phase.current { border-left-color: var(--accent); box-shadow: var(--shadow); }
-.phase .when { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.phase .when { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .phase .when .badge { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); }
 .phase h3 { margin: 0 0 4px; font-size: 16px; }
 .phase ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
