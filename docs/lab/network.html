@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>City network · Agent-Based Traffic Modeling</title>
+  <meta name="description" content="Find the network-level critical density of a real urban district imported from OpenStreetMap, and watch local jams grow into congested regions.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232f6fde' stroke-width='4'/%3E%3Ccircle cx='16' cy='5' r='3.5' fill='%23d9534f'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-title-key="lab.net.meta">
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="../index.html">Agent-Based Traffic Modeling</a>
+      <nav aria-label="Experiment pages" data-i18n-aria="lab.navLabel">
+        <a href="../index.html" data-i18n="lab.nav.hub">Project hub</a>
+        <a href="ring.html" data-i18n="lab.nav.ring">Ring road</a>
+        <a href="network.html" data-i18n="lab.nav.net" aria-current="page">City network</a>
+        <a href="planning.html" data-i18n="lab.nav.plan">Planning</a>
+      </nav>
+      <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
+    </div>
+  </header>
+
+  <main class="wrap lab">
+    <header class="lab-head">
+      <p class="eyebrow" data-i18n="lab.net.tag">Stage 2 · RQ2</p>
+      <h1 data-i18n="lab.net.title">City network</h1>
+      <p class="lede" data-i18n="lab.net.lede">Find the network-level critical density of a real urban district imported from OpenStreetMap, and watch local jams grow into congested regions.</p>
+      <p class="status-note"><span class="chip" data-i18n="exp.reserved">Reserved</span><span data-i18n="lab.status">This page is reserved for the experiment environment. The boxes below show what each part will contain.</span></p>
+    </header>
+
+    <div class="lab-grid">
+      <aside class="card lab-controls">
+        <h2 class="lab-h" data-i18n="lab.controls">Controls</h2>
+        <ul class="planned">
+          <li><strong data-i18n="lab.net.c0">Network density</strong><span data-i18n="lab.net.c0d">\(k\) in veh/km per lane</span></li>
+          <li><strong data-i18n="lab.net.c1">Time</strong><span data-i18n="lab.net.c1d">Replay slider over \(t\)</span></li>
+          <li><strong data-i18n="lab.net.c2">Car-following model</strong><span data-i18n="lab.net.c2d">IDM (NaSch and OVM as optional checks)</span></li>
+          <li><strong data-i18n="lab.net.c3">Random seed</strong><span data-i18n="lab.net.c3d">Switch between repeated runs</span></li>
+        </ul>
+      </aside>
+      <section class="lab-main">
+        <div class="placeholder main"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.net.main">Network map</strong><span data-i18n="lab.net.maind">Links coloured by speed over time, with the largest congested cluster highlighted.</span></div>
+        <div class="grid two">
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.net.p0">Macroscopic fundamental diagram</strong><span data-i18n="lab.net.p0d">Network flow \(q\) against network density \(k\); the peak marks \(k_c\).</span></div>
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.net.p1">Largest congested cluster</strong><span data-i18n="lab.net.p1d">Share of road length in the largest congested cluster against density.</span></div>
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.net.p2">Betweenness and congestion onset</strong><span data-i18n="lab.net.p2d">Does edge betweenness predict where congestion starts?</span></div>
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.net.p3">Highway versus city</strong><span data-i18n="lab.net.p3d">Network critical density compared with the Stage 1 highway value.</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card lab-data">
+      <h2 class="lab-h" data-i18n="lab.data">Data</h2>
+      <p data-i18n="lab.net.data">Precomputed SUMO results will be stored in docs/data/network/: network geometry, link speeds per time interval, MFD points and short trajectory clips.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a href="../index.html" data-i18n="lab.back">← Back to project hub</a>
+    </div>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script defer src="../assets/i18n.js"></script>
+  <script defer src="../assets/common.js"></script>
+  <script defer src="../assets/lab.js"></script>
+</body>
+</html>

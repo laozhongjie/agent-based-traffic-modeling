@@ -197,7 +197,7 @@ tr:last-child td { border-bottom: none; }
 
 .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
 .metric strong { display: block; margin-bottom: 4px; }
-.metric span { color: var(--muted); font-size: 14px; }
+.metric > span { color: var(--muted); font-size: 14px; }
 
 /* Timeline */
 .timeline-bar { position: relative; height: 64px; margin: 8px 0 28px; }
@@ -263,8 +263,57 @@ tr:last-child td { border-bottom: none; }
 .res-list { list-style: none; padding: 0 !important; margin: 0; }
 .res-list li + li { margin-top: 8px !important; }
 .res-list a { font-weight: 600; }
-.res-list span { display: block; font-size: 13px; color: var(--muted); }
+.res-list li > span { display: block; font-size: 13px; color: var(--muted); }
 
 /* Footer */
 .footer { margin-top: 48px; border-top: 1px solid var(--border); padding: 20px 0 32px; color: var(--muted); font-size: 13px; }
 .footer-inner { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* Formulas (KaTeX) */
+.katex { font-size: 1.05em; }
+.eqs .eq { display: flex; flex-direction: column; }
+.eq-math { margin: 4px 0 12px; overflow-x: auto; overflow-y: hidden; color: var(--text); }
+.eq-math .katex-display { margin: 6px 0; }
+.eq p { font-size: 14px; }
+.metric-eq { margin-top: 10px; color: var(--text); font-size: 14px; overflow-x: auto; }
+
+/* Experiment entry cards on the hub */
+.chip {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+}
+.exp-card { display: flex; flex-direction: column; color: inherit; transition: border-color .15s, transform .15s; }
+.exp-card:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-2px); }
+.exp-card h3 { color: var(--text); }
+.exp-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; }
+.exp-open { font-size: 14px; font-weight: 600; color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .exp-card, .exp-card:hover { transition: none; transform: none; } }
+
+/* Current page in the top bar */
+nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); font-weight: 600; }
+
+/* Experiment pages */
+.lab { padding-top: 40px; }
+.lab-head { margin-bottom: 24px; }
+.lab-head .lede { max-width: 72ch; margin-bottom: 14px; }
+.status-note { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0; color: var(--muted); font-size: 14px; }
+.lab-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .lab-grid { grid-template-columns: 1fr; } }
+.lab-h { font-size: 16px; margin: 0 0 12px; }
+.planned { list-style: none; padding: 0 !important; margin: 0; }
+.planned li { padding: 10px 0; border-top: 1px solid var(--border); }
+.planned li:first-child { border-top: none; padding-top: 0; }
+.planned li > strong { display: block; font-size: 14px; color: var(--text); }
+.planned li > span { display: block; font-size: 13px; color: var(--muted); }
+.lab-main { display: grid; gap: 16px; }
+.placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  min-height: 200px; padding: 20px; border: 2px dashed var(--border); border-radius: var(--radius);
+  background: repeating-linear-gradient(135deg, transparent 0 12px, color-mix(in srgb, var(--surface-2) 55%, transparent) 12px 24px);
+  color: var(--muted); font-size: 14px;
+}
+.placeholder.main { min-height: 360px; }
+.placeholder > strong { color: var(--text); font-size: 16px; }
+.placeholder > span:not(.chip) { max-width: 46ch; }
+.lab-data { margin-top: 16px; }
+.lab-data p { font-size: 14px; }

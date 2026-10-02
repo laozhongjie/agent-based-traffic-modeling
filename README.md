@@ -21,4 +21,8 @@ The project hub (overview, timeline, progress) lives in [`docs/`](docs/) and is 
 
 The site has an English / Chinese toggle. To update the timeline or progress, edit [`docs/data/project.js`](docs/data/project.js): set each task's `status` to `todo`, `doing` or `done`, fill in workstream `owner`s, bump `updated`, then commit and push. Text fields there are `{ en, zh }`; fixed page text is translated in [`docs/assets/i18n.js`](docs/assets/i18n.js).
 
+Experiment pages live in [`docs/lab/`](docs/lab/) (`ring.html`, `network.html`, `planning.html`). They are reserved layouts for now and will be filled with precomputed SUMO results.
+
+Formulas are rendered with KaTeX: write `\( ... \)` for inline math and `\[ ... \]` for display math, in HTML, `i18n.js` or `project.js` (escape the backslash in JavaScript strings, e.g. `"\\(p = 0\\)"`). Shared language switching and math rendering live in [`docs/assets/common.js`](docs/assets/common.js).
+
 To preview locally, run `python3 -m http.server 8000` inside `docs/` and open http://127.0.0.1:8000/.

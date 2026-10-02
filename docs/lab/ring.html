@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Highway ring road · Agent-Based Traffic Modeling</title>
+  <meta name="description" content="Locate the critical density on a road without traffic lights, using fundamental diagrams, the order parameter and space–time diagrams of NaSch, OVM and IDM from SUMO.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232f6fde' stroke-width='4'/%3E%3Ccircle cx='16' cy='5' r='3.5' fill='%23d9534f'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-title-key="lab.ring.meta">
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="../index.html">Agent-Based Traffic Modeling</a>
+      <nav aria-label="Experiment pages" data-i18n-aria="lab.navLabel">
+        <a href="../index.html" data-i18n="lab.nav.hub">Project hub</a>
+        <a href="ring.html" data-i18n="lab.nav.ring" aria-current="page">Ring road</a>
+        <a href="network.html" data-i18n="lab.nav.net">City network</a>
+        <a href="planning.html" data-i18n="lab.nav.plan">Planning</a>
+      </nav>
+      <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
+    </div>
+  </header>
+
+  <main class="wrap lab">
+    <header class="lab-head">
+      <p class="eyebrow" data-i18n="lab.ring.tag">Stage 1 · RQ1</p>
+      <h1 data-i18n="lab.ring.title">Highway ring road</h1>
+      <p class="lede" data-i18n="lab.ring.lede">Locate the critical density on a road without traffic lights, using fundamental diagrams, the order parameter and space–time diagrams of NaSch, OVM and IDM from SUMO.</p>
+      <p class="status-note"><span class="chip" data-i18n="exp.reserved">Reserved</span><span data-i18n="lab.status">This page is reserved for the experiment environment. The boxes below show what each part will contain.</span></p>
+    </header>
+
+    <div class="lab-grid">
+      <aside class="card lab-controls">
+        <h2 class="lab-h" data-i18n="lab.controls">Controls</h2>
+        <ul class="planned">
+          <li><strong data-i18n="lab.ring.c0">Model</strong><span data-i18n="lab.ring.c0d">NaSch / OVM / IDM</span></li>
+          <li><strong data-i18n="lab.ring.c1">Vehicle density</strong><span data-i18n="lab.ring.c1d">\(k\) in veh/km</span></li>
+          <li><strong data-i18n="lab.ring.c2">System size</strong><span data-i18n="lab.ring.c2d">Ring length \(L\)</span></li>
+          <li><strong data-i18n="lab.ring.c3">Randomness</strong><span data-i18n="lab.ring.c3d">Slowdown probability \(p\) (NaSch only)</span></li>
+          <li><strong data-i18n="lab.ring.c4">Bottleneck</strong><span data-i18n="lab.ring.c4d">None / reduced-speed section / traffic light</span></li>
+          <li><strong data-i18n="lab.ring.c5">Random seed</strong><span data-i18n="lab.ring.c5d">Switch between repeated runs</span></li>
+        </ul>
+      </aside>
+      <section class="lab-main">
+        <div class="placeholder main"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.main">Ring-road view</strong><span data-i18n="lab.ring.maind">Replay of SUMO runs. The live in-browser illustration can be switched on for intuition.</span></div>
+        <div class="grid two">
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p0">Fundamental diagram</strong><span data-i18n="lab.ring.p0d">Flow \(q\) and mean speed \(\bar v\) against density \(k\) for the three models.</span></div>
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p1">Order parameter and fluctuations</strong><span data-i18n="lab.ring.p1d">\(\phi\) and \(\chi\) against density for several system sizes \(L\).</span></div>
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p2">Space–time diagram</strong><span data-i18n="lab.ring.p2d">Vehicle positions over time; jams appear as bands drifting backwards.</span></div>
+          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p3">Theory check (OVM)</strong><span data-i18n="lab.ring.p3d">Simulated critical density against the instability condition \(V'(h) &gt; a/2\).</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card lab-data">
+      <h2 class="lab-h" data-i18n="lab.data">Data</h2>
+      <p data-i18n="lab.ring.data">Precomputed SUMO results will be stored in docs/data/ring/. Every point on a chart will link to its run record (configuration, seed, SUMO commit).</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a href="../index.html" data-i18n="lab.back">← Back to project hub</a>
+    </div>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script defer src="../assets/i18n.js"></script>
+  <script defer src="../assets/common.js"></script>
+  <script defer src="../assets/lab.js"></script>
+</body>
+</html>

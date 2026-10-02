@@ -6,6 +6,7 @@
   <title>Agent-Based Traffic Modeling</title>
   <meta name="description" content="Project hub: overview, timeline and progress for agent-based modeling of traffic congestion on road networks.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232f6fde' stroke-width='4'/%3E%3Ccircle cx='16' cy='5' r='3.5' fill='%23d9534f'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -15,6 +16,7 @@
       <nav aria-label="Sections" data-i18n-aria="nav.label">
         <a href="#overview" data-i18n="nav.overview">Overview</a>
         <a href="#research" data-i18n="nav.research">Research</a>
+        <a href="#experiments" data-i18n="nav.experiments">Experiments</a>
         <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
         <a href="#progress" data-i18n="nav.progress">Progress</a>
         <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
@@ -100,19 +102,63 @@
           <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th><th data-i18n="models.col5">In SUMO</th></tr></thead>
           <tbody>
             <tr><td><strong>NaSch</strong></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td><td data-i18n="models.nasch.sumo">Built in (development branch)</td></tr>
-            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, V′(h) &gt; a/2</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td><td data-i18n="models.ovm.sumo"><strong>Our C++ implementation</strong></td></tr>
+            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, \(V'(h) > a/2\)</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td><td data-i18n="models.ovm.sumo"><strong>Our C++ implementation</strong></td></tr>
             <tr><td><strong>IDM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Closest to real driving; main model for the city network</td><td data-i18n="models.idm.sumo">Built in</td></tr>
           </tbody>
         </table>
       </div>
       <p class="note" data-i18n="models.note">All formal simulations, on the ring road and the city network, run on one SUMO build compiled from source at a fixed version, so every result is directly comparable.</p>
 
+      <h3 class="subhead" data-i18n="eq.h">Model equations</h3>
+      <div class="grid three eqs">
+        <article class="card eq">
+          <h3>NaSch</h3>
+          <div class="eq-math">\[\begin{aligned} v_i &\leftarrow \min(v_i+1,\ v_{\max}) \\ v_i &\leftarrow \min(v_i,\ g_i) \\ v_i &\leftarrow \max(v_i-1,\ 0) \\ x_i &\leftarrow x_i+v_i \end{aligned}\]</div>
+          <p data-i18n="eq.nasch">Accelerate, keep a safe gap, slow down at random with probability \(p\) (third line), then move. \(g_i\): empty cells ahead. All vehicles update in parallel.</p>
+        </article>
+        <article class="card eq">
+          <h3>OVM</h3>
+          <div class="eq-math">\[\frac{dv_i}{dt}=a\left[V(\Delta x_i)-v_i\right]\]\[V(h)=\frac{v_{\max}}{2}\left[\tanh(h-h_c)+\tanh h_c\right]\]</div>
+          <p data-i18n="eq.ovm">\(\Delta x_i\): headway to the car ahead; \(a\): sensitivity; \(h_c\): safety distance. Uniform flow becomes unstable when \(V'(h) > a/2\).</p>
+        </article>
+        <article class="card eq">
+          <h3>IDM</h3>
+          <div class="eq-math">\[\frac{dv_i}{dt}=a\left[1-\left(\frac{v_i}{v_0}\right)^{\delta}-\left(\frac{s^*(v_i,\Delta v_i)}{s_i}\right)^{2}\right]\]\[s^*(v,\Delta v)=s_0+\max\!\left(0,\ vT+\frac{v\,\Delta v}{2\sqrt{ab}}\right)\]</div>
+          <p data-i18n="eq.idm">\(s_i\): gap to the car ahead; \(\Delta v_i\): approach rate; \(v_0,\ T,\ s_0,\ a,\ b,\ \delta\): desired speed, time gap, minimum gap, maximum acceleration, comfortable deceleration and exponent.</p>
+        </article>
+      </div>
+
       <h3 class="subhead" data-i18n="critical.h">How we find the critical point</h3>
       <div class="grid four">
-        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">The share of jammed vehicles: near zero in free flow, rising sharply past the critical density.</span></div>
-        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">The variance of the order parameter, or of the flow, peaks at the transition.</span></div>
-        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat on longer roads; a true transition gets sharper.</span></div>
-        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">In the city network, the density at which total flow stops increasing.</span></div>
+        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">The share of jammed vehicles: near zero in free flow, rising sharply past the critical density.</span><div class="metric-eq">\(\phi = N_{\text{jam}}/N\)</div></div>
+        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">The variance of the order parameter, or of the flow, peaks at the transition.</span><div class="metric-eq">\(\chi = N\left(\langle\phi^2\rangle-\langle\phi\rangle^2\right)\)</div></div>
+        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat on longer roads; a true transition gets sharper.</span><div class="metric-eq">\(L_1 < L_2 < L_3\)</div></div>
+        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">In the city network, the density at which total flow stops increasing.</span><div class="metric-eq">\(k_c = \arg\max_k\, q(k)\)</div></div>
+      </div>
+    </section>
+
+    <section id="experiments" class="wrap section">
+      <h2 data-i18n="exp.h">Experiments</h2>
+      <p class="section-intro" data-i18n="exp.intro">Each stage has its own experiment page. The pages are reserved now and will be filled with SUMO results as the runs are completed.</p>
+      <div class="grid three">
+        <a class="card exp-card" href="lab/ring.html">
+          <p class="tag" data-i18n="exp.ring.tag">Stage 1 · RQ1</p>
+          <h3 data-i18n="exp.ring.title">Highway ring road</h3>
+          <p data-i18n="exp.ring.text">Fundamental diagrams, order parameter and space–time diagrams for NaSch, OVM and IDM.</p>
+          <span class="exp-foot"><span class="chip" data-i18n="exp.reserved">Reserved</span><span class="exp-open" data-i18n="exp.open">Open page →</span></span>
+        </a>
+        <a class="card exp-card" href="lab/network.html">
+          <p class="tag" data-i18n="exp.net.tag">Stage 2 · RQ2</p>
+          <h3 data-i18n="exp.net.title">City network</h3>
+          <p data-i18n="exp.net.text">Network map, macroscopic fundamental diagram and congested clusters on a real urban district.</p>
+          <span class="exp-foot"><span class="chip" data-i18n="exp.reserved">Reserved</span><span class="exp-open" data-i18n="exp.open">Open page →</span></span>
+        </a>
+        <a class="card exp-card" href="lab/planning.html">
+          <p class="tag" data-i18n="exp.plan.tag">Stage 3 · RQ3</p>
+          <h3 data-i18n="exp.plan.title">Planning scenarios</h3>
+          <p data-i18n="exp.plan.text">Road closure, new link and signal timing, compared by how far they shift the critical density.</p>
+          <span class="exp-foot"><span class="chip" data-i18n="exp.reserved">Reserved</span><span class="exp-open" data-i18n="exp.open">Open page →</span></span>
+        </a>
       </div>
     </section>
 
@@ -166,8 +212,11 @@
     </div>
   </footer>
 
-  <script src="assets/i18n.js"></script>
-  <script src="data/project.js"></script>
-  <script src="assets/app.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script defer src="assets/i18n.js"></script>
+  <script defer src="data/project.js"></script>
+  <script defer src="assets/common.js"></script>
+  <script defer src="assets/app.js"></script>
 </body>
 </html>

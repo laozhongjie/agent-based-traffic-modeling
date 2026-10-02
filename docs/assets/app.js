@@ -2,43 +2,11 @@
   "use strict";
 
   const P = window.PROJECT;
-  const I = window.I18N;
+  const Site = window.Site;
   const TZ = "Asia/Singapore";
   const DAY = 86400000;
-
-  // ---------- language ----------
-  function initialLang() {
-    try {
-      const saved = localStorage.getItem("lang");
-      if (saved === "en" || saved === "zh") return saved;
-    } catch (e) { /* storage unavailable */ }
-    return (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
-  }
-  let lang = initialLang();
-  const tr = (v) => (v == null ? "" : typeof v === "string" ? v : v[lang] != null ? v[lang] : v.en);
-  const U = () => I.ui[lang];
-
-  // English text is the page's original markup; capture it once so we can switch back.
-  const original = new Map();
-  document.querySelectorAll("[data-i18n]").forEach((el) => original.set(el, el.innerHTML));
-  const originalAria = new Map();
-  document.querySelectorAll("[data-i18n-aria]").forEach((el) => originalAria.set(el, el.getAttribute("aria-label")));
-  const originalTitle = document.title;
-
-  function applyStatic() {
-    const zh = I.static.zh;
-    original.forEach((html, el) => {
-      const key = el.dataset.i18n;
-      el.innerHTML = lang === "zh" && zh[key] != null ? zh[key] : html;
-    });
-    originalAria.forEach((label, el) => {
-      const key = el.dataset.i18nAria;
-      el.setAttribute("aria-label", lang === "zh" && zh[key] != null ? zh[key] : label);
-    });
-    document.title = lang === "zh" ? zh["meta.title"] : originalTitle;
-    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
-    document.getElementById("lang-toggle").textContent = U().switchTo;
-  }
+  const tr = Site.tr;
+  const U = Site.ui;
 
   // ---------- helpers ----------
   function h(tag, attrs, children) {
@@ -59,11 +27,11 @@
   const dayStart = (d) => new Date(d + "T00:00:00+08:00");
   const dayEnd = (d) => new Date(d + "T23:59:59+08:00");
   function fmtDay(date, opts) {
-    const base = lang === "zh" ? { month: "long", day: "numeric" } : { day: "numeric", month: "short" };
-    return date.toLocaleDateString(lang === "zh" ? "zh-CN" : "en-GB", Object.assign(base, { timeZone: TZ }, opts));
+    const base = Site.lang === "zh" ? { month: "long", day: "numeric" } : { day: "numeric", month: "short" };
+    return date.toLocaleDateString(Site.lang === "zh" ? "zh-CN" : "en-GB", Object.assign(base, { timeZone: TZ }, opts));
   }
   function fmtTime(date) {
-    return lang === "zh"
+    return Site.lang === "zh"
       ? date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: TZ })
       : date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: TZ }).toLowerCase();
   }
@@ -86,7 +54,7 @@
     const days = Math.floor(ms / DAY);
     const big = days >= 1 ? String(days) : String(Math.max(1, Math.ceil(ms / 3600000)));
     const unit = days >= 1 ? (days === 1 ? U().dayLeft : U().daysLeft) : U().hoursLeft;
-    const when = lang === "zh"
+    const when = Site.lang === "zh"
       ? fmtDay(next.at, { weekday: "short" }) + " " + fmtTime(next.at) + "（" + U().tz + "）"
       : fmtDay(next.at, { weekday: "short" }) + ", " + fmtTime(next.at) + " " + U().tz;
     box.append(
@@ -155,7 +123,7 @@
     const score = tasks.reduce((s, t) => s + (WEIGHT[t.status] || 0), 0);
     return { c, total: tasks.length, pct: tasks.length ? Math.round((score / tasks.length) * 100) : 0 };
   }
-  const countText = (n, key) => (lang === "zh" ? U()[key] + " " + n : n + " " + U()[key]);
+  const countText = (n, key) => (Site.lang === "zh" ? U()[key] + " " + n : n + " " + U()[key]);
   function barEl(k) {
     const label = [countText(k.c.done, "done"), countText(k.c.doing, "doing"), countText(k.c.todo, "todo")].join(", ");
     return h("div", { class: "bar", role: "img", "aria-label": label }, [
@@ -341,20 +309,15 @@
 
   // ---------- boot ----------
   function renderAll() {
-    applyStatic();
     renderNextDeadline();
     renderTimeline();
     renderProgress();
     renderResources();
   }
 
+  Site.init();
   renderAll();
   const demo = ringDemo();
-
-  document.getElementById("lang-toggle").addEventListener("click", () => {
-    lang = lang === "zh" ? "en" : "zh";
-    try { localStorage.setItem("lang", lang); } catch (e) { /* storage unavailable */ }
-    renderAll();
-    demo.relabel();
-  });
+  Site.onChange(() => { renderAll(); demo.relabel(); });
+  Site.renderMath();
 })();
