@@ -17,7 +17,7 @@ This project studies the transition from free flow to congestion as a nonequilib
 
 ## Project site
 
-The project hub (overview, timeline, progress) lives in [`docs/`](docs/) and is served by GitHub Pages from the `main` branch, `/docs` folder. The interactive simulation environment will be added to the same site later.
+The project hub (overview, timeline, progress) lives in [`docs/`](docs/) and is published at https://laozhongjie.github.io/agent-based-traffic-modeling/. The [GitHub Pages workflow](.github/workflows/pages.yml) deploys `docs/` on each push to `main`, and can also be run manually from the repository's Actions tab. The interactive simulation environment will be added to the same site later.
 
 The site has an English / Chinese toggle. To update the timeline or progress, edit [`docs/data/project.js`](docs/data/project.js): set each task's `status` to `todo`, `doing` or `done`, fill in workstream `owner`s, bump `updated`, then commit and push. Text fields there are `{ en, zh }`; fixed page text is translated in [`docs/assets/i18n.js`](docs/assets/i18n.js).
 
