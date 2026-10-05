@@ -1,5 +1,7 @@
 # Agent-Based Modeling of Traffic Congestion on Road Networks
 
+[English](README.md) | [中文](README_zh.md)
+
 This project studies the transition from free flow to congestion as a nonequilibrium phase transition, first on a highway ring road and then on a city road network.
 
 ## Project overview
