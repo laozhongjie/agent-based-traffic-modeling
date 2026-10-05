@@ -85,6 +85,28 @@ code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; background: v
 
 .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 
+html[data-site-locked] body > :not(.access-gate):not(noscript) { display: none !important; }
+.access-gate {
+  min-height: 100vh; min-height: 100dvh;
+  display: grid; place-items: center; padding: 24px 16px;
+}
+.access-card {
+  width: 100%; max-width: 460px; padding: 28px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.access-card h1 { font-size: 26px; line-height: 1.35; }
+.access-card p { color: var(--muted); }
+.access-card label { display: block; margin-bottom: 8px; font-weight: 600; }
+.access-card input {
+  width: 100%; min-height: 44px; padding: 10px 12px; font: inherit;
+  color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.access-card input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.access-card .access-error { min-height: 1.6em; font-size: 14px; color: var(--jam); }
+.access-card button { width: 100%; justify-content: center; cursor: pointer; font: inherit; }
+
 /* Top bar */
 .topbar {
   position: sticky; top: 0; z-index: 10;
