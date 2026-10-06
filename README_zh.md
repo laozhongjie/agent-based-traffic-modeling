@@ -23,9 +23,9 @@
 
 访问任意页面时，输入公用密码 `pc5253` 或 `PC5253`。当前浏览器标签页会记住验证状态，直到标签页关闭。这是用于限制普通访问的前端密码入口：GitHub Pages 仍公开提供静态文件，密码和页面内容可以被查看，验证也可以被绕过。请勿用它保护敏感内容。
 
-项目网站的概览、时间线和进度页面位于 [`docs/`](docs/)。[GitHub Pages 工作流](.github/workflows/pages.yml) 会在每次推送到 `main` 后自动部署 `docs/`，也可以从仓库的 Actions 页面手动运行。后续的交互式仿真环境将加入同一网站。
+项目网站的概览、时间线和进度页面位于 [`docs/`](docs/)。[GitHub Pages 工作流](.github/workflows/pages.yml) 会在每次推送到 `main` 后自动部署 `docs/`，也可以从仓库的 Actions 页面手动运行。正式实验通过命令行运行，导出的结果将在网站上展示。
 
-网站支持中英文切换。更新时间线或进度时，编辑 [`docs/data/project.js`](docs/data/project.js)：将各任务的 `status` 设为 `todo`（待开始）、`doing`（进行中）或 `done`（已完成），填写各工作方向的 `owner`，更新 `updated`，然后提交并推送。其中的文本字段使用 `{ en, zh }` 结构；页面固定文案的译文位于 [`docs/assets/i18n.js`](docs/assets/i18n.js)。
+网站支持中英文切换。网页中的工作方向仅为展示草案，团队尚未确定实际分工。更新时间线或进度时，编辑 [`docs/data/project.js`](docs/data/project.js)：将各任务的 `status` 设为 `todo`（待开始）、`doing`（进行中）或 `done`（已完成），分工确定后再填写 `owner`，更新 `updated`，然后提交并推送。其中的文本字段使用 `{ en, zh }` 结构；页面固定文案的译文位于 [`docs/assets/i18n.js`](docs/assets/i18n.js)。
 
 实验页面位于 [`docs/lab/`](docs/lab/)，包括 `ring.html`、`network.html` 和 `planning.html`。目前这些页面仅预留布局，后续将填入预先计算的 SUMO 结果。
 
@@ -34,3 +34,68 @@
 公式使用 KaTeX 渲染。在 HTML、`i18n.js` 或 `project.js` 中，使用 `\( ... \)` 表示行内公式，使用 `\[ ... \]` 表示独立公式。JavaScript 字符串中的反斜杠需要转义，例如 `"\\(p = 0\\)"`。共用的语言切换和公式渲染逻辑位于 [`docs/assets/common.js`](docs/assets/common.js)。
 
 本地预览时，在 `docs/` 目录中运行 `python3 -m http.server 8000`，然后打开 http://127.0.0.1:8000/。
+
+## 仓库目录
+
+以下为目标目录结构。目前仓库已有项目概览和网站；实验目录及环境文件在开始实现时按需添加。目录名称表示文件职责，不代表团队分工。
+
+```text
+.
+├── README.md / README_zh.md
+├── Project_Overview.md / Project_Overview_EN.md
+├── environment.yml             # 可复现的 Python 环境
+├── .github/workflows/          # 网站部署及后续自动检查
+├── research/                   # 实验协议、验证方法、设计决策
+├── sumo/
+│   ├── version.txt             # 固定的上游 SUMO commit
+│   └── patches/                # OVM 实现及注册、构建改动
+├── scenarios/                  # SUMO 道路、路线和信号输入
+│   ├── ring/                   # 环路及瓶颈变体
+│   ├── grid/                   # 验证流程的 4×4 网格
+│   └── city/                   # 基准、封路和新增连接变体
+├── configs/                    # 参数、扫描组合、种子和运行时长
+│   ├── validation/
+│   ├── ring/
+│   ├── network/
+│   └── planning/
+├── src/traffic_project/        # 共用的模拟和分析代码
+│   ├── runner.py               # SUMO/TraCI 运行与实验记录
+│   ├── demand.py               # 目的地、路线及车辆数控制
+│   ├── measurements.py         # 统一指标定义
+│   ├── analysis/               # 临界点、涨落及拥堵簇分析
+│   └── export_web.py           # 导出精简网页数据
+├── scripts/                    # 命令行入口
+├── tests/                      # 模型、控制器和指标检查
+├── data/                       # 外部数据，与实验输出分开
+│   ├── raw/                    # OSM、PeMS、highD 或 LTA 原始数据
+│   └── processed/              # 清洗后的外部数据
+├── runs/                       # 各次运行的记录、日志和 SUMO 输出
+├── results/                    # 汇总统计及程序生成的图表
+├── reports/                    # 报告和幻灯片源文件
+└── docs/                       # 发布的网站，保留现有结构
+    ├── index.html
+    ├── assets/                 # 共用样式、脚本和原理演示
+    ├── models/                 # NaSch、OVM 和 IDM 介绍
+    ├── lab/                    # 环路、路网和规划结果页面
+    └── data/
+        ├── project.js          # 网站时间安排和进度
+        ├── ring/               # 阶段一导出结果
+        ├── network/            # 阶段二导出结果
+        └── planning/           # 阶段三导出对照
+```
+
+- `scenarios/` 定义道路和交通场景，`configs/` 定义实验组合。环路上的三种模型共用运行和分析流程。
+- `runs/<run-id>/` 保存本次运行的完整配置、随机种子、项目与 SUMO 版本、场景标识、验证结果、日志和输出。`results/` 汇总这些运行；每个发布的数据点应保留来源运行编号。
+- `docs/data/` 存放由有效实验结果生成的精简数据。GitHub Pages 会发布整个 `docs/`，完整轨迹、私有数据和实验输入应保存在该目录之外。
+- 上游 SUMO 源码和编译目录放在仓库之外，仓库保存版本记录及 OVM 集成改动。大体积原始数据和模拟输出使用外部存储，并记录获取方式。生成这些文件前先配置 `.gitignore`；当前忽略规则尚未排除这些计划中的数据目录。
+
+## 实验工作流程
+
+1. 确定实验协议和配置：单位、模型参数、密度网格、种子、初态、预热与观测时长，以及拥堵判据。固定包含 OVM 的 SUMO 构建。
+2. 通过命令行验证：NaSch 对照确定性解析结果，OVM 对照稳定性预测，城市控制器先在 4×4 网格验证。检查车辆数、非负速度和车辆重叠。
+3. 通过命令行批量运行 SUMO：先做环路比较，再做城市路网密度扫描，最后比较规划方案。规划实验沿用基准的密度网格和种子组，并记录各方案的车道总长度与车辆数。
+4. 按运行编号保存输出，检查有效性并保留失败诊断。排除预热段后计算统计量，汇总重复运行，在候选临界区间附近加密密度取点。
+5. 生成报告图表，同时将对应精简数据导出到 `docs/data/ring/`、`docs/data/network/` 和 `docs/data/planning/`。
+6. 检查网页展示与导出结果一致，再提交并推送。结果页控件用于选择已有计算组合或回放时刻；新参数组合需要重新通过命令行运行并导出。浏览器原理演示用于教学说明。
+
+实验命令行工具尚待实现；此处说明目标流程，不是现有命令的使用手册。
