@@ -29,6 +29,8 @@ The site has an English / Chinese toggle. To update the timeline or progress, ed
 
 Experiment pages live in [`docs/lab/`](docs/lab/) (`ring.html`, `network.html`, `planning.html`). They are reserved layouts for now and will be filled with precomputed SUMO results.
 
+Detailed bilingual introductions to [NaSch](docs/models/nasch.html), [OVM](docs/models/ovm.html) and [IDM](docs/models/idm.html) live in [`docs/models/`](docs/models/). Open them from the model names in the homepage's vehicle-model table. They explain each model's equations, parameters, congestion mechanism and limitations, with links to the original papers.
+
 Formulas are rendered with KaTeX: write `\( ... \)` for inline math and `\[ ... \]` for display math, in HTML, `i18n.js` or `project.js` (escape the backslash in JavaScript strings, e.g. `"\\(p = 0\\)"`). Shared language switching and math rendering live in [`docs/assets/common.js`](docs/assets/common.js).
 
 To preview locally, run `python3 -m http.server 8000` inside `docs/` and open http://127.0.0.1:8000/.

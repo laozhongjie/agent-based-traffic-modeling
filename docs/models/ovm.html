@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" data-site-locked="true">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../assets/access.js"></script>
+  <title>OVM · Agent-Based Traffic Modeling</title>
+  <meta name="description" content="A detailed introduction to the Optimal Velocity Model: headway, desired speed, relaxation dynamics and traffic-flow instability.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-title-key="model.ovm.meta">
+  <noscript><main class="access-gate">Enable JavaScript to enter the password. / 请启用 JavaScript 后输入密码。</main></noscript>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="../index.html">Agent-Based Traffic Modeling</a>
+      <nav aria-label="Model pages" data-i18n-aria="model.nav">
+        <a href="../index.html" data-i18n="lab.nav.hub">Project hub</a>
+        <a href="nasch.html">NaSch</a>
+        <a href="ovm.html" aria-current="page">OVM</a>
+        <a href="idm.html">IDM</a>
+      </nav>
+      <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
+    </div>
+  </header>
+
+  <main class="wrap model-page">
+    <header class="model-head">
+      <p class="eyebrow" data-i18n="model.ovm.tag">Continuous · Deterministic · Car following</p>
+      <h1 data-i18n="model.ovm.title">Optimal Velocity Model (OVM)</h1>
+      <p class="lede" data-i18n="model.ovm.lede">A driver chooses a desired speed from the distance to the car ahead and gradually adjusts to it. Even with no random braking, small disturbances can grow when the response is too slow.</p>
+      <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
+    </header>
+
+    <div class="model-grid">
+      <section class="card model-card" data-i18n="model.ovm.idea">
+        <h2>1. Basic idea</h2>
+        <p>Introduced by Bando and colleagues in 1995, OVM models continuous positions and speeds. The optimal-velocity function \(V(h)\) assigns a desired speed to each headway: close vehicles prefer low speed; widely spaced vehicles approach a free-flow speed.</p>
+        <p>“Optimal” names the prescribed speed function. It does not mean each driver solves a route or travel-time optimization problem.</p>
+      </section>
+      <section class="card model-card" data-i18n="model.ovm.state">
+        <h2>2. State and distance conventions</h2>
+        <p>Let \(x_i(t)\) and \(v_i(t)\) be position and speed. Headway \(h_i=x_{i+1}-x_i\) is the distance between corresponding points on successive vehicles. On a ring, it is measured forward around the boundary.</p>
+        <p>Headway is not the empty bumper-to-bumper gap. For identical vehicle length \(\ell_{\mathrm{veh}}\), that gap is \(s_i=h_i-\ell_{\mathrm{veh}}\). Keep this distinction when translating an analytical OVM into SUMO.</p>
+      </section>
+    </div>
+
+    <section class="card model-equation" data-i18n="model.ovm.equations">
+      <h2>3. Relaxation toward the desired speed</h2>
+      <div class="eq-math">\[\frac{dx_i}{dt}=v_i,\qquad \frac{dv_i}{dt}=\alpha[V(h_i)-v_i]\]</div>
+      <p>If a car is slower than its desired speed, it accelerates. If it is faster, it decelerates. The sensitivity \(\alpha>0\) has units s\(^{-1}\), and \(1/\alpha\) is the relaxation time, not an explicit reaction delay.</p>
+      <p>A dimensionally consistent version of a common smooth function is:</p>
+      <div class="eq-math">\[V(h)=\frac{v_{\max}}{1+\tanh(h_c/d)}\left[\tanh\left(\frac{h-h_c}{d}\right)+\tanh\left(\frac{h_c}{d}\right)\right]\]</div>
+      <p class="caption">This choice gives \(V(0)=0\) and \(V(h)\to v_{\max}\) for large headway. The homepage's shorter \(v_{\max}/2\) form is often written in scaled coordinates; its parameter is an amplitude, with large-headway limit \(v_{\max}[1+\tanh(h_c)]/2\). Fix the length scaling and normalization before a quantitative comparison.</p>
+    </section>
+
+    <section class="model-section" data-i18n="model.ovm.parameters">
+      <h2>4. Parameters and physical units</h2>
+      <div class="table-wrap"><table class="model-table">
+        <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
+        <tbody>
+          <tr><td>\(\alpha\)</td><td>Sensitivity in s\(^{-1}\). A larger value gives faster relaxation toward \(V(h)\).</td></tr>
+          <tr><td>\(v_{\max}\)</td><td>Asymptotic desired speed in m/s for the normalized function above.</td></tr>
+          <tr><td>\(h_c,\ d\)</td><td>Transition headway and smoothing length in m. \(h_c\) locates the steepest part of the curve; smaller \(d\) makes the speed response to headway steeper.</td></tr>
+          <tr><td>\(h_0=L/N\)</td><td>Uniform headway in m on a ring of physical length \(L\) with \(N\) vehicles. Density in veh/km is \(1000/h_0\).</td></tr>
+          <tr><td>\(\Delta t\)</td><td>Numerical integration step in s, not a defining OVM parameter. Check convergence as the step is reduced.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="model-section" data-i18n="model.ovm.stability">
+      <h2>5. Uniform flow and instability</h2>
+      <p>In uniform flow, every headway equals \(h_0\) and every speed equals \(V(h_0)\). Linearizing around this state gives, for the standard homogeneous OVM and long-wavelength disturbances on a large ring, the stability condition \(V'(h_0)&lt;\alpha/2\). The boundary is \(V'(h_0)=\alpha/2\).</p>
+      <div class="eq-math">\[V'(h)=\frac{v_{\max}}{d[1+\tanh(h_c/d)]}\operatorname{sech}^2\left(\frac{h-h_c}{d}\right)\]</div>
+      <p>When \(V'(h_0)&gt;\alpha/2\), a small change in headway demands a large change in desired speed, and delayed relaxation can amplify the disturbance. Cars alternately brake and accelerate, generating stop-and-go waves without stochastic forcing.</p>
+      <p>This criterion depends on the model and background state. A finite ring has discrete perturbation modes, so its threshold may differ from the long-wavelength limit. Nonlinear jams and numerical safeguards also require separate checks.</p>
+    </section>
+
+    <div class="model-grid model-section">
+      <section class="card model-card" data-i18n="model.ovm.limits">
+        <h2>6. Strengths and limitations</h2>
+        <ul>
+          <li>A compact mechanism with an analytical stability condition: useful for separating deterministic instability from random noise.</li>
+          <li>The basic acceleration law uses headway and own speed, with no separate closing-speed term.</li>
+          <li>It does not guarantee collision avoidance or realistic acceleration bounds. Extreme conditions and numerical integration can produce unphysical states.</li>
+          <li>Any clipping, emergency braking or safety override changes the simulated dynamics and must be documented.</li>
+        </ul>
+      </section>
+      <section class="card model-card" data-i18n="model.ovm.project">
+        <h2>7. Role in this project</h2>
+        <p>OVM supplies the deterministic theory reference. Perturb uniform ring-road flow slightly, sweep density and sensitivity, and compare perturbation growth with the analytical prediction.</p>
+        <p>The project plans a C++ implementation in the fixed SUMO build. Verify the exact \(V(h)\), headway definition, integrator and safety interventions before comparing it with the theoretical model.</p>
+      </section>
+    </div>
+
+    <section class="model-section" data-i18n="model.ovm.reference">
+      <h2>8. Original paper</h2>
+      <p>M. Bando, K. Hasebe, A. Nakayama, A. Shibata and Y. Sugiyama (1995), <em>Dynamical model of traffic congestion and numerical simulation</em>, Physical Review E, 51, 1035–1042. <a href="https://doi.org/10.1103/PhysRevE.51.1035">Read the original paper →</a></p>
+    </section>
+    <div class="model-links">
+      <a class="btn" href="../lab/ring.html" data-i18n="model.ring">Open ring-road experiment →</a>
+      <a class="btn" href="idm.html" data-i18n="model.toIdm">Next: IDM →</a>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-inner"><a href="../index.html" data-i18n="lab.back">← Back to project hub</a></div></footer>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script defer src="../assets/i18n.js"></script>
+  <script defer src="../assets/model-i18n.js"></script>
+  <script defer src="../assets/common.js"></script>
+  <script defer src="../assets/model.js"></script>
+</body>
+</html>

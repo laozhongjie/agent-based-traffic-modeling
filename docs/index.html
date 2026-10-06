@@ -98,14 +98,15 @@
         </article>
       </div>
 
-      <h3 class="subhead" data-i18n="models.h">Vehicle models</h3>
+      <h3 class="subhead" id="models" data-i18n="models.h">Vehicle models</h3>
+      <p class="note" data-i18n="models.open">Click a model name to read its detailed introduction, equations, parameters and limitations.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th><th data-i18n="models.col5">In SUMO</th></tr></thead>
           <tbody>
-            <tr><td><strong>NaSch</strong></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td><td data-i18n="models.nasch.sumo">Built in (development branch)</td></tr>
-            <tr><td><strong>OVM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, \(V'(h) > a/2\)</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td><td data-i18n="models.ovm.sumo"><strong>Our C++ implementation</strong></td></tr>
-            <tr><td><strong>IDM</strong></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Closest to real driving; main model for the city network</td><td data-i18n="models.idm.sumo">Built in</td></tr>
+            <tr><td><a href="models/nasch.html"><strong>NaSch</strong></a></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td><td data-i18n="models.nasch.sumo">Built in (development branch)</td></tr>
+            <tr><td><a href="models/ovm.html"><strong>OVM</strong></a></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, \(V'(h) > a/2\)</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td><td data-i18n="models.ovm.sumo"><strong>Our C++ implementation</strong></td></tr>
+            <tr><td><a href="models/idm.html"><strong>IDM</strong></a></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Closest to real driving; main model for the city network</td><td data-i18n="models.idm.sumo">Built in</td></tr>
           </tbody>
         </table>
       </div>

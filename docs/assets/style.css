@@ -344,6 +344,28 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 .lab-data { margin-top: 16px; }
 .lab-data p { font-size: 14px; }
 
+.model-page { padding-top: 40px; }
+.model-head { max-width: 76ch; margin-bottom: 28px; }
+.model-head .lede { max-width: 72ch; margin-bottom: 14px; }
+.model-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 720px) { .model-grid { grid-template-columns: 1fr; } }
+.model-card h2, .model-section h2 { margin-top: 0; font-size: 20px; }
+.model-card p, .model-section p { color: var(--muted); }
+.model-card p + p, .model-equation p + p { margin-top: 12px; }
+.model-card ul { margin-bottom: 0; }
+.model-equation { margin-top: 16px; }
+.model-equation .eq-math { margin: 12px 0; padding: 12px; overflow-x: auto; background: var(--surface-2); border-radius: 8px; }
+.model-equation .caption { margin: 0; font-size: 14px; color: var(--muted); }
+.model-section { margin-top: 16px; }
+.model-section + .model-section { margin-top: 24px; }
+.model-table { min-width: 0; table-layout: fixed; }
+.model-table th:first-child { width: 30%; }
+.model-table td, .model-table th { vertical-align: top; }
+.model-table td:first-child { font-weight: 600; color: var(--text); }
+.model-page .eq-math .katex-display { text-align: left; }
+@media (max-width: 720px) { .model-table td, .model-table th { padding: 10px; } }
+.model-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+
 /* ==========================================================================
    Hover & motion
    One set of timings for the whole site. Clickable things lift and take the

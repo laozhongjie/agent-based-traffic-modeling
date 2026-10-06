@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en" data-site-locked="true">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../assets/access.js"></script>
+  <title>IDM · Agent-Based Traffic Modeling</title>
+  <meta name="description" content="A detailed introduction to the Intelligent Driver Model: acceleration, desired gap, closing speed, equilibrium traffic and model limitations.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-title-key="model.idm.meta">
+  <noscript><main class="access-gate">Enable JavaScript to enter the password. / 请启用 JavaScript 后输入密码。</main></noscript>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="../index.html">Agent-Based Traffic Modeling</a>
+      <nav aria-label="Model pages" data-i18n-aria="model.nav">
+        <a href="../index.html" data-i18n="lab.nav.hub">Project hub</a>
+        <a href="nasch.html">NaSch</a>
+        <a href="ovm.html">OVM</a>
+        <a href="idm.html" aria-current="page">IDM</a>
+      </nav>
+      <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
+    </div>
+  </header>
+
+  <main class="wrap model-page">
+    <header class="model-head">
+      <p class="eyebrow" data-i18n="model.idm.tag">Continuous · Deterministic · Car following</p>
+      <h1 data-i18n="model.idm.title">Intelligent Driver Model (IDM)</h1>
+      <p class="lede" data-i18n="model.idm.lede">A car accelerates toward its desired speed while adapting to the gap and the speed of its leader. The model combines free-road driving, following and anticipatory braking in one acceleration law.</p>
+      <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
+    </header>
+
+    <div class="model-grid">
+      <section class="card model-card" data-i18n="model.idm.idea">
+        <h2>1. Basic idea</h2>
+        <p>Developed by Treiber, Hennecke and Helbing and presented in 2000, IDM is a continuous car-following model. The driver balances the wish to reach a preferred speed against the need to maintain a speed-dependent gap.</p>
+        <p>“Intelligent” refers to this adaptive driving rule. The model contains no learning algorithm or route optimization. The basic homogeneous model is deterministic; variability can be introduced through driver parameters or external processes.</p>
+      </section>
+      <section class="card model-card" data-i18n="model.idm.state">
+        <h2>2. State and closing-speed convention</h2>
+        <p>The acceleration depends on own speed \(v_i\), net bumper-to-bumper gap \(s_i\), and closing speed \(\Delta v_i=v_i-v_{i+1}\). Positive \(\Delta v_i\) means the follower is approaching its leader.</p>
+        <p>For identical vehicle length \(\ell_{\mathrm{veh}}\), \(s_i=x_{i+1}-x_i-\ell_{\mathrm{veh}}\). The sign of closing speed matters: reversing it without changing the equation would reverse the anticipatory braking response.</p>
+      </section>
+    </div>
+
+    <section class="card model-equation" data-i18n="model.idm.equations">
+      <h2>3. Acceleration and desired gap</h2>
+      <div class="eq-math">\[\frac{dx_i}{dt}=v_i,\qquad \frac{dv_i}{dt}=a\left[1-\left(\frac{v_i}{v_0}\right)^\delta-\left(\frac{s^*(v_i,\Delta v_i)}{s_i}\right)^2\right]\]
+      \[s^*(v,\Delta v)=s_0+\max\left(0,vT+\frac{v\Delta v}{2\sqrt{ab}}\right)\]</div>
+      <p>The free-road term \(1-(v/v_0)^\delta\) accelerates a slow car toward \(v_0\). The interaction term \(-(s^*/s)^2\) reduces acceleration or produces braking when the available gap is small relative to the desired gap.</p>
+      <p>The desired gap contains a standstill distance \(s_0\), a time-headway contribution \(vT\), and a closing-speed contribution \(v\Delta v/(2\sqrt{ab})\). The nonnegative clamp shown here is a common implementation convention that keeps \(s^*\ge s_0\); record the exact variant used in SUMO.</p>
+      <p class="caption">Illustration: \(s_0=2\) m, \(T=1.5\) s, \(a=1\) m/s² and \(b=2\) m/s². At \(v=10\) m/s with \(\Delta v=0\), the desired gap is 17 m. If \(\Delta v=2\) m/s, it increases to about 24.1 m. These values illustrate the formula and are not a project calibration.</p>
+    </section>
+
+    <section class="model-section" data-i18n="model.idm.parameters">
+      <h2>4. Parameters and physical units</h2>
+      <div class="table-wrap"><table class="model-table">
+        <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
+        <tbody>
+          <tr><td>\(v_0\)</td><td>Desired free-road speed in m/s. It can differ between vehicles.</td></tr>
+          <tr><td>\(T\)</td><td>Desired time headway in s. Larger \(T\) increases following distance at a given speed; it is not an explicit reaction delay.</td></tr>
+          <tr><td>\(s_0\)</td><td>Minimum desired standstill gap in m.</td></tr>
+          <tr><td>\(a\)</td><td>Maximum free-road acceleration parameter in m/s². It sets how quickly a slow car speeds up.</td></tr>
+          <tr><td>\(b\)</td><td>Comfortable deceleration parameter in m/s², taken as positive. It shapes anticipatory braking and is not a hard maximum braking bound.</td></tr>
+          <tr><td>\(\delta\)</td><td>Dimensionless acceleration exponent, commonly 4. It controls the approach to the desired speed.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="model-section" data-i18n="model.idm.equilibrium">
+      <h2>5. Equilibrium and traffic waves</h2>
+      <p>In uniform traffic, all cars have equal speed \(v&lt;v_0\), so \(\Delta v=0\) and acceleration vanishes. The equilibrium net gap for the equation above is:</p>
+      <div class="eq-math">\[s_{\mathrm{eq}}(v)=\frac{s_0+vT}{\sqrt{1-(v/v_0)^\delta}},\qquad k(v)=\frac{1000}{s_{\mathrm{eq}}(v)+\ell_{\mathrm{veh}}}\]</div>
+      <p>With gaps and vehicle length in m, \(k\) is in veh/km. Equilibrium flow in veh/h is \(q=3.6kv\) when \(v\) is in m/s. The equation describes homogeneous equilibrium states; observed congested traffic need not stay on that curve.</p>
+      <p>Depending on parameters and density, disturbances may decay or amplify into stop-and-go waves. Closing-speed feedback supplies anticipatory braking, but does not make every state stable. Stability depends on derivatives of the full acceleration function with respect to speed, gap and closing speed; the OVM threshold cannot simply be reused.</p>
+    </section>
+
+    <div class="model-grid model-section">
+      <section class="card model-card" data-i18n="model.idm.limits">
+        <h2>6. Strengths and limitations</h2>
+        <ul>
+          <li>Parameters have direct physical meanings, and one smooth law spans free flow, following and braking.</li>
+          <li>Closing-speed feedback supports early braking when approaching a slower leader.</li>
+          <li>Collision avoidance is an intended property under suitable continuous dynamics and initial conditions; it is not an unconditional guarantee for arbitrary numerical steps, cut-ins or sudden stops.</li>
+          <li>The basic model does not include lane changes, explicit reaction delay or route choice. SUMO adds separate mechanisms for these tasks.</li>
+        </ul>
+      </section>
+      <section class="card model-card" data-i18n="model.idm.project">
+        <h2>7. Role in this project</h2>
+        <p>IDM is the main city-network car-following model and a continuous benchmark on the ring road. Compare its flow and jam patterns with NaSch and OVM, then keep driver parameters fixed while changing network planning scenarios.</p>
+        <p>SUMO provides an IDM implementation. Record its version, parameter mapping, internal integration step and safety settings; distinguish the car-following rule from signals, junction priorities and lane-changing logic.</p>
+      </section>
+    </div>
+
+    <section class="model-section" data-i18n="model.idm.reference">
+      <h2>8. Original paper</h2>
+      <p>M. Treiber, A. Hennecke and D. Helbing (2000), <em>Congested traffic states in empirical observations and microscopic simulations</em>, Physical Review E, 62, 1805–1824. <a href="https://doi.org/10.1103/PhysRevE.62.1805">Read the original paper →</a></p>
+    </section>
+    <div class="model-links">
+      <a class="btn" href="../lab/network.html" data-i18n="model.network">Open city-network experiment →</a>
+      <a class="btn" href="nasch.html" data-i18n="model.toNasch">Compare with NaSch →</a>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-inner"><a href="../index.html" data-i18n="lab.back">← Back to project hub</a></div></footer>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script defer src="../assets/i18n.js"></script>
+  <script defer src="../assets/model-i18n.js"></script>
+  <script defer src="../assets/common.js"></script>
+  <script defer src="../assets/model.js"></script>
+</body>
+</html>

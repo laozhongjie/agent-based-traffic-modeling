@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-site-locked="true">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="../assets/access.js"></script>
+  <title>NaSch model · Agent-Based Traffic Modeling</title>
+  <meta name="description" content="A detailed introduction to the Nagel–Schreckenberg traffic model: cellular automata, update rules, parameters and spontaneous traffic jams.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-title-key="model.nasch.meta">
+  <noscript><main class="access-gate">Enable JavaScript to enter the password. / 请启用 JavaScript 后输入密码。</main></noscript>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="../index.html">Agent-Based Traffic Modeling</a>
+      <nav aria-label="Model pages" data-i18n-aria="model.nav">
+        <a href="../index.html" data-i18n="lab.nav.hub">Project hub</a>
+        <a href="nasch.html" aria-current="page">NaSch</a>
+        <a href="ovm.html">OVM</a>
+        <a href="idm.html">IDM</a>
+      </nav>
+      <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
+    </div>
+  </header>
+
+  <main class="wrap model-page">
+    <header class="model-head">
+      <p class="eyebrow" data-i18n="model.nasch.tag">Discrete · Stochastic · Cellular automaton</p>
+      <h1 data-i18n="model.nasch.title">Nagel–Schreckenberg model (NaSch)</h1>
+      <p class="lede" data-i18n="model.nasch.lede">Four simple rules describe how a car accelerates, keeps a gap, slows down at random and moves. Their collective effect can produce stop-and-go traffic without a traffic light or a blocked road.</p>
+      <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
+    </header>
+
+    <div class="model-grid">
+      <section class="card model-card" data-i18n="model.nasch.idea">
+        <h2>1. Basic idea</h2>
+        <p>Introduced by Kai Nagel and Michael Schreckenberg in 1992, NaSch is a one-dimensional cellular automaton. A single lane is divided into cells; each cell is empty or contains one vehicle. Positions, speeds and time are discrete.</p>
+        <p>Each vehicle only needs its speed and the number of empty cells ahead. All vehicles update in parallel, so the next state is computed from the same current state rather than from cars already moved during the step.</p>
+      </section>
+      <section class="card model-card" data-i18n="model.nasch.state">
+        <h2>2. State and road geometry</h2>
+        <p>Vehicle \(i\) has position \(x_i\) and integer speed \(v_i \in \{0,\ldots,v_{\max}\}\). Its gap is \(g_i=x_{i+1}-x_i-1\), the number of empty cells between it and its leader.</p>
+        <p>On a ring of \(L\) cells, distances and positions wrap around modulo \(L\). With \(N\) vehicles, cell occupancy is \(\rho=N/L\); it is dimensionless, not a density in veh/km until a physical cell length is specified.</p>
+      </section>
+    </div>
+
+    <section class="card model-equation" data-i18n="model.nasch.rules">
+      <h2>3. Four update rules</h2>
+      <ol>
+        <li><strong>Accelerate:</strong> increase the speed by one, up to the speed limit.</li>
+        <li><strong>Keep a safe gap:</strong> limit the speed to the number of empty cells ahead.</li>
+        <li><strong>Randomize:</strong> with probability \(p\), reduce the resulting speed by one, but never below zero.</li>
+        <li><strong>Move:</strong> advance by the resulting speed. All cars move simultaneously.</li>
+      </ol>
+      <div class="eq-math">\[\begin{aligned}
+        v_i^{(1)}&=\min(v_i(t)+1,v_{\max})\\
+        v_i^{(2)}&=\min(v_i^{(1)},g_i(t))\\
+        v_i(t+1)&=\begin{cases}\max(v_i^{(2)}-1,0)&\text{with probability }p\\v_i^{(2)}&\text{with probability }1-p\end{cases}\\
+        x_i(t+1)&=[x_i(t)+v_i(t+1)]\bmod L
+      \end{aligned}\]</div>
+      <p class="caption">A car with \(v=3\), \(v_{\max}=5\) and \(g=2\) accelerates to 4, is limited to 2 by its gap, then moves 1 cell if random braking occurs or 2 cells otherwise.</p>
+    </section>
+
+    <section class="model-section" data-i18n="model.nasch.parameters">
+      <h2>4. Parameters and physical units</h2>
+      <div class="table-wrap"><table class="model-table">
+        <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
+        <tbody>
+          <tr><td>\(v_{\max}\)</td><td>Speed limit in cells/step. A larger value increases the possible free-flow speed.</td></tr>
+          <tr><td>\(p \in [0,1]\)</td><td>Dimensionless random-slowdown probability. It controls driver noise; record the random seed and use repeated runs.</td></tr>
+          <tr><td>\(L,\ N,\ \rho\)</td><td>Road length in cells, number of vehicles and occupancy \(N/L\). Density and system size should be varied separately.</td></tr>
+          <tr><td>\(\ell,\ \Delta t\)</td><td>Physical cell length in m and step duration in s. Speed in m/s is \(v\ell/\Delta t\); density in veh/km is \(1000\rho/\ell\). Choose these scales before comparing with physical data.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="model-section" data-i18n="model.nasch.jams">
+      <h2>5. Why jams appear</h2>
+      <p>At low occupancy, most cars have enough space to accelerate. At higher occupancy, one random slowdown shortens the gap of the following car. That car brakes, then the next one brakes. A local perturbation can grow into a queue, whose upstream end moves against the direction of traffic.</p>
+      <p>For the deterministic case \(p=0\), the ideal stationary ring-road fundamental diagram is \(q(\rho)=\min(v_{\max}\rho,1-\rho)\), in vehicles per step through a cell boundary. Its peak lies at \(\rho=1/(v_{\max}+1)\). This is a useful reference for the ideal deterministic model, not a universal threshold for \(p>0\).</p>
+      <p>With stochastic braking, measure flow, mean speed, jammed fraction and space–time patterns over repeated runs. A finite simulation's flow peak alone does not establish a sharp phase transition in the infinite-system limit.</p>
+    </section>
+
+    <div class="model-grid model-section">
+      <section class="card model-card" data-i18n="model.nasch.limits">
+        <h2>6. Strengths and limitations</h2>
+        <ul>
+          <li>Very fast and easy to explain; useful for studying collective effects and random perturbations.</li>
+          <li>The safe-gap rule prevents overlap in the standard single-lane, parallel-update model.</li>
+          <li>Coarse space and time do not represent smooth acceleration. The basic model has no lane changes, signals or explicit driver reaction delay.</li>
+          <li>Random braking is a simplified description of driving variability; physical calibration is still needed.</li>
+        </ul>
+      </section>
+      <section class="card model-card" data-i18n="model.nasch.project">
+        <h2>7. Role in this project</h2>
+        <p>NaSch provides the stochastic baseline for the highway ring road. Vary occupancy, slowdown probability and road length to see how noise and finite size affect congestion, then compare with OVM and IDM.</p>
+        <p>The homepage animation illustrates these rules in the browser. Formal project results will come from the fixed SUMO build; the NaSch implementation depends on the selected development version and must be checked against these rules.</p>
+      </section>
+    </div>
+
+    <section class="model-section" data-i18n="model.nasch.reference">
+      <h2>8. Original paper</h2>
+      <p>K. Nagel and M. Schreckenberg (1992), <em>A cellular automaton model for freeway traffic</em>, Journal de Physique I, 2, 2221–2229. <a href="https://doi.org/10.1051/jp1:1992277">Read the original paper →</a></p>
+    </section>
+    <div class="model-links">
+      <a class="btn" href="../lab/ring.html" data-i18n="model.ring">Open ring-road experiment →</a>
+      <a class="btn" href="ovm.html" data-i18n="model.toOvm">Next: OVM →</a>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-inner"><a href="../index.html" data-i18n="lab.back">← Back to project hub</a></div></footer>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script defer src="../assets/i18n.js"></script>
+  <script defer src="../assets/model-i18n.js"></script>
+  <script defer src="../assets/common.js"></script>
+  <script defer src="../assets/model.js"></script>
+</body>
+</html>
