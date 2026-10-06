@@ -32,6 +32,8 @@
       <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
     </header>
 
+    <section class="card model-viz" id="model-viz" data-model="ovm" aria-labelledby="model-viz-title"></section>
+
     <div class="model-grid">
       <section class="card model-card" data-i18n="model.ovm.idea">
         <h2>1. Basic idea</h2>
@@ -54,7 +56,7 @@
       <p class="caption">This choice gives \(V(0)=0\) and \(V(h)\to v_{\max}\) for large headway. The homepage's shorter \(v_{\max}/2\) form is often written in scaled coordinates; its parameter is an amplitude, with large-headway limit \(v_{\max}[1+\tanh(h_c)]/2\). Fix the length scaling and normalization before a quantitative comparison.</p>
     </section>
 
-    <section class="model-section" data-i18n="model.ovm.parameters">
+    <section class="card model-section" data-i18n="model.ovm.parameters">
       <h2>4. Parameters and physical units</h2>
       <div class="table-wrap"><table class="model-table">
         <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
@@ -68,7 +70,7 @@
       </table></div>
     </section>
 
-    <section class="model-section" data-i18n="model.ovm.stability">
+    <section class="card model-section" data-i18n="model.ovm.stability">
       <h2>5. Uniform flow and instability</h2>
       <p>In uniform flow, every headway equals \(h_0\) and every speed equals \(V(h_0)\). Linearizing around this state gives, for the standard homogeneous OVM and long-wavelength disturbances on a large ring, the stability condition \(V'(h_0)&lt;\alpha/2\). The boundary is \(V'(h_0)=\alpha/2\).</p>
       <div class="eq-math">\[V'(h)=\frac{v_{\max}}{d[1+\tanh(h_c/d)]}\operatorname{sech}^2\left(\frac{h-h_c}{d}\right)\]</div>
@@ -93,7 +95,7 @@
       </section>
     </div>
 
-    <section class="model-section" data-i18n="model.ovm.reference">
+    <section class="card model-section" data-i18n="model.ovm.reference">
       <h2>8. Original paper</h2>
       <p>M. Bando, K. Hasebe, A. Nakayama, A. Shibata and Y. Sugiyama (1995), <em>Dynamical model of traffic congestion and numerical simulation</em>, Physical Review E, 51, 1035–1042. <a href="https://doi.org/10.1103/PhysRevE.51.1035">Read the original paper →</a></p>
     </section>
@@ -110,5 +112,6 @@
   <script defer src="../assets/model-i18n.js"></script>
   <script defer src="../assets/common.js"></script>
   <script defer src="../assets/model.js"></script>
+  <script defer src="../assets/model-viz.js"></script>
 </body>
 </html>

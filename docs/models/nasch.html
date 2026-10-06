@@ -32,6 +32,8 @@
       <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
     </header>
 
+    <section class="card model-viz" id="model-viz" data-model="nasch" aria-labelledby="model-viz-title"></section>
+
     <div class="model-grid">
       <section class="card model-card" data-i18n="model.nasch.idea">
         <h2>1. Basic idea</h2>
@@ -62,7 +64,7 @@
       <p class="caption">A car with \(v=3\), \(v_{\max}=5\) and \(g=2\) accelerates to 4, is limited to 2 by its gap, then moves 1 cell if random braking occurs or 2 cells otherwise.</p>
     </section>
 
-    <section class="model-section" data-i18n="model.nasch.parameters">
+    <section class="card model-section" data-i18n="model.nasch.parameters">
       <h2>4. Parameters and physical units</h2>
       <div class="table-wrap"><table class="model-table">
         <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
@@ -75,7 +77,7 @@
       </table></div>
     </section>
 
-    <section class="model-section" data-i18n="model.nasch.jams">
+    <section class="card model-section" data-i18n="model.nasch.jams">
       <h2>5. Why jams appear</h2>
       <p>At low occupancy, most cars have enough space to accelerate. At higher occupancy, one random slowdown shortens the gap of the following car. That car brakes, then the next one brakes. A local perturbation can grow into a queue, whose upstream end moves against the direction of traffic.</p>
       <p>For the deterministic case \(p=0\), the ideal stationary ring-road fundamental diagram is \(q(\rho)=\min(v_{\max}\rho,1-\rho)\), in vehicles per step through a cell boundary. Its peak lies at \(\rho=1/(v_{\max}+1)\). This is a useful reference for the ideal deterministic model, not a universal threshold for \(p>0\).</p>
@@ -99,7 +101,7 @@
       </section>
     </div>
 
-    <section class="model-section" data-i18n="model.nasch.reference">
+    <section class="card model-section" data-i18n="model.nasch.reference">
       <h2>8. Original paper</h2>
       <p>K. Nagel and M. Schreckenberg (1992), <em>A cellular automaton model for freeway traffic</em>, Journal de Physique I, 2, 2221–2229. <a href="https://doi.org/10.1051/jp1:1992277">Read the original paper →</a></p>
     </section>
@@ -116,5 +118,6 @@
   <script defer src="../assets/model-i18n.js"></script>
   <script defer src="../assets/common.js"></script>
   <script defer src="../assets/model.js"></script>
+  <script defer src="../assets/model-viz.js"></script>
 </body>
 </html>

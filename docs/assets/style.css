@@ -344,27 +344,66 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 .lab-data { margin-top: 16px; }
 .lab-data p { font-size: 14px; }
 
-.model-page { padding-top: 40px; }
+.model-page { padding-top: 40px; max-width: 960px; }
 .model-head { max-width: 76ch; margin-bottom: 28px; }
 .model-head .lede { max-width: 72ch; margin-bottom: 14px; }
-.model-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 720px) { .model-grid { grid-template-columns: 1fr; } }
-.model-card h2, .model-section h2 { margin-top: 0; font-size: 20px; }
+.model-grid { display: grid; gap: 20px; margin-top: 20px; }
+.model-page section h2 { margin: 0 0 16px; font-size: 20px; }
+.model-page section { min-width: 0; }
+.model-page .card { padding: 24px; }
+.model-page .card:not(.exp-card):hover { border-color: var(--border); box-shadow: var(--shadow); }
 .model-card p, .model-section p { color: var(--muted); }
-.model-card p + p, .model-equation p + p { margin-top: 12px; }
+.model-page .card p + p { margin-top: 12px; }
 .model-card ul { margin-bottom: 0; }
-.model-equation { margin-top: 16px; }
-.model-equation .eq-math { margin: 12px 0; padding: 12px; overflow-x: auto; background: var(--surface-2); border-radius: 8px; }
+.model-equation { margin-top: 20px; }
+.model-page .eq-math { margin: 16px 0; padding: 16px 0; overflow-x: auto; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .model-equation .caption { margin: 0; font-size: 14px; color: var(--muted); }
-.model-section { margin-top: 16px; }
-.model-section + .model-section { margin-top: 24px; }
+.model-section { margin-top: 20px; }
+.model-page .table-wrap { border: none; border-radius: 0; }
 .model-table { min-width: 0; table-layout: fixed; }
 .model-table th:first-child { width: 30%; }
 .model-table td, .model-table th { vertical-align: top; }
 .model-table td:first-child { font-weight: 600; color: var(--text); }
 .model-page .eq-math .katex-display { text-align: left; }
-@media (max-width: 720px) { .model-table td, .model-table th { padding: 10px; } }
+@media (max-width: 720px) {
+  .model-page .card { padding: 18px 16px; }
+  .model-table td, .model-table th { padding: 10px 8px; }
+}
 .model-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+
+.model-viz .viz-intro { margin-bottom: 20px; }
+.viz-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.viz-controls:has(label:nth-child(4)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.viz-controls label { display: block; font-size: 14px; }
+.viz-controls output { display: block; color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.viz-controls input { display: block; width: 100%; min-height: 32px; accent-color: var(--accent); cursor: pointer; }
+.viz-plots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.model-viz figure { margin: 20px 0 0; min-width: 0; }
+.model-viz figcaption { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.model-viz svg { display: block; width: 100%; }
+.viz-svg text { fill: var(--text); font-size: 12px; font-family: inherit; }
+.viz-svg .viz-axis { stroke: var(--border); stroke-width: 1; }
+.viz-svg .viz-gridline { stroke: var(--border); stroke-width: 1; opacity: .6; }
+.viz-svg .viz-curve { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.viz-svg .viz-reference { stroke: var(--doing); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.viz-svg .viz-dot { fill: var(--accent); }
+.viz-svg .viz-car { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.viz-svg .viz-leader { fill: var(--surface-2); stroke: var(--muted); stroke-width: 1.5; }
+.viz-svg .viz-cell { fill: var(--surface-2); stroke: var(--border); }
+.viz-svg .viz-occupied { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.viz-svg .viz-travel { fill: var(--accent-soft); }
+.viz-result { padding-top: 16px; margin-top: 16px !important; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.model-viz .viz-note { margin-top: 12px; font-size: 13px; }
+.viz-steps { list-style: none; padding: 0 !important; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 20px 0 !important; }
+.viz-steps li { margin: 0 !important; padding-left: 12px; border-left: 2px solid var(--border); font-size: 14px; }
+.viz-steps strong { display: block; color: var(--text); white-space: normal !important; }
+.viz-action { margin-top: 16px; cursor: pointer; font: inherit; }
+@media (max-width: 720px) {
+  .viz-plots { grid-template-columns: 1fr; gap: 0; }
+  .viz-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viz-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 380px) { .viz-controls, .viz-controls:has(label:nth-child(4)) { grid-template-columns: 1fr; } }
 
 /* ==========================================================================
    Hover & motion

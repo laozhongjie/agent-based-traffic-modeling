@@ -32,6 +32,8 @@
       <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
     </header>
 
+    <section class="card model-viz" id="model-viz" data-model="idm" aria-labelledby="model-viz-title"></section>
+
     <div class="model-grid">
       <section class="card model-card" data-i18n="model.idm.idea">
         <h2>1. Basic idea</h2>
@@ -54,7 +56,7 @@
       <p class="caption">Illustration: \(s_0=2\) m, \(T=1.5\) s, \(a=1\) m/s² and \(b=2\) m/s². At \(v=10\) m/s with \(\Delta v=0\), the desired gap is 17 m. If \(\Delta v=2\) m/s, it increases to about 24.1 m. These values illustrate the formula and are not a project calibration.</p>
     </section>
 
-    <section class="model-section" data-i18n="model.idm.parameters">
+    <section class="card model-section" data-i18n="model.idm.parameters">
       <h2>4. Parameters and physical units</h2>
       <div class="table-wrap"><table class="model-table">
         <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
@@ -69,7 +71,7 @@
       </table></div>
     </section>
 
-    <section class="model-section" data-i18n="model.idm.equilibrium">
+    <section class="card model-section" data-i18n="model.idm.equilibrium">
       <h2>5. Equilibrium and traffic waves</h2>
       <p>In uniform traffic, all cars have equal speed \(v&lt;v_0\), so \(\Delta v=0\) and acceleration vanishes. The equilibrium net gap for the equation above is:</p>
       <div class="eq-math">\[s_{\mathrm{eq}}(v)=\frac{s_0+vT}{\sqrt{1-(v/v_0)^\delta}},\qquad k(v)=\frac{1000}{s_{\mathrm{eq}}(v)+\ell_{\mathrm{veh}}}\]</div>
@@ -94,7 +96,7 @@
       </section>
     </div>
 
-    <section class="model-section" data-i18n="model.idm.reference">
+    <section class="card model-section" data-i18n="model.idm.reference">
       <h2>8. Original paper</h2>
       <p>M. Treiber, A. Hennecke and D. Helbing (2000), <em>Congested traffic states in empirical observations and microscopic simulations</em>, Physical Review E, 62, 1805–1824. <a href="https://doi.org/10.1103/PhysRevE.62.1805">Read the original paper →</a></p>
     </section>
@@ -111,5 +113,6 @@
   <script defer src="../assets/model-i18n.js"></script>
   <script defer src="../assets/common.js"></script>
   <script defer src="../assets/model.js"></script>
+  <script defer src="../assets/model-viz.js"></script>
 </body>
 </html>

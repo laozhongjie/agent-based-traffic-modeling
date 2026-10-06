@@ -29,7 +29,7 @@
 
 实验页面位于 [`docs/lab/`](docs/lab/)，包括 `ring.html`、`network.html` 和 `planning.html`。目前这些页面仅预留布局，后续将填入预先计算的 SUMO 结果。
 
-[NaSch](docs/models/nasch.html)、[OVM](docs/models/ovm.html) 和 [IDM](docs/models/idm.html) 的详细双语介绍位于 [`docs/models/`](docs/models/)。在首页的车辆模型表格中点击模型名称即可打开，内容包括方程、参数、拥堵机制和适用限制，并附有原始论文链接。
+[NaSch](docs/models/nasch.html)、[OVM](docs/models/ovm.html) 和 [IDM](docs/models/idm.html) 的详细双语介绍位于 [`docs/models/`](docs/models/)。点击首页的模型名称或方程卡片即可打开。每页提供可调参数的原理图解，并用统一的章节样式介绍方程、参数、拥堵机制和适用限制，附有原始论文链接。图解用于说明模型规则，不代表正式 SUMO 实验结果。
 
 公式使用 KaTeX 渲染。在 HTML、`i18n.js` 或 `project.js` 中，使用 `\( ... \)` 表示行内公式，使用 `\[ ... \]` 表示独立公式。JavaScript 字符串中的反斜杠需要转义，例如 `"\\(p = 0\\)"`。共用的语言切换和公式渲染逻辑位于 [`docs/assets/common.js`](docs/assets/common.js)。
 

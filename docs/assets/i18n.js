@@ -55,6 +55,7 @@ window.I18N = {
 
       "models.h": "车辆模型",
       "models.open": "点击模型名称，查看详细介绍、方程、参数和适用限制。",
+      "models.details": "查看模型原理与图解 →",
       "models.col1": "模型",
       "models.col2": "空间与时间",
       "models.col3": "拥堵成因",

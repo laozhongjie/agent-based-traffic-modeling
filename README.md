@@ -29,7 +29,7 @@ The site has an English / Chinese toggle. To update the timeline or progress, ed
 
 Experiment pages live in [`docs/lab/`](docs/lab/) (`ring.html`, `network.html`, `planning.html`). They are reserved layouts for now and will be filled with precomputed SUMO results.
 
-Detailed bilingual introductions to [NaSch](docs/models/nasch.html), [OVM](docs/models/ovm.html) and [IDM](docs/models/idm.html) live in [`docs/models/`](docs/models/). Open them from the model names in the homepage's vehicle-model table. They explain each model's equations, parameters, congestion mechanism and limitations, with links to the original papers.
+Detailed bilingual introductions to [NaSch](docs/models/nasch.html), [OVM](docs/models/ovm.html) and [IDM](docs/models/idm.html) live in [`docs/models/`](docs/models/). Open them from the model names or equation cards on the homepage. Each page includes an interactive illustration, followed by consistently styled sections explaining equations, parameters, congestion mechanisms and limitations, with links to the original papers. The illustrations explain the rules and do not represent formal SUMO results.
 
 Formulas are rendered with KaTeX: write `\( ... \)` for inline math and `\[ ... \]` for display math, in HTML, `i18n.js` or `project.js` (escape the backslash in JavaScript strings, e.g. `"\\(p = 0\\)"`). Shared language switching and math rendering live in [`docs/assets/common.js`](docs/assets/common.js).
 
