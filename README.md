@@ -25,7 +25,7 @@ Shared password: `pc5253` or `PC5253`.
 
 The site supports English and Chinese and presents the project overview, schedule, progress and learning materials. Click a model name or equation card on the homepage to explore NaSch, OVM or IDM, including interactive illustrations and references.
 
-The ring-road, city-network and planning pages will display experimental results as they become available. The current illustrations explain model behavior and are not formal experiment results. The displayed workstreams are a draft; team assignments have not been decided.
+The ring-road, city-network and planning pages will display experimental results as they become available. The current illustrations explain model behavior and are not formal experiment results. The homepage now shows the provisional A–E primary owners, shared interfaces and cross-review plan.
 
 ## Repository layout
 

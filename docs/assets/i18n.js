@@ -86,7 +86,7 @@ window.I18N = {
 
       "timeline.h": "时间线",
       "progress.h": "进展",
-      "progress.intro": "共五个工作方向，工作量相近。kick-off 时每人认领一个，负责人会显示在这里。",
+      "progress.intro": "五个主责方向通过共享接口并行推进。每个人都参与设计、实现、验证、分析和交付，并交叉复核其他方向。",
 
       "req.h": "提交要求",
       "req.pres": "展示",

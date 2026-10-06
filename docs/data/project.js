@@ -4,7 +4,7 @@
 // fill in owners, bump `updated`, then commit and push.
 
 window.PROJECT = {
-  updated: "2026-10-02",
+  updated: "2026-10-06",
   repo: "https://github.com/laozhongjie/agent-based-traffic-modeling",
 
   // All times are Singapore time (UTC+8).
@@ -38,7 +38,7 @@ window.PROJECT = {
     { date: "2026-11-22", label: { en: "Report due", zh: "报告截止" }, kind: "deadline" }
   ],
 
-  timelineStatus: { en: "Draft schedule, to be confirmed at kick-off.", zh: "以下为草拟的时间安排，将在 kick-off 时确认。" },
+  timelineStatus: { en: "Five primary owners are assigned. Workstreams run in parallel through shared interfaces and cross-review.", zh: "五个主责方向已经分配。各方向通过共享接口和交叉复核并行推进。" },
   timeline: [
     {
       start: "2026-10-01", end: "2026-10-07",
@@ -47,7 +47,7 @@ window.PROJECT = {
         { en: "Read the project overview", zh: "阅读项目概览" },
         { en: "Survey traffic models, their variations and applications", zh: "调研交通模型及其变体和应用" },
         { en: "Set up Python, SUMO and the repository locally", zh: "在本地配置 Python、SUMO 和仓库" },
-        { en: "Choose workstreams", zh: "选择工作方向" }
+        { en: "Confirm primary owners and shared interfaces", zh: "确认主责成员和共享接口" }
       ]
     },
     {
@@ -115,88 +115,91 @@ window.PROJECT = {
     }
   ],
 
-  // status: "todo" | "doing" | "done"; owner: null means not yet claimed.
+  // status: "todo" | "doing" | "done"; owner is the primary owner.
   workstreams: [
     {
-      name: { en: "Highway models", zh: "高速公路模型" },
-      stage: { en: "Stage 1", zh: "阶段一" },
-      owner: null,
+      name: { en: "Shared framework & model validation", zh: "共享框架与模型验证" },
+      stage: { en: "A · Foundation", zh: "A · 公共基础" },
+      owner: "A",
       summary: {
-        en: "SUMO build, the OVM implementation, the ring-road setup and the Stage 1 experiments.",
-        zh: "编译 SUMO、实现 OVM、搭建环路，并完成阶段一实验。"
+        en: "Define the shared run protocol, build SUMO, implement OVM and make the smallest end-to-end experiment runnable.",
+        zh: "定义共享运行协议，编译 SUMO，实现 OVM，并打通最小端到端实验。"
       },
       tasks: [
+        { text: { en: "Define config, run-record and output interfaces", zh: "定义配置、运行记录和输出接口" }, status: "doing" },
         { text: { en: "Build SUMO from source at a pinned commit", zh: "从源码编译 SUMO，并固定 commit" }, status: "todo" },
         { text: { en: "Implement OVM in SUMO (C++)", zh: "用 C++ 在 SUMO 中实现 OVM" }, status: "todo" },
-        { text: { en: "Ring road in SUMO with NaSch / OVM / IDM settings", zh: "在 SUMO 中搭建环路，配置 NaSch / OVM / IDM 参数" }, status: "todo" },
-        { text: { en: "Validation: NaSch exact result at \\(p = 0\\), OVM stability vs theory", zh: "模型验证：NaSch 在 \\(p = 0\\) 时的解析结果、OVM 稳定性与理论对照" }, status: "todo" },
-        { text: { en: "Sweeps: density, system size, randomness, bottleneck", zh: "扫描：密度、系统尺寸、随机性、瓶颈" }, status: "todo" }
+        { text: { en: "Add validation checks and a minimal end-to-end run", zh: "加入验证检查并打通最小端到端运行" }, status: "todo" },
+        { text: { en: "Review B's ring protocol and verify the shared interface", zh: "复核 B 的环路协议并验证共享接口" }, status: "todo" },
+        { text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" }, status: "todo" }
       ]
     },
     {
-      name: { en: "City network", zh: "城市路网" },
-      stage: { en: "Stages 2 & 3", zh: "阶段二、三" },
-      owner: null,
+      name: { en: "Highway congestion mechanisms", zh: "高速公路拥堵机制" },
+      stage: { en: "B · Stage 1", zh: "B · 阶段一" },
+      owner: "B",
       summary: {
-        en: "SUMO network from OpenStreetMap, constant-density runs and planning scenarios.",
-        zh: "基于 OpenStreetMap 的 SUMO 路网、恒定密度实验和规划场景。"
+        en: "Own the ring-road experiment and distinguish spontaneous congestion from bottleneck-induced congestion.",
+        zh: "负责环路实验，区分自发拥堵与瓶颈引起的拥堵。"
+      },
+      tasks: [
+        { text: { en: "Define ring-road scenarios and density-sweep protocol", zh: "定义环路场景和密度扫描协议" }, status: "todo" },
+        { text: { en: "Run NaSch / OVM / IDM ring-road experiments", zh: "运行 NaSch / OVM / IDM 环路实验" }, status: "todo" },
+        { text: { en: "Compare density, system size, randomness and bottleneck", zh: "比较密度、系统尺寸、随机性和瓶颈条件" }, status: "todo" },
+        { text: { en: "Produce fundamental and space–time diagrams", zh: "生成基本图和时空图" }, status: "todo" },
+        { text: { en: "Review C's network outputs for comparable units and seeds", zh: "复核 C 的路网输出，确认单位和随机种子可比" }, status: "todo" },
+        { text: { en: "Prepare ring results for the report and site", zh: "为报告和网站整理环路结果" }, status: "todo" }
+      ]
+    },
+    {
+      name: { en: "City network experiments", zh: "城市路网实验" },
+      stage: { en: "C · Stage 2", zh: "C · 阶段二" },
+      owner: "C",
+      summary: {
+        en: "Build the city-network pipeline, keep density constant and measure how local jams spread.",
+        zh: "搭建城市路网流程，保持网络密度恒定，并测量局部拥堵的扩展。"
       },
       tasks: [
         { text: { en: "Choose a district and import it from OSM into SUMO", zh: "选定城区并从 OSM 导入 SUMO" }, status: "todo" },
         { text: { en: "Validate the pipeline on a 4×4 grid", zh: "用 4×4 网格验证整个流程" }, status: "todo" },
-        { text: { en: "TraCI controller that keeps network density constant", zh: "用 TraCI 编写保持网络密度恒定的控制器" }, status: "todo" },
-        { text: { en: "Network density sweeps", zh: "网络密度扫描" }, status: "todo" },
-        { text: { en: "Batch SUMO runs and export results for the site", zh: "批量运行 SUMO，并导出网站所需的结果" }, status: "todo" },
-        { text: { en: "Planning scenarios: road closure, new link", zh: "规划场景：封路、新增道路" }, status: "todo" }
+        { text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" }, status: "todo" },
+        { text: { en: "Run network-density sweeps and export representative runs", zh: "运行网络密度扫描并导出代表性运行" }, status: "todo" },
+        { text: { en: "Measure MFD inputs, queues and congested clusters", zh: "测量宏观基本图输入、排队和拥堵连通区域" }, status: "todo" },
+        { text: { en: "Review D's scenarios for consistent demand and routes", zh: "复核 D 的规划场景，确认需求和路线一致" }, status: "todo" }
       ]
     },
     {
-      name: { en: "Critical-point analysis & data", zh: "临界点分析与数据" },
-      stage: { en: "All stages", zh: "全部阶段" },
-      owner: null,
+      name: { en: "Planning interventions", zh: "规划干预方案" },
+      stage: { en: "D · Stage 3", zh: "D · 阶段三" },
+      owner: "D",
       summary: {
-        en: "Congestion criteria, phase-transition analysis and comparison with real data.",
-        zh: "拥堵判据、相变分析，以及与真实数据的对比。"
+        en: "Compare baseline, road closure and new-link scenarios under the same density grid and seeds.",
+        zh: "在相同密度网格和随机种子下比较基准、封路和新增连接方案。"
       },
       tasks: [
-        { text: { en: "Define order parameter and congestion criteria", zh: "定义序参量和拥堵判据" }, status: "todo" },
-        { text: { en: "Fundamental diagrams, fluctuations, finite-size analysis", zh: "基本图、涨落和有限尺寸分析" }, status: "todo" },
-        { text: { en: "MFD and congested-cluster analysis with NetworkX", zh: "用 NetworkX 做宏观基本图和拥堵连通区域分析" }, status: "todo" },
-        { text: { en: "Obtain PeMS / highD / LTA data", zh: "获取 PeMS / highD / LTA 数据" }, status: "todo" },
-        { text: { en: "Compare simulated and real results", zh: "对比模拟结果与真实数据" }, status: "todo" }
+        { text: { en: "Create baseline, road-closure and new-link scenarios", zh: "创建基准、封路和新增连接场景" }, status: "todo" },
+        { text: { en: "Reuse Stage 2 density grid, routes and seed groups", zh: "沿用阶段二的密度网格、路线和随机种子组" }, status: "todo" },
+        { text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" }, status: "todo" },
+        { text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" }, status: "todo" },
+        { text: { en: "Review E's uncertainty and comparison protocol", zh: "复核 E 的不确定性和比较协议" }, status: "todo" },
+        { text: { en: "Prepare planning figures for the report and site", zh: "为报告和网站整理规划方案图表" }, status: "todo" }
       ]
     },
     {
-      name: { en: "Web & visualization", zh: "网页与可视化" },
-      stage: { en: "Site", zh: "网站" },
-      owner: null,
+      name: { en: "Analysis, data & integration", zh: "分析、数据与整合" },
+      stage: { en: "E · Cross-cutting", zh: "E · 跨方向" },
+      owner: "E",
       summary: {
-        en: "This project site, then the interactive simulation environment.",
-        zh: "先做项目主页，再做交互式模拟环境。"
+        en: "Define shared metrics, quantify uncertainty, compare with real data and assemble the report, slides and site exports.",
+        zh: "定义统一指标，量化不确定性，与真实数据对照，并整合报告、幻灯片和网站数据。"
       },
       tasks: [
-        { text: { en: "Project hub page (this site)", zh: "项目主页（本网站）" }, status: "doing" },
-        { text: { en: "Reserve the experiment pages", zh: "预留各阶段的实验页面" }, status: "done" },
-        { text: { en: "In-browser ring-road illustration (NaSch / OVM / IDM)", zh: "浏览器内的环路示意演示（NaSch / OVM / IDM）" }, status: "todo" },
-        { text: { en: "Ring-road results view: SUMO fundamental and space–time diagrams", zh: "环路结果视图：SUMO 的基本图和时空图" }, status: "todo" },
-        { text: { en: "City-network view: replay SUMO results (link speeds, MFD)", zh: "城市路网视图：回放 SUMO 结果（路段速度、宏观基本图）" }, status: "todo" },
-        { text: { en: "Optional: local backend for live SUMO runs", zh: "可选：本地后端实时运行 SUMO" }, status: "todo" }
-      ]
-    },
-    {
-      name: { en: "Integration, report & slides", zh: "整合、报告与展示" },
-      stage: { en: "Deliverables", zh: "交付成果" },
-      owner: null,
-      summary: {
-        en: "Literature survey, reproducibility, report and presentation.",
-        zh: "文献综述、可复现性、报告和展示。"
-      },
-      tasks: [
-        { text: { en: "Project overview (EN / ZH) and repository", zh: "项目概览（中英文）与仓库" }, status: "done" },
-        { text: { en: "Literature survey: models, variations, applications", zh: "文献综述：模型、变体与应用" }, status: "todo" },
-        { text: { en: "Experiment log: configs, seeds and outputs", zh: "实验记录：配置、随机种子和输出" }, status: "todo" },
-        { text: { en: "Slides and rehearsal", zh: "幻灯片与排练" }, status: "todo" },
-        { text: { en: "Group report and AI prompt appendix", zh: "小组报告及 AI prompt 附录" }, status: "todo" }
+        { text: { en: "Define order parameters, congestion criteria and critical-point estimates", zh: "定义序参量、拥堵判据和临界点估计方法" }, status: "todo" },
+        { text: { en: "Build shared analysis scripts for diagrams, fluctuations and uncertainty", zh: "建立基本图、涨落和不确定性的统一分析脚本" }, status: "todo" },
+        { text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
+        { text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
+        { text: { en: "Export validated data and figures to the site", zh: "将通过验证的数据和图表导出到网站" }, status: "todo" },
+        { text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" }, status: "todo" }
       ]
     }
   ],
