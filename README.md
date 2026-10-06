@@ -21,19 +21,11 @@ This project studies the transition from free flow to congestion as a nonequilib
 
 [Open the project website](https://laozhongjie.github.io/agent-based-traffic-modeling/)
 
-Enter the shared password `pc5253` or `PC5253` to open any page. Access is remembered for the current browser tab until it is closed. This is a browser-side gate for casual access: GitHub Pages still serves the files publicly, and the password and page content can be inspected or bypassed. Do not use it to protect confidential content.
+Shared password: `pc5253` or `PC5253`.
 
-The project hub (overview, timeline, progress) lives in [`docs/`](docs/). The [GitHub Pages workflow](.github/workflows/pages.yml) deploys `docs/` on each push to `main`, and can also be run manually from the repository's Actions tab. Formal experiments run through the command line; their exported results will be displayed on this site.
+The site supports English and Chinese and presents the project overview, schedule, progress and learning materials. Click a model name or equation card on the homepage to explore NaSch, OVM or IDM, including interactive illustrations and references.
 
-The site has an English / Chinese toggle. The displayed workstreams are a presentation draft; team assignments have not been decided. To update the timeline or progress, edit [`docs/data/project.js`](docs/data/project.js): set each task's `status` to `todo`, `doing` or `done`, fill in `owner`s once assignments are agreed, bump `updated`, then commit and push. Text fields there are `{ en, zh }`; fixed page text is translated in [`docs/assets/i18n.js`](docs/assets/i18n.js).
-
-Experiment pages live in [`docs/lab/`](docs/lab/) (`ring.html`, `network.html`, `planning.html`). They are reserved layouts for now and will be filled with precomputed SUMO results.
-
-Detailed bilingual introductions to [NaSch](docs/models/nasch.html), [OVM](docs/models/ovm.html) and [IDM](docs/models/idm.html) live in [`docs/models/`](docs/models/). Open them from the model names or equation cards on the homepage. Each page includes an interactive illustration, followed by consistently styled sections explaining equations, parameters, congestion mechanisms and limitations, with links to the original papers. The illustrations explain the rules and do not represent formal SUMO results.
-
-Formulas are rendered with KaTeX: write `\( ... \)` for inline math and `\[ ... \]` for display math, in HTML, `i18n.js` or `project.js` (escape the backslash in JavaScript strings, e.g. `"\\(p = 0\\)"`). Shared language switching and math rendering live in [`docs/assets/common.js`](docs/assets/common.js).
-
-To preview locally, run `python3 -m http.server 8000` inside `docs/` and open http://127.0.0.1:8000/.
+The ring-road, city-network and planning pages will display experimental results as they become available. The current illustrations explain model behavior and are not formal experiment results. The displayed workstreams are a draft; team assignments have not been decided.
 
 ## Repository layout
 

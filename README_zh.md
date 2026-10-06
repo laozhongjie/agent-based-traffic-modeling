@@ -21,19 +21,11 @@
 
 [打开项目网站](https://laozhongjie.github.io/agent-based-traffic-modeling/)
 
-访问任意页面时，输入公用密码 `pc5253` 或 `PC5253`。当前浏览器标签页会记住验证状态，直到标签页关闭。这是用于限制普通访问的前端密码入口：GitHub Pages 仍公开提供静态文件，密码和页面内容可以被查看，验证也可以被绕过。请勿用它保护敏感内容。
+公用密码：`pc5253` 或 `PC5253`。
 
-项目网站的概览、时间线和进度页面位于 [`docs/`](docs/)。[GitHub Pages 工作流](.github/workflows/pages.yml) 会在每次推送到 `main` 后自动部署 `docs/`，也可以从仓库的 Actions 页面手动运行。正式实验通过命令行运行，导出的结果将在网站上展示。
+网站支持中英文切换，展示项目概览、时间安排、进度和学习资料。点击首页的模型名称或方程卡片，可查看 NaSch、OVM 和 IDM 的详细介绍、交互图解及参考文献。
 
-网站支持中英文切换。网页中的工作方向仅为展示草案，团队尚未确定实际分工。更新时间线或进度时，编辑 [`docs/data/project.js`](docs/data/project.js)：将各任务的 `status` 设为 `todo`（待开始）、`doing`（进行中）或 `done`（已完成），分工确定后再填写 `owner`，更新 `updated`，然后提交并推送。其中的文本字段使用 `{ en, zh }` 结构；页面固定文案的译文位于 [`docs/assets/i18n.js`](docs/assets/i18n.js)。
-
-实验页面位于 [`docs/lab/`](docs/lab/)，包括 `ring.html`、`network.html` 和 `planning.html`。目前这些页面仅预留布局，后续将填入预先计算的 SUMO 结果。
-
-[NaSch](docs/models/nasch.html)、[OVM](docs/models/ovm.html) 和 [IDM](docs/models/idm.html) 的详细双语介绍位于 [`docs/models/`](docs/models/)。点击首页的模型名称或方程卡片即可打开。每页提供可调参数的原理图解，并用统一的章节样式介绍方程、参数、拥堵机制和适用限制，附有原始论文链接。图解用于说明模型规则，不代表正式 SUMO 实验结果。
-
-公式使用 KaTeX 渲染。在 HTML、`i18n.js` 或 `project.js` 中，使用 `\( ... \)` 表示行内公式，使用 `\[ ... \]` 表示独立公式。JavaScript 字符串中的反斜杠需要转义，例如 `"\\(p = 0\\)"`。共用的语言切换和公式渲染逻辑位于 [`docs/assets/common.js`](docs/assets/common.js)。
-
-本地预览时，在 `docs/` 目录中运行 `python3 -m http.server 8000`，然后打开 http://127.0.0.1:8000/。
+环路、城市路网和规划页面将在实验完成后逐步展示结果。当前原理演示用于理解模型行为，不代表正式实验结果。网页中的工作方向仅为展示草案，团队尚未确定实际分工。
 
 ## 仓库目录
 
