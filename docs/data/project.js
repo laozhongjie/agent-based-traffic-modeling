@@ -39,36 +39,42 @@ window.PROJECT = {
   ],
 
   timelineStatus: { en: "Five primary owners are assigned. Workstreams run in parallel through shared interfaces and cross-review.", zh: "五个主责方向已经分配。各方向通过共享接口和交叉复核并行推进。" },
+  // `who` is a member letter, a list of letters, or "all" for the whole group.
   timeline: [
     {
       start: "2026-10-01", end: "2026-10-07",
       title: { en: "Kick-off & literature survey", zh: "启动与文献调研" },
       items: [
-        { en: "Read the project overview", zh: "阅读项目概览" },
-        { en: "Survey traffic models, their variations and applications", zh: "调研交通模型及其变体和应用" },
-        { en: "Set up Python, SUMO and the repository locally", zh: "在本地配置 Python、SUMO 和仓库" },
-        { en: "Confirm primary owners and shared interfaces", zh: "确认主责成员和共享接口" }
+        { who: "all", en: "Read the project overview and survey traffic models", zh: "阅读项目概览，调研交通模型及其变体和应用" },
+        { who: "all", en: "Set up Python, SUMO and the repository locally", zh: "在本地配置 Python、SUMO 和仓库" },
+        { who: "A", en: "Confirm primary owners, cross-review and shared interfaces", zh: "确认主责方向、交叉复核和共享接口" }
       ]
     },
     {
       start: "2026-10-08", end: "2026-10-14",
       title: { en: "Build & validate", zh: "搭建与验证" },
       items: [
-        { en: "Build SUMO from source and add OVM; ring road with NaSch / OVM / IDM and validation checks", zh: "从源码编译 SUMO 并加入 OVM；搭建环路，完成 NaSch / OVM / IDM 的验证" },
-        { en: "Import an OSM district into SUMO; validate on a 4×4 grid", zh: "将一片 OSM 城区导入 SUMO，并用 4×4 网格验证" },
-        { en: "Shared analysis script and congestion criteria", zh: "统一的分析脚本和拥堵判据" },
-        { en: "Request PeMS / highD data access", zh: "申请 PeMS / highD 数据" }
+        { who: "A", en: "Build SUMO from source at a pinned commit; publish a runnable ring example and the run rules", zh: "从源码编译 SUMO 并固定 commit；发布可运行的环路示例和运行规则" },
+        { who: "A", en: "Start the OVM implementation in C++", zh: "开始用 C++ 实现 OVM" },
+        { who: "B", en: "Build the ring road with IDM on release SUMO; trial density sweep; define the ring congestion criterion", zh: "用正式版 SUMO 和 IDM 搭建环路，试跑密度扫描；定义环路拥堵判据" },
+        { who: "C", en: "Choose a district and import it from OSM; define the network congestion criterion", zh: "选定城区并从 OSM 导入 SUMO；定义路网拥堵判据" },
+        { who: "D", en: "Build the 4×4 test grid and validate the pipeline with C", zh: "搭建 4×4 测试网格，并与 C 一起验证流程" },
+        { who: "E", en: "Apply for PeMS / highD / LTA access; draft critical-point and error-bar scripts on trial data", zh: "提交 PeMS / highD / LTA 数据申请；用试跑数据写临界点估计和误差分析脚本" }
       ]
     },
     {
       start: "2026-10-15", end: "2026-10-21",
       title: { en: "Main experiments", zh: "主要实验" },
       items: [
-        { en: "Ring-road sweeps: density, system size, randomness, bottleneck", zh: "环路扫描：密度、系统尺寸、随机性、瓶颈" },
-        { en: "Critical-point analysis for the highway", zh: "高速公路的临界点分析" },
-        { en: "Network density sweeps and MFD", zh: "路网密度扫描与宏观基本图" },
-        { en: "Prototype planning scenarios on the 4×4 grid", zh: "在 4×4 网格上试做规划场景" },
-        { en: "In-browser ring-road illustration on this site", zh: "在本网站实现浏览器内的环路示意演示" }
+        { who: "A", en: "Finish OVM; validate NaSch (p = 0) and OVM stability with B", zh: "完成 OVM；与 B 一起完成 NaSch（p = 0）和 OVM 稳定性验证" },
+        { who: "A", en: "Run formal batches on the pinned build; add the in-browser ring demo to the ring page", zh: "用固定版本运行正式批量实验；把浏览器内的环路演示加入环路页面" },
+        { who: "B", en: "Ring sweeps for NaSch / OVM / IDM: density, system size, randomness, bottleneck", zh: "三种模型的环路扫描：密度、系统尺寸、随机性、瓶颈" },
+        { who: "C", en: "TraCI controller for constant density; network density sweeps and MFD", zh: "实现恒定密度的 TraCI 控制器；路网密度扫描与宏观基本图" },
+        { who: "C", en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" },
+        { who: "D", en: "Prototype baseline, road-closure and new-link scenarios on the grid", zh: "在网格上试做基准、封路和新增连接场景" },
+        { who: "D", en: "Review C's network pipeline before reusing it", zh: "复核 C 的路网流程，确认可以直接沿用" },
+        { who: "E", en: "Critical-point analysis for the ring; confirm the method with B and C", zh: "环路的临界点分析；与 B、C 确认分析方法" },
+        { who: ["A", "E"], en: "Review each other: E's analysis scripts, A's run records", zh: "互相复核：E 的分析脚本，A 的运行记录" }
       ]
     },
     {
@@ -76,42 +82,47 @@ window.PROJECT = {
       title: { en: "Planning runs & figures", zh: "规划实验与图表" },
       note: { en: "Lighter week: course test on 24 Oct", zh: "任务较轻的一周：10月24日有课程测验" },
       items: [
-        { en: "Planning scenarios on the district: road closure, new link", zh: "在城区路网上运行规划场景：封路、新增道路" },
-        { en: "Comparison with real traffic data", zh: "与真实交通数据对比" },
-        { en: "Final figures for every workstream", zh: "完成各方向的最终图表" }
+        { who: "A", en: "Export validated results to the site", zh: "把通过验证的结果导出到网站" },
+        { who: "B", en: "Final fundamental and space–time diagrams", zh: "完成基本图和时空图" },
+        { who: "B", en: "Review D's planning scenarios", zh: "复核 D 的规划场景" },
+        { who: "C", en: "Queues, congested clusters and betweenness analysis", zh: "排队、拥堵连通区域和边介数分析" },
+        { who: "D", en: "Planning sweeps on the district; compare MFD peaks; test for a Braess effect", zh: "在城区路网上运行规划扫描，比较宏观基本图峰值，检验 Braess 悖论" },
+        { who: "E", en: "Network critical points; compare with PeMS / highD / LTA data", zh: "路网临界点分析；与 PeMS / highD / LTA 数据对照" }
       ]
     },
     {
       start: "2026-10-29", end: "2026-11-01",
       title: { en: "Integrate results", zh: "整合结果" },
       items: [
-        { en: "Freeze conclusions", zh: "确定结论" },
-        { en: "Slide outline and first draft", zh: "幻灯片大纲与初稿" }
+        { who: "A", en: "Run the meeting that freezes conclusions; set the slide outline and assign slides", zh: "组织会议确定结论；制定幻灯片大纲并分配页面" },
+        { who: "E", en: "Pull results together into the cross-workstream conclusions", zh: "把各方向结果汇总成整体结论" },
+        { who: ["B", "C", "D"], en: "Write conclusions and limitations for your own workstream", zh: "写好自己方向的结论和局限" },
+        { who: "all", en: "Draft your own slides", zh: "完成自己负责的幻灯片初稿" }
       ]
     },
     {
       start: "2026-11-02", end: "2026-11-05",
       title: { en: "Presentation", zh: "展示" },
       items: [
-        { en: "Finish and rehearse slides (15 min + 3 min Q&A)", zh: "完成并排练幻灯片（15 分钟 + 3 分钟问答）" },
-        { en: "Submit slides by 5 Nov, 6:00 pm", zh: "11月5日 18:00 前提交幻灯片" }
+        { who: "all", en: "Rehearse the talk (15 min + 3 min Q&A)", zh: "排练展示（15 分钟 + 3 分钟问答）" },
+        { who: "A", en: "Assemble the deck and submit by 5 Nov, 6:00 pm", zh: "合并幻灯片，11月5日 18:00 前提交" }
       ]
     },
     {
       start: "2026-11-06", end: "2026-11-15",
       title: { en: "Report drafting & peer grading", zh: "撰写报告与互评" },
       items: [
-        { en: "Write the group report (at least 10 pages)", zh: "撰写小组报告（至少 10 页）" },
-        { en: "Complete peer grading by 15 Nov", zh: "11月15日前完成互评" }
+        { who: "all", en: "Write methods, results and limitations for your own workstream", zh: "撰写自己方向的方法、结果和局限" },
+        { who: "A", en: "Edit the group report into one document (at least 10 pages)", zh: "统稿小组报告（至少 10 页）" },
+        { who: "all", en: "Complete peer grading by 15 Nov", zh: "11月15日前完成互评" }
       ]
     },
     {
       start: "2026-11-16", end: "2026-11-22",
       title: { en: "Final submission", zh: "最终提交" },
       items: [
-        { en: "Finalize report, data and code", zh: "完善报告、数据和代码" },
-        { en: "Write individual reports", zh: "撰写个人报告" },
-        { en: "Submit by 22 Nov, 11:59 pm", zh: "11月22日 23:59 前提交" }
+        { who: "all", en: "Write individual reports", zh: "撰写个人报告" },
+        { who: "A", en: "Finalize report, data and code; submit by 22 Nov, 11:59 pm", zh: "完善报告、数据和代码，11月22日 23:59 前提交" }
       ]
     }
   ],
@@ -133,12 +144,13 @@ window.PROJECT = {
     }
   },
 
-  // status: "todo" | "doing" | "done"; owner is the primary owner.
+  // status: "todo" | "doing" | "done"; owner is the primary owner's letter, ownerName (optional) is shown in its place.
   workstreams: [
     {
       name: { en: "Shared framework & model validation", zh: "共享框架与模型验证" },
       stage: { en: "A · Coordination & foundation", zh: "A · 统筹与基础" },
       owner: "A",
+      ownerName: { en: "Lao Zhongjie", zh: "劳中杰" },
       summary: {
         en: "Coordinate the project, define the shared run protocol, build SUMO, implement OVM and make the smallest end-to-end experiment runnable.",
         zh: "统筹全局安排，定义共享运行协议，编译 SUMO，实现 OVM，并打通最小端到端实验。"

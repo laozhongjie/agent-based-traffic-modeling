@@ -98,21 +98,39 @@
       bar.append(h("span", { class: "marker-label today", style: "left:" + left + "%;transform:" + anchor(left), text: U().today }));
     }
 
+    const members = P.workstreams.map((w) => w.owner);
+    const filter = clear("timeline-filter");
+    filter.append(h("span", { class: "label", text: U().showOnly }));
+    ["all"].concat(members).forEach((m) => {
+      const b = h("button", { type: "button", "aria-pressed": String(timelineWho === m), text: m === "all" ? U().everyone : m });
+      b.addEventListener("click", () => { timelineWho = m; saveWho(m); renderTimeline(); });
+      filter.append(b);
+    });
+
+    const ring = (m) => (P.review.outer.includes(m) ? "outer" : "inner");
+    const chip = (m) => h("span", { class: "who " + (m === "all" ? "all" : ring(m)), text: m === "all" ? U().group : m });
     const list = clear("timeline-list");
     P.timeline.forEach((ph) => {
       const s = dayStart(ph.start), e = dayEnd(ph.end);
       const state = now > e ? "past" : now >= s ? "current" : "upcoming";
       const range = ph.start === ph.end ? fmtDay(s) : fmtDay(s) + " – " + fmtDay(e);
+      const items = ph.items.filter((it) => timelineWho === "all" || it.who === "all" || [].concat(it.who).includes(timelineWho));
       list.append(h("li", { class: "phase " + state }, [
         h("div", { class: "when" }, [range, state === "current" ? h("div", { class: "badge", text: U().now }) : null]),
         h("div", {}, [
           h("h3", { text: tr(ph.title) }),
           ph.note ? h("p", { class: "phase-note", text: tr(ph.note) }) : null,
-          h("ul", {}, ph.items.map((it) => h("li", { text: tr(it) })))
+          h("ul", { class: "who-items" }, items.map((it) =>
+            h("li", {}, [h("span", { class: "chips" }, [].concat(it.who).map(chip)), h("span", { text: tr(it) })])))
         ])
       ]));
     });
   }
+
+  // Per-viewer timeline filter; storage may be unavailable.
+  function loadWho() { try { return localStorage.getItem("timeline-who") || "all"; } catch (e) { return "all"; } }
+  function saveWho(m) { try { localStorage.setItem("timeline-who", m); } catch (e) { /* storage unavailable */ } }
+  let timelineWho = loadWho();
 
   // ---------- progress ----------
   const WEIGHT = { done: 1, doing: 0.5, todo: 0 };
@@ -151,7 +169,7 @@
         h("div", { class: "ws-main" }, [
           h("p", { class: "tag", text: tr(w.stage) }),
           h("div", { class: "ws-head" }, [h("h3", { text: tr(w.name) }), h("span", { class: "pct", text: k.pct + "%" })]),
-          h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.owner) : U().unclaimed }),
+          h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.ownerName || w.owner) : U().unclaimed }),
           h("p", { class: "ws-summary", text: tr(w.summary) }),
           barEl(k)
         ]),
