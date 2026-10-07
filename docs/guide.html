@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="assets/access.js"></script>
   <title>Shared conventions · Agent-Based Traffic Modeling</title>
-  <meta name="description" content="How every member sets up SUMO, where files go, how runs are named and recorded, and which checks each run must pass.">
+  <meta name="description" content="How every member sets up SUMO and Python, where code and files go, how to build an experiment, which checks each run must pass, and how code reaches main.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -26,7 +26,7 @@
     <header class="model-head">
       <p class="eyebrow" data-i18n="guide.tag">Shared conventions · Read before your first run</p>
       <h1 data-i18n="guide.title">How we run experiments</h1>
-      <p class="lede" data-i18n="guide.lede">This page is the single reference for how every member sets up SUMO, where files go, how runs are named and recorded, and which checks each run must pass. Everything here was tested on the ring-road example in the repository.</p>
+      <p class="lede" data-i18n="guide.lede">This page is the single reference for how every member sets up SUMO, where code and files go, how to build a new experiment, how runs are named and checked, and how code reaches the main branch. The ring-road example in the repository follows every rule here and serves as the template.</p>
       <p class="note" data-i18n="guide.status">Items marked <span class="chip decide">To decide</span> still need group agreement. A maintains this page; propose changes at the group meeting before relying on them.</p>
     </header>
 
@@ -34,13 +34,14 @@
       <h2 id="guide-toc-title">On this page</h2>
       <ol>
         <li><a href="#setup">Set up SUMO and Python</a></li>
-        <li><a href="#layout">Where files go</a></li>
+        <li><a href="#layout">Where code and files go</a></li>
         <li><a href="#example">Run the ring-road example</a></li>
+        <li><a href="#new">Build a new experiment</a></li>
         <li><a href="#records">Run IDs and run records</a></li>
         <li><a href="#checks">Checks every run must pass</a></li>
         <li><a href="#units">Units and measurements</a></li>
         <li><a href="#decide">Still to decide</a></li>
-        <li><a href="#commit">Before you commit</a></li>
+        <li><a href="#git">Working with Git</a></li>
       </ol>
     </div>
 
@@ -67,40 +68,59 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
         <li>On macOS, install XQuartz before using <code>sumo-gui</code> (with Homebrew as below, or from <a href="https://www.xquartz.org/">xquartz.org</a>), then log out and in again. Without XQuartz, <code>sumo-gui</code> stops with <code>unable to open display</code>. The command-line tools do not need it. <code>Fontconfig warning</code> lines printed by <code>sumo-gui</code> are harmless.
 <pre><code>brew install --cask xquartz</code></pre>
         </li>
-        <li>Use Python 3 with <code>scipy</code> and <code>matplotlib</code>. <span class="chip decide">To decide</span> A will add <code>environment.yml</code> so everyone uses the same package versions.</li>
+        <li>Create the shared Python environment once, from the repository root. It installs fixed versions of Python and the packages, and installs the project code in <code>src/traffic_project</code> so that every script can import it.
+<pre><code>conda env create -f environment.yml</code></pre>
+        </li>
+        <li>Activate the environment in every new terminal before running project commands:
+<pre><code>conda activate traffic</code></pre>
+        </li>
       </ol>
     </section>
 
     <section class="card model-section" id="layout" data-i18n="guide.layout">
-      <h2>2. Where files go</h2>
-      <p>The rule that matters most: <strong>files that stay the same for every run go in <code>scenarios/</code>; anything generated for one run goes in <code>runs/&lt;run-id&gt;/</code>.</strong> A full sweep produces hundreds of runs, and mixing them into <code>scenarios/</code> makes both unusable.</p>
+      <h2>2. Where code and files go</h2>
+      <p>Code is organised by what it does, not by who wrote it. Each kind of code has one place and one owner.</p>
       <div class="table-wrap">
         <table class="model-table">
-          <thead><tr><th>Folder</th><th>What goes in it</th><th>In git</th></tr></thead>
+          <thead><tr><th>Location</th><th>What goes in it</th><th>Owner</th></tr></thead>
           <tbody>
-            <tr><td><code>scenarios/&lt;name&gt;/</code></td><td>Networks, signal plans and the scripts that build them, for example <code>scenarios/ring/build_net.py</code></td><td>Yes</td></tr>
-            <tr><td><code>configs/</code></td><td>Parameter sets, density grids, seed lists and durations</td><td>Yes</td></tr>
-            <tr><td><code>scripts/</code></td><td>Command-line entry points, for example <code>scripts/ring_sweep.py</code></td><td>Yes</td></tr>
-            <tr><td><code>src/traffic_project/</code></td><td>Shared Python code (runner, measurements, analysis); planned</td><td>Yes</td></tr>
-            <tr><td><code>runs/&lt;run-id&gt;/</code></td><td>One folder per run: generated inputs, SUMO outputs, log, record and checks</td><td><strong>No</strong></td></tr>
-            <tr><td><code>results/&lt;scenario&gt;/</code></td><td>Tables that collect many runs, and figures; keep files small</td><td>Yes</td></tr>
-            <tr><td><code>data/raw/</code></td><td>Original external data: OSM, PeMS, highD, LTA</td><td><strong>No</strong></td></tr>
-            <tr><td><code>docs/data/</code></td><td>Compact exports for the website, generated from <code>results/</code></td><td>Yes</td></tr>
+            <tr><td><code>scenarios/ring/</code></td><td>Ring network and the script that places vehicles for one run</td><td>B</td></tr>
+            <tr><td><code>scenarios/grid/</code></td><td>4×4 test grid and planning prototypes on it</td><td>D</td></tr>
+            <tr><td><code>scenarios/city/</code></td><td>OSM district; planning variants of it</td><td>C; D</td></tr>
+            <tr><td><code>configs/&lt;scenario&gt;/</code></td><td>One TOML file per experiment with every parameter</td><td>Scenario owner</td></tr>
+            <tr><td><code>scripts/</code></td><td>Entry points, one per task: <code>&lt;scenario&gt;_sweep.py</code>, <code>plot_&lt;scenario&gt;.py</code></td><td>Scenario owner</td></tr>
+            <tr><td><code>src/traffic_project/</code> <code>config.py</code>, <code>io.py</code>, <code>runner.py</code></td><td>Load configs, read SUMO outputs, run SUMO, write run records, common checks</td><td>A</td></tr>
+            <tr><td><code>src/traffic_project/measurements.py</code></td><td>Measured quantities, one function per scenario</td><td>A; B ring; C network</td></tr>
+            <tr><td><code>src/traffic_project/demand.py</code></td><td>Constant-density TraCI controller for the city network (planned)</td><td>C</td></tr>
+            <tr><td><code>src/traffic_project/analysis/</code></td><td>Critical points, fluctuations, error bars (planned)</td><td>E</td></tr>
+            <tr><td><code>results/&lt;scenario&gt;/</code></td><td>Tables that collect many runs, and figures; keep files small</td><td>Scenario owner</td></tr>
+            <tr><td><code>data/raw/</code>, <code>data/processed/</code></td><td>External data: OSM, PeMS, highD, LTA</td><td>E</td></tr>
+            <tr><td><code>runs/&lt;run-id&gt;/</code></td><td>One folder per run, written by the scripts; never edited by hand</td><td>—</td></tr>
+            <tr><td><code>sandbox/&lt;your-name&gt;/</code></td><td>Your own experiments and notebooks</td><td>You</td></tr>
+            <tr><td><code>docs/</code></td><td>This website</td><td>A</td></tr>
           </tbody>
         </table>
       </div>
-      <p><code>.gitignore</code> already excludes <code>runs/</code>, <code>data/raw/</code> and every <code>*.fcd.xml</code>. Share large files through external storage and write down how to get them.</p>
+      <p>Git ignores <code>runs/</code>, <code>data/raw/</code>, <code>sandbox/</code> and every <code>*.fcd.xml</code>. Everything else in the table is committed.</p>
+      <p><strong>Rules</strong></p>
+      <ol>
+        <li><strong>Do not copy shared code.</strong> To run SUMO, read outputs or write records, import <code>traffic_project</code>. If something is missing, ask A or open a pull request that adds it there.</li>
+        <li><strong>Keep parameters out of code.</strong> Every model parameter, density, seed and duration lives in the experiment's TOML file in <code>configs/</code>.</li>
+        <li><strong>One experiment is one config file and one command.</strong> Anyone can reproduce it from a clean commit.</li>
+        <li><strong><code>sandbox/</code> never produces a reported result.</strong> Move the code into the places above before its output goes into the report or onto the website.</li>
+        <li><strong>Start every script with a docstring</strong> that says what it does and how to run it.</li>
+      </ol>
     </section>
 
     <section class="card model-section" id="example" data-i18n="guide.example">
       <h2>3. Run the ring-road example</h2>
-      <p>Run every command from the repository root. The example runs IDM on a 1000 m single-lane ring.</p>
+      <p>Run every command from the repository root, with the <code>traffic</code> environment active. The example runs IDM on a 1000 m single-lane ring; all its parameters are in <code>configs/ring/idm_sweep.toml</code>.</p>
       <ol>
         <li>Build the ring network. This writes <code>scenarios/ring/ring_1000.net.xml</code>, which is already in git.
 <pre><code>python scenarios/ring/build_net.py --length 1000</code></pre>
         </li>
         <li>Generate the inputs for one run with 30 vehicles and seed 1. This creates <code>runs/ring_idm_L1000_n30_s1/</code>.
-<pre><code>python scenarios/ring/build_run.py --vehicles 30 --seed 1</code></pre>
+<pre><code>python scenarios/ring/build_run.py --config configs/ring/idm_sweep.toml --vehicles 30 --seed 1</code></pre>
         </li>
         <li>Run SUMO. Choose one of the two commands:
           <ul>
@@ -112,19 +132,45 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
             </li>
           </ul>
         </li>
-        <li>Run a density sweep. For each vehicle count the script builds the run, runs SUMO, applies the checks in section 5 and writes the run record. It then writes <code>results/ring/idm_sweep.csv</code>.
-<pre><code>python scripts/ring_sweep.py --vehicles 10 20 30 40 50 60 70 80 90 100 110 120 --seeds 1</code></pre>
+        <li>Run the whole sweep in the config. For each run the script builds the inputs, runs SUMO, applies the checks in section 6 and writes the run record. It then writes <code>results/ring/idm_sweep.csv</code>.
+<pre><code>python scripts/ring_sweep.py --config configs/ring/idm_sweep.toml</code></pre>
         </li>
         <li>Plot the fundamental diagram and the space–time diagrams into <code>results/ring/</code>.
-<pre><code>python scripts/plot_ring.py</code></pre>
+<pre><code>python scripts/plot_ring.py --config configs/ring/idm_sweep.toml</code></pre>
         </li>
       </ol>
       <p><strong>Expected result:</strong> at 30 veh/km the mean speed is 16.6 m/s, the IDM equilibrium speed for that spacing. Flow peaks near 30 veh/km. Stop-and-go waves appear between about 40 and 80 veh/km; above 100 veh/km traffic is uniformly slow. If your numbers differ, check your SUMO version first.</p>
     </section>
 
+    <section class="card model-section" id="new" data-i18n="guide.new">
+      <h2>4. Build a new experiment</h2>
+      <p>Follow these steps for every experiment, including a variation of an existing one. Copy the matching ring-road file as a starting point.</p>
+      <ol>
+        <li><strong>Create a branch</strong> for the experiment (section 9).</li>
+        <li><strong>Write the config</strong> <code>configs/&lt;scenario&gt;/&lt;name&gt;.toml</code>. Start from <code>configs/ring/idm_sweep.toml</code>. The top-level keys <code>name</code>, <code>scenario</code> and <code>model</code> are required; <code>name</code> also names the result files. Give every number a comment with its unit.</li>
+        <li><strong>Build the scenario inputs</strong> with a script in <code>scenarios/&lt;scenario&gt;/</code>, like <code>scenarios/ring/build_run.py</code>. It reads the config, writes one folder <code>runs/&lt;run-id&gt;/</code> and prints the run ID. The <code>.sumocfg</code> it writes uses relative paths, sets <code>time-to-teleport</code> to <code>-1</code> and <code>collision.action</code> to <code>warn</code>.</li>
+        <li><strong>Add the measurements</strong> as one function in <code>src/traffic_project/measurements.py</code>, like <code>ring_summary</code>. It reads one run's outputs and returns <code>(measurements, checks)</code>. This changes shared code, so A reviews the pull request.</li>
+        <li><strong>Write the entry script</strong> <code>scripts/&lt;scenario&gt;_sweep.py</code>, like <code>scripts/ring_sweep.py</code>. It takes <code>--config</code>, loops over the sweep and uses the shared calls below, then writes <code>results/&lt;scenario&gt;/&lt;name&gt;.csv</code>.</li>
+        <li><strong>Run it and read the output.</strong> Every run prints <code>ok</code> or <code>INVALID</code> with the failed checks. Fix the cause of every invalid run before using the results.</li>
+        <li><strong>Plot</strong> with <code>scripts/plot_&lt;scenario&gt;.py --config …</code> into <code>results/&lt;scenario&gt;/</code>.</li>
+        <li><strong>Commit</strong> the config, code and results together and open a pull request.</li>
+      </ol>
+      <p>The shared calls every entry script uses, shown as an outline (not runnable as it is):</p>
+<pre><code>from traffic_project import ROOT, config, io, measurements, runner
+
+cfg = config.load(args.config)
+for each run in the sweep:
+    run_id, run_dir = …                      # from scenarios/&lt;scenario&gt;/build_*.py
+    runner.write_manifest(run_dir, run_id, cfg, parameters)
+    _, checks = runner.run_sumo(run_dir)
+    measured, more_checks = measurements.&lt;scenario&gt;_summary(…)
+    rows.append(runner.finish(run_dir, run_id, measured, {**checks, **more_checks}))
+io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", columns)</code></pre>
+    </section>
+
     <section class="card model-section" id="records" data-i18n="guide.records">
-      <h2>4. Run IDs and run records</h2>
-      <p>A run ID names the scenario, the model, the parameters that vary and the seed, joined by underscores, with no spaces. The ring example uses <code>ring_idm_L1000_n30_s1</code>: ring, IDM, length 1000 m, 30 vehicles, seed 1. Owners of other scenarios follow the same pattern and list their format here.</p>
+      <h2>5. Run IDs and run records</h2>
+      <p>A run ID names the scenario, the model, the parameters that vary and the seed, joined by underscores, with no spaces. The ring example uses <code>ring_idm_L1000_n30_s1</code>: ring, IDM, length 1000 m, 30 vehicles, seed 1. Owners of other scenarios follow the same pattern and add their format here.</p>
       <div class="table-wrap">
         <table class="model-table">
           <thead><tr><th>File in <code>runs/&lt;run-id&gt;/</code></th><th>Contents</th></tr></thead>
@@ -133,26 +179,26 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
             <tr><td><code>vehicles.rou.xml</code></td><td>Vehicle type with its model parameters, routes and start positions</td></tr>
             <tr><td><code>fcd.xml</code></td><td>Position and speed of every vehicle at every step; large</td></tr>
             <tr><td><code>log.txt</code></td><td>SUMO messages, used by the collision and teleport checks</td></tr>
-            <tr><td><code>manifest.json</code></td><td>Run ID, scenario, model, parameters, SUMO version, git commit and creation time</td></tr>
+            <tr><td><code>manifest.json</code></td><td>Run ID, scenario, model, config file and its hash, all parameters, SUMO version, git commit and creation time</td></tr>
             <tr><td><code>summary.json</code></td><td>Measurements and the result of every check, with <code>valid</code> = true or false</td></tr>
           </tbody>
         </table>
       </div>
-      <p>Every number in the report or on the website keeps the run IDs it came from. A git commit ending in <code>-dirty</code> means the code had uncommitted changes; formal results must come from a clean commit.</p>
+      <p>Every number in the report or on the website keeps the run IDs it came from. The config hash shows whether the config file changed after the run. A git commit ending in <code>-dirty</code> means the code had uncommitted changes; formal results must come from a clean commit.</p>
     </section>
 
     <section class="card model-section" id="checks" data-i18n="guide.checks">
-      <h2>5. Checks every run must pass</h2>
-      <p>SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in <code>summary.json</code>. Keep invalid runs for diagnosis, but leave them out of every table and figure.</p>
+      <h2>6. Checks every run must pass</h2>
+      <p>SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in <code>summary.json</code>. The first three come from <code>runner.run_sumo</code>, the others from the scenario's measurement function. Keep invalid runs for diagnosis, but leave them out of every table and figure.</p>
       <div class="table-wrap">
         <table class="model-table">
           <thead><tr><th>Check</th><th>What it catches</th></tr></thead>
           <tbody>
-            <tr><td><code>all_vehicles_present</code></td><td>SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, <code>build_run.py</code> also refuses a vehicle count that cannot fit.</td></tr>
+            <tr><td><code>sumo_exit_ok</code></td><td>SUMO stopped with an error</td></tr>
             <tr><td><code>no_teleport</code></td><td>By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Every run sets <code>time-to-teleport</code> to <code>-1</code> to turn this off.</td></tr>
             <tr><td><code>no_collision</code></td><td>Vehicles overlapping. Every run sets <code>collision.action</code> to <code>warn</code> so collisions appear in the log.</td></tr>
+            <tr><td><code>all_vehicles_present</code></td><td>SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, <code>build_run.py</code> also refuses a vehicle count that cannot fit.</td></tr>
             <tr><td><code>no_negative_speed</code></td><td>Model errors, especially in the new OVM code</td></tr>
-            <tr><td><code>sumo_exit_ok</code></td><td>SUMO stopped with an error</td></tr>
           </tbody>
         </table>
       </div>
@@ -160,7 +206,7 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
     </section>
 
     <section class="card model-section" id="units" data-i18n="guide.units">
-      <h2>6. Units and measurements</h2>
+      <h2>7. Units and measurements</h2>
       <div class="table-wrap">
         <table class="model-table">
           <thead><tr><th>Quantity</th><th>Unit and rule</th></tr></thead>
@@ -178,7 +224,7 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
     </section>
 
     <section class="card model-section" id="decide" data-i18n="guide.decide">
-      <h2>7. Still to decide</h2>
+      <h2>8. Still to decide</h2>
       <ul>
         <li><strong>IDM parameters</strong> (B, with the group). The example uses placeholders: accel 1.0 m/s², decel 1.5 m/s², time headway 1.5 s, minimum gap 2 m, maximum speed 30 m/s, vehicle length 5 m.</li>
         <li><strong>Ring congestion criterion</strong> (B). The placeholder, speed below 5 m/s, counts uniformly slow traffic above 100 veh/km as fully congested although it has no stop-and-go waves. The criterion must separate the two.</li>
@@ -186,17 +232,44 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
         <li><strong>Density grid and number of seeds per point</strong> (B and C, with E), so that E can estimate error bars.</li>
         <li><strong>Step length and warm-up length</strong> for the continuous models.</li>
         <li><strong>Which runs keep <code>fcd.xml</code>.</strong> One run of 30 vehicles for 1800 s writes about 7 MB, so a full sweep should keep trajectories only for representative runs.</li>
-        <li><strong><code>environment.yml</code> and the pinned SUMO build with NaSch and OVM</strong> (A).</li>
+        <li><strong>The pinned SUMO build with NaSch and OVM</strong> (A).</li>
       </ul>
     </section>
 
-    <section class="card model-section" id="commit" data-i18n="guide.commit">
-      <h2>8. Before you commit</h2>
+    <section class="card model-section" id="git" data-i18n="guide.git">
+      <h2>9. Working with Git</h2>
+      <p>Nobody pushes to <code>main</code> directly. Every change reaches <code>main</code> through a pull request (PR) that one reviewer approves.</p>
       <ol>
-        <li>Check that <code>git status</code> lists no files under <code>runs/</code> or <code>data/raw/</code>.</li>
-        <li>Commit code, scenarios and <code>results/</code> together, so a result always matches the code that produced it.</li>
+        <li>Start from the latest <code>main</code>:
+<pre><code>git switch main
+git pull</code></pre>
+        </li>
+        <li>Create a branch named <code>&lt;your letter&gt;/&lt;topic&gt;</code>, for example:
+<pre><code>git switch -c b/ring-bottleneck</code></pre>
+        </li>
+        <li>Commit your changes with a message that says what changed.</li>
+        <li>Push the branch:
+<pre><code>git push -u origin b/ring-bottleneck</code></pre>
+        </li>
+        <li>On GitHub, open a pull request into <code>main</code> and request the reviewer from the table below. Merge only after the reviewer approves.</li>
+      </ol>
+      <div class="table-wrap">
+        <table class="model-table">
+          <thead><tr><th>The PR changes</th><th>Reviewer</th></tr></thead>
+          <tbody>
+            <tr><td><code>src/traffic_project/</code></td><td>A; E when A wrote the change</td></tr>
+            <tr><td>This page (<code>docs/guide.html</code>)</td><td>A, after the group has agreed the change</td></tr>
+            <tr><td>Work of A / E</td><td>E / A</td></tr>
+            <tr><td>Work of B / C / D</td><td>C / D / B</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Before opening a PR</strong></p>
+      <ol>
+        <li>Check that <code>git status</code> lists no files under <code>runs/</code>, <code>data/raw/</code> or <code>sandbox/</code>.</li>
+        <li>Commit the config, code and <code>results/</code> together, so a result always matches the code that produced it.</li>
         <li>Rerun the result from a clean commit before it goes into the report or onto the website.</li>
-        <li>When you change a convention on this page, tell the group first, then update the page in the same commit.</li>
+        <li>If you changed a convention on this page, update the page in the same PR.</li>
       </ol>
     </section>
   </main>

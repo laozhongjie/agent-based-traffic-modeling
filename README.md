@@ -53,6 +53,8 @@ The tree below is the intended layout. The repository currently contains the ove
 │   ├── network/
 │   └── planning/
 ├── src/traffic_project/        # Shared simulation and analysis code
+│   ├── config.py               # Load experiment configs (TOML)
+│   ├── io.py                   # Read SUMO outputs, write result tables
 │   ├── runner.py               # SUMO/TraCI execution and run records
 │   ├── demand.py               # Destinations, routing, vehicle-count control
 │   ├── measurements.py         # Common measurement definitions
@@ -64,6 +66,7 @@ The tree below is the intended layout. The repository currently contains the ove
 │   ├── raw/                    # Original OSM, PeMS, highD or LTA data (not in git)
 │   └── processed/              # Cleaned external data
 ├── runs/                       # One folder per run: inputs, record, log, outputs (not in git)
+├── sandbox/                    # Personal experiments (not in git)
 ├── results/                    # Aggregated statistics and figures (in git, keep small)
 ├── reports/                    # Report and presentation sources
 └── docs/                       # Published website; retain existing structure
@@ -95,4 +98,4 @@ The tree below is the intended layout. The repository currently contains the ove
 5. Generate report figures and export the corresponding compact data to `docs/data/ring/`, `docs/data/network/` and `docs/data/planning/`.
 6. Verify the website against the exported results, then commit and push. Result-page controls select available precomputed runs or replay times; new parameter combinations require another command-line run and export. Browser illustrations remain educational examples.
 
-The experiment command-line tools are still to be implemented; this section defines their intended workflow rather than an existing command reference.
+The ring-road tools follow this workflow; see `docs/guide.html` for the commands and for how to add a new experiment. Tools for the other scenarios are still to be implemented.

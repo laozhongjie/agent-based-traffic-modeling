@@ -127,7 +127,7 @@ window.I18N = {
       // experiment pages
       "lab.navLabel": "实验页面",
       "lab.nav.hub": "项目主页",
-      "nav.guide": "统一做法",
+      "nav.guide": "实验手册",
       "lab.nav.ring": "环路",
       "lab.nav.net": "城市路网",
       "lab.nav.plan": "规划",

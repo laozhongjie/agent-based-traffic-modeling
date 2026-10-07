@@ -53,6 +53,8 @@
 │   ├── network/
 │   └── planning/
 ├── src/traffic_project/        # 共用的模拟和分析代码
+│   ├── config.py               # 读取实验配置（TOML）
+│   ├── io.py                   # 读取 SUMO 输出，写结果表格
 │   ├── runner.py               # SUMO/TraCI 运行与实验记录
 │   ├── demand.py               # 目的地、路线及车辆数控制
 │   ├── measurements.py         # 统一指标定义
@@ -64,11 +66,12 @@
 │   ├── raw/                    # OSM、PeMS、highD 或 LTA 原始数据（不进 git）
 │   └── processed/              # 清洗后的外部数据
 ├── runs/                       # 每次运行一个目录：输入、记录、日志和输出（不进 git）
+├── sandbox/                    # 个人试验代码（不进 git）
 ├── results/                    # 汇总统计和图表（进 git，保持精简）
 ├── reports/                    # 报告和幻灯片源文件
 └── docs/                       # 发布的网站，保留现有结构
     ├── index.html
-    ├── guide.html              # 全组统一做法
+    ├── guide.html              # 实验手册（全组共用规范）
     ├── assets/                 # 共用样式、脚本和原理演示
     ├── models/                 # NaSch、OVM 和 IDM 介绍
     ├── lab/                    # 环路、路网和规划结果页面
@@ -83,7 +86,7 @@
 - `runs/<run-id>/` 保存本次运行的完整配置、随机种子、项目与 SUMO 版本、场景标识、验证结果、日志和输出。`results/` 汇总这些运行；每个发布的数据点应保留来源运行编号。
 - git 跟踪代码、场景、配置、`results/` 和 `docs/`，不跟踪 `runs/` 和 `data/raw/`（见 `.gitignore`）。大文件通过外部存储共享，并记录获取方式。
 - `docs/data/` 存放由有效实验结果生成的精简数据。GitHub Pages 会发布整个 `docs/`，完整轨迹、私有数据和实验输入应保存在该目录之外。
-- `docs/guide.html` 是全组统一做法的唯一依据（单位、运行编号、目录、检查项）。`research/` 记录这些决定的由来和验证结果。
+- 实验手册 `docs/guide.html` 是全组做实验的唯一依据（单位、运行编号、目录、检查项）。`research/` 记录这些决定的由来和验证结果。
 - 上游 SUMO 源码和编译目录放在仓库之外。`sumo/version.txt` 记录版本，`sumo/ovm/` 保存 OVM 新增的源文件，`sumo/patches/` 保存对 SUMO 原有文件的改动。
 
 ## 实验工作流程
@@ -95,4 +98,4 @@
 5. 生成报告图表，同时将对应精简数据导出到 `docs/data/ring/`、`docs/data/network/` 和 `docs/data/planning/`。
 6. 检查网页展示与导出结果一致，再提交并推送。结果页控件用于选择已有计算组合或回放时刻；新参数组合需要重新通过命令行运行并导出。浏览器原理演示用于教学说明。
 
-实验命令行工具尚待实现；此处说明目标流程，不是现有命令的使用手册。
+环路实验的命令行工具已按此流程实现，具体命令和新增实验的方法见 `docs/guide.html`。其他场景的工具尚待实现。
