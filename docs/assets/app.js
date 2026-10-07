@@ -166,6 +166,54 @@
     });
   }
 
+  // ---------- cross-review ----------
+  function svg(tag, attrs, children) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, v);
+    for (const c of [].concat(children || [])) node.append(c);
+    return node;
+  }
+
+  // Members sit on a circle; an arc runs clockwise from each member to the one it reviews.
+  function loopSvg(members, id, label) {
+    const n = members.length;
+    const cx = 120, cy = n === 2 ? 95 : 105, R = 64, r = 22;
+    const start = n === 2 ? Math.PI : -Math.PI / 2;
+    const ang = (i) => start + (2 * Math.PI * i) / n;
+    const pt = (a) => [cx + R * Math.cos(a), cy + R * Math.sin(a)].map((v) => v.toFixed(1));
+    const trim = (r + 6) / R;
+    const marker = "review-arrow-" + id;
+    const root = svg("svg", { viewBox: "0 0 240 190", role: "img", "aria-label": label }, [
+      svg("defs", {}, svg("marker", {
+        id: marker, viewBox: "0 0 10 10", refX: 9, refY: 5,
+        markerWidth: 9, markerHeight: 9, markerUnits: "userSpaceOnUse", orient: "auto"
+      }, svg("path", { d: "M0,0 L10,5 L0,10 z" })))
+    ]);
+    members.forEach((m, i) => {
+      const [x0, y0] = pt(ang(i) + trim), [x1, y1] = pt(ang(i + 1) - trim);
+      root.append(svg("path", { class: "arc", d: `M${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1}`, "marker-end": `url(#${marker})` }));
+    });
+    members.forEach((m, i) => {
+      const [x, y] = pt(ang(i));
+      root.append(svg("g", { class: "node" }, [svg("circle", { cx: x, cy: y, r }), svg("text", { x, y }, m)]));
+    });
+    return root;
+  }
+
+  function renderReview() {
+    const name = (m) => { const w = P.workstreams.find((x) => x.owner === m); return w ? tr(w.name) : ""; };
+    const grid = clear("review-loops");
+    P.reviewLoops.forEach((loop, k) => {
+      const m = loop.members;
+      const label = m.map((x, i) => U().reviews(x, m[(i + 1) % m.length])).join(", ");
+      grid.append(h("figure", { class: "loop loop-" + k }, [
+        h("figcaption", { class: "tag", text: tr(loop.title) }),
+        loopSvg(m, k, label),
+        h("ul", { class: "loop-legend" }, [...m].sort().map((x) => h("li", {}, [h("strong", { text: x }), name(x)])))
+      ]));
+    });
+  }
+
   // ---------- resources ----------
   function renderResources() {
     const grid = clear("resources-list");
@@ -312,6 +360,7 @@
     renderNextDeadline();
     renderTimeline();
     renderProgress();
+    renderReview();
     renderResources();
   }
 

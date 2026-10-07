@@ -115,6 +115,12 @@ window.PROJECT = {
     }
   ],
 
+  // Cross-review loops: each member reviews the next one; the last reviews the first.
+  reviewLoops: [
+    { title: { en: "Run data and analysis", zh: "运行数据与分析" }, members: ["A", "E"] },
+    { title: { en: "Experiment streams", zh: "实验方向" }, members: ["D", "C", "B"] }
+  ],
+
   // status: "todo" | "doing" | "done"; owner is the primary owner.
   workstreams: [
     {
@@ -147,7 +153,7 @@ window.PROJECT = {
         { text: { en: "Run NaSch / OVM / IDM ring-road experiments", zh: "运行 NaSch / OVM / IDM 环路实验" }, status: "todo" },
         { text: { en: "Compare density, system size, randomness and bottleneck", zh: "比较密度、系统尺寸、随机性和瓶颈条件" }, status: "todo" },
         { text: { en: "Produce fundamental and space–time diagrams", zh: "生成基本图和时空图" }, status: "todo" },
-        { text: { en: "Review C's network outputs for comparable units and seeds", zh: "复核 C 的路网输出，确认单位和随机种子可比" }, status: "todo" },
+        { text: { en: "Review D's planning scenarios for consistent demand and routes", zh: "复核 D 的规划场景，确认需求和路线一致" }, status: "todo" },
         { text: { en: "Prepare ring results for the report and site", zh: "为报告和网站整理环路结果" }, status: "todo" }
       ]
     },
@@ -165,7 +171,7 @@ window.PROJECT = {
         { text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" }, status: "todo" },
         { text: { en: "Run network-density sweeps and export representative runs", zh: "运行网络密度扫描并导出代表性运行" }, status: "todo" },
         { text: { en: "Measure MFD inputs, queues and congested clusters", zh: "测量宏观基本图输入、排队和拥堵连通区域" }, status: "todo" },
-        { text: { en: "Review D's scenarios for consistent demand and routes", zh: "复核 D 的规划场景，确认需求和路线一致" }, status: "todo" }
+        { text: { en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" }, status: "todo" }
       ]
     },
     {
@@ -181,7 +187,7 @@ window.PROJECT = {
         { text: { en: "Reuse Stage 2 density grid, routes and seed groups", zh: "沿用阶段二的密度网格、路线和随机种子组" }, status: "todo" },
         { text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" }, status: "todo" },
         { text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" }, status: "todo" },
-        { text: { en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" }, status: "todo" },
+        { text: { en: "Review C's network pipeline, units and seeds before reusing them", zh: "复核 C 的路网流程、单位和随机种子，确认可以直接沿用" }, status: "todo" },
         { text: { en: "Prepare planning figures for the report and site", zh: "为报告和网站整理规划方案图表" }, status: "todo" }
       ]
     },

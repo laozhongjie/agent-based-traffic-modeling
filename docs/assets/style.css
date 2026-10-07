@@ -263,6 +263,22 @@ tr:last-child td { border-bottom: none; }
 .bar .seg-doing { background: var(--doing); }
 .progress-summary .bar { flex: 1 1 240px; }
 
+.review { margin-bottom: 16px; }
+.review-loops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+@media (max-width: 640px) { .review-loops { grid-template-columns: 1fr; } }
+.loop { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.loop-0 { --loop: var(--accent); }
+.loop-1 { --loop: var(--free); }
+.loop .tag { color: var(--loop) !important; margin-bottom: 0 !important; }
+.loop svg { width: 100%; max-width: 260px; height: auto; }
+.loop .arc { fill: none; stroke: var(--loop); stroke-width: 2; }
+.loop marker path { fill: var(--loop); }
+.loop .node circle { fill: var(--surface); stroke: var(--loop); stroke-width: 2; }
+.loop .node text { fill: var(--text); font-size: 18px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.review .loop-legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; font-size: 14px; }
+.review .loop-legend li + li { margin-top: 0; }
+.review .loop-legend strong { color: var(--loop); margin-right: 6px; }
+
 .workstreams { grid-template-columns: 1fr; }
 .ws { display: grid; grid-template-columns: 320px 1fr; gap: 28px; align-items: start; }
 .ws .tasks { columns: 2; column-gap: 28px; padding-top: 2px !important; }
