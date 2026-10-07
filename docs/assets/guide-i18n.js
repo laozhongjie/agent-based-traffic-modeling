@@ -42,7 +42,7 @@ source ~/.bashrc</code></pre>
       <li>检查安装结果。输出的第一行应为 <code>Eclipse SUMO sumo 1.27.1</code>。
 <pre><code>sumo --version</code></pre>
       </li>
-      <li>在 macOS 上使用 <code>sumo-gui</code> 前，先安装 XQuartz（用下面的 Homebrew 命令，或从 <a href='https://www.xquartz.org/'>xquartz.org</a> 下载），再注销并重新登录。没有 XQuartz 时，<code>sumo-gui</code> 会报错 <code>unable to open display</code>。命令行工具不需要 XQuartz。<code>sumo-gui</code> 输出的 <code>Fontconfig warning</code> 不影响运行。
+      <li><strong>可选：</strong><code>sumo-gui</code> 用窗口显示仿真过程，可以看到车辆怎样移动、拥堵在哪里形成，适合用来检查新搭建的场景是否正确。做实验不需要它：除了第 3 节中一个可选步骤，本手册的所有命令都不打开窗口。在 Windows 上，安装 SUMO 后即可使用 <code>sumo-gui</code>。在 macOS 上需要先安装 XQuartz（用下面的 Homebrew 命令，或从 <a href='https://www.xquartz.org/'>xquartz.org</a> 下载），再注销并重新登录。没有 XQuartz 时，<code>sumo-gui</code> 会报错 <code>unable to open display</code>。<code>sumo-gui</code> 输出的 <code>Fontconfig warning</code> 不影响运行。
 <pre><code>brew install --cask xquartz</code></pre>
       </li>
       <li>在仓库根目录创建全组共用的 Python 环境，只需做一次。这一步会安装固定版本的 Python 和软件包，并安装 <code>src/traffic_project</code> 中的项目代码，让所有脚本都能导入它。

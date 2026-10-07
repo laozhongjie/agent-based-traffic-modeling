@@ -67,7 +67,7 @@ source ~/.bashrc</code></pre>
         <li>Check the installation. The first line must read <code>Eclipse SUMO sumo 1.27.1</code>.
 <pre><code>sumo --version</code></pre>
         </li>
-        <li>On macOS, install XQuartz before using <code>sumo-gui</code> (with Homebrew as below, or from <a href="https://www.xquartz.org/">xquartz.org</a>), then log out and in again. Without XQuartz, <code>sumo-gui</code> stops with <code>unable to open display</code>. The command-line tools do not need it. <code>Fontconfig warning</code> lines printed by <code>sumo-gui</code> are harmless.
+        <li><strong>Optional:</strong> <code>sumo-gui</code> shows a run in a window, so you can watch vehicles move and see where jams form. It helps when you check that a new scenario is built correctly. Experiments do not need it: every command in this guide except one optional step in section 3 runs without a window. On Windows <code>sumo-gui</code> works after installing SUMO. On macOS it needs XQuartz: install it (with Homebrew as below, or from <a href="https://www.xquartz.org/">xquartz.org</a>), then log out and in again. Without XQuartz, <code>sumo-gui</code> stops with <code>unable to open display</code>. <code>Fontconfig warning</code> lines printed by <code>sumo-gui</code> are harmless.
 <pre><code>brew install --cask xquartz</code></pre>
         </li>
         <li>Create the shared Python environment once, from the repository root. It installs fixed versions of Python and the packages, and installs the project code in <code>src/traffic_project</code> so that every script can import it.
