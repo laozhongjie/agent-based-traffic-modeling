@@ -71,9 +71,9 @@ The tree below is the intended layout. The repository currently contains the ove
     ├── lab/                    # Ring, network and planning result views
     └── data/
         ├── project.js          # Website schedule and progress
-        ├── ring/               # Exported Stage 1 results
-        ├── network/            # Exported Stage 2 results
-        └── planning/           # Exported Stage 3 comparisons
+        ├── ring/               # Exported ring-road results
+        ├── network/            # Exported city-network results
+        └── planning/           # Exported planning comparisons
 ```
 
 - `scenarios/` defines the simulated roads and traffic setup; `configs/` defines the experiment combinations. The three ring-road models share the same execution and analysis pipeline.
