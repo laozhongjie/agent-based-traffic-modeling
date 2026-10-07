@@ -24,14 +24,22 @@ Object.assign(window.I18N.static.zh, {
     <p>开发阶段使用 SUMO 正式版 <strong>1.27.1</strong>，其中已包含 IDM。NaSch 只在 SUMO 开发版中提供，OVM 由本项目自行加入，所以正式实验将使用 A 提供的固定版本。正式版足以熟悉流程和开发场景。</p>
     <ol>
       <li>按 <a href='https://sumo.dlr.de/docs/Installing/index.html'>SUMO 安装说明</a> 安装适合自己系统的 SUMO 1.27.1。</li>
-      <li>设置 <code>SUMO_HOME</code>，并把 SUMO 的 <code>bin</code> 目录加入 <code>PATH</code>。macOS 安装包不会自动设置这两项。fish 中的设置方法：
-<pre><code>set -Ux SUMO_HOME /Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo
-fish_add_path /Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin</code></pre>
+      <li>设置 <code>SUMO_HOME</code>，并把 SUMO 的 <code>bin</code> 目录加入 <code>PATH</code>：
+        <ul>
+          <li><strong>Windows：</strong><code>.msi</code> 安装包会自动设置这两项。安装后关闭并重新打开终端。</li>
+          <li><strong>macOS：</strong>安装包不会设置这两项。把下面两行加到 <code>~/.zshrc</code> 末尾，再运行 <code>source ~/.zshrc</code>：
+<pre><code>export SUMO_HOME="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo"
+export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin:$PATH"</code></pre>
+          </li>
+          <li><strong>Linux：</strong>把下面一行加到 <code>~/.bashrc</code> 末尾，然后注销并重新登录。在 Ubuntu 上用 apt 安装时，路径通常是 <code>/usr/share/sumo</code>，而且程序已经在 <code>PATH</code> 中。
+<pre><code>export SUMO_HOME="/usr/share/sumo"</code></pre>
+          </li>
+        </ul>
       </li>
       <li>检查安装结果。输出的第一行应为 <code>Eclipse SUMO sumo 1.27.1</code>。
 <pre><code>sumo --version</code></pre>
       </li>
-      <li>在 macOS 上使用 <code>sumo-gui</code> 前，先安装 XQuartz，再注销并重新登录。没有 XQuartz 时，<code>sumo-gui</code> 会报错 <code>unable to open display</code>。命令行工具不需要 XQuartz。<code>sumo-gui</code> 输出的 <code>Fontconfig warning</code> 不影响运行。
+      <li>在 macOS 上使用 <code>sumo-gui</code> 前，先安装 XQuartz（用下面的 Homebrew 命令，或从 <a href='https://www.xquartz.org/'>xquartz.org</a> 下载），再注销并重新登录。没有 XQuartz 时，<code>sumo-gui</code> 会报错 <code>unable to open display</code>。命令行工具不需要 XQuartz。<code>sumo-gui</code> 输出的 <code>Fontconfig warning</code> 不影响运行。
 <pre><code>brew install --cask xquartz</code></pre>
       </li>
       <li>使用装有 <code>scipy</code> 和 <code>matplotlib</code> 的 Python 3。<span class='chip decide'>待确定</span> A 将添加 <code>environment.yml</code>，统一全组的软件包版本。</li>

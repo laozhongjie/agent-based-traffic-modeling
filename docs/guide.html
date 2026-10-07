@@ -49,14 +49,22 @@
       <p>Use the official SUMO release <strong>1.27.1</strong> for development. It includes IDM. NaSch is only in the SUMO development version, and OVM is added by this project, so formal runs will use a pinned build that A provides. The release is enough to learn the workflow and to develop scenarios.</p>
       <ol>
         <li>Install SUMO 1.27.1 from the <a href="https://sumo.dlr.de/docs/Installing/index.html">SUMO installation page</a> for your system.</li>
-        <li>Set <code>SUMO_HOME</code> and add the SUMO <code>bin</code> folder to <code>PATH</code>. On macOS the installer does neither. In fish:
-<pre><code>set -Ux SUMO_HOME /Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo
-fish_add_path /Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin</code></pre>
+        <li>Set <code>SUMO_HOME</code> and add the SUMO <code>bin</code> folder to <code>PATH</code>:
+          <ul>
+            <li><strong>Windows:</strong> the <code>.msi</code> installer sets both. Close and reopen the terminal afterwards.</li>
+            <li><strong>macOS:</strong> the installer sets neither. Add these two lines to the end of <code>~/.zshrc</code>, then run <code>source ~/.zshrc</code>:
+<pre><code>export SUMO_HOME="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo"
+export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin:$PATH"</code></pre>
+            </li>
+            <li><strong>Linux:</strong> add this line to the end of <code>~/.bashrc</code>, then log out and in again. <code>/usr/share/sumo</code> is the usual path after installing with apt on Ubuntu; apt already puts the programs on <code>PATH</code>.
+<pre><code>export SUMO_HOME="/usr/share/sumo"</code></pre>
+            </li>
+          </ul>
         </li>
         <li>Check the installation. The first line must read <code>Eclipse SUMO sumo 1.27.1</code>.
 <pre><code>sumo --version</code></pre>
         </li>
-        <li>On macOS, install XQuartz before using <code>sumo-gui</code>, then log out and in again. Without XQuartz, <code>sumo-gui</code> stops with <code>unable to open display</code>. The command-line tools do not need it. <code>Fontconfig warning</code> lines printed by <code>sumo-gui</code> are harmless.
+        <li>On macOS, install XQuartz before using <code>sumo-gui</code> (with Homebrew as below, or from <a href="https://www.xquartz.org/">xquartz.org</a>), then log out and in again. Without XQuartz, <code>sumo-gui</code> stops with <code>unable to open display</code>. The command-line tools do not need it. <code>Fontconfig warning</code> lines printed by <code>sumo-gui</code> are harmless.
 <pre><code>brew install --cask xquartz</code></pre>
         </li>
         <li>Use Python 3 with <code>scipy</code> and <code>matplotlib</code>. <span class="chip decide">To decide</span> A will add <code>environment.yml</code> so everyone uses the same package versions.</li>
