@@ -205,7 +205,7 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
 
   "guide.git": `
     <h2>9. 用 Git 协作</h2>
-    <p>任何人都不直接推送到 <code>main</code>。所有改动都通过 Pull Request（PR）合并到 <code>main</code>，并且需要一位审核人批准。</p>
+    <p>任何人都不直接推送到 <code>main</code>。所有改动都通过 Pull Request（PR）合并到 <code>main</code>。<strong>PR 由任意一位其他成员批准即可；改动 <code>src/traffic_project/</code> 的 PR 必须由 A 批准</strong>，A 自己发起的除外，由任意一位其他成员批准。</p>
     <ol>
       <li>从最新的 <code>main</code> 开始：
 <pre><code>git switch main
@@ -218,19 +218,8 @@ git pull</code></pre>
       <li>推送分支：
 <pre><code>git push -u origin b/ring-bottleneck</code></pre>
       </li>
-      <li>在 GitHub 上发起合并到 <code>main</code> 的 PR，并按下表指定审核人。审核人批准后再合并。</li>
+      <li>在 GitHub 上发起合并到 <code>main</code> 的 PR，请另一位成员审核。获得批准后再合并。</li>
     </ol>
-    <div class='table-wrap'>
-      <table class='model-table'>
-        <thead><tr><th>PR 改动的内容</th><th>审核人</th></tr></thead>
-        <tbody>
-          <tr><td><code>src/traffic_project/</code></td><td>A；改动由 A 编写时由 E 审核</td></tr>
-          <tr><td>本手册（<code>docs/guide.html</code>）</td><td>A，且改动已经全组同意</td></tr>
-          <tr><td>A / E 的工作</td><td>E / A</td></tr>
-          <tr><td>B / C / D 的工作</td><td>C / D / B</td></tr>
-        </tbody>
-      </table>
-    </div>
     <p><strong>发起 PR 前</strong></p>
     <ol>
       <li>确认 <code>git status</code> 中没有 <code>runs/</code>、<code>data/raw/</code> 或 <code>sandbox/</code> 下的文件。</li>

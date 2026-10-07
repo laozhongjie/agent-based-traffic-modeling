@@ -238,7 +238,7 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
 
     <section class="card model-section" id="git" data-i18n="guide.git">
       <h2>9. Working with Git</h2>
-      <p>Nobody pushes to <code>main</code> directly. Every change reaches <code>main</code> through a pull request (PR) that one reviewer approves.</p>
+      <p>Nobody pushes to <code>main</code> directly. Every change reaches <code>main</code> through a pull request (PR). <strong>Any other member can approve a PR. A PR that changes <code>src/traffic_project/</code> must be approved by A</strong>; when A opens it, any other member approves.</p>
       <ol>
         <li>Start from the latest <code>main</code>:
 <pre><code>git switch main
@@ -251,19 +251,8 @@ git pull</code></pre>
         <li>Push the branch:
 <pre><code>git push -u origin b/ring-bottleneck</code></pre>
         </li>
-        <li>On GitHub, open a pull request into <code>main</code> and request the reviewer from the table below. Merge only after the reviewer approves.</li>
+        <li>On GitHub, open a pull request into <code>main</code> and ask another member to review it. Merge only after the approval.</li>
       </ol>
-      <div class="table-wrap">
-        <table class="model-table">
-          <thead><tr><th>The PR changes</th><th>Reviewer</th></tr></thead>
-          <tbody>
-            <tr><td><code>src/traffic_project/</code></td><td>A; E when A wrote the change</td></tr>
-            <tr><td>This page (<code>docs/guide.html</code>)</td><td>A, after the group has agreed the change</td></tr>
-            <tr><td>Work of A / E</td><td>E / A</td></tr>
-            <tr><td>Work of B / C / D</td><td>C / D / B</td></tr>
-          </tbody>
-        </table>
-      </div>
       <p><strong>Before opening a PR</strong></p>
       <ol>
         <li>Check that <code>git status</code> lists no files under <code>runs/</code>, <code>data/raw/</code> or <code>sandbox/</code>.</li>
