@@ -58,6 +58,7 @@ The tree below is the intended layout. The repository currently contains the ove
 │   ├── runner.py               # SUMO/TraCI execution and run records
 │   ├── demand.py               # Destinations, routing, vehicle-count control
 │   ├── measurements.py         # Common measurement definitions
+│   ├── results.py              # Result data format shared with the analysis
 │   ├── analysis/               # Critical points, fluctuations, clusters
 │   └── export_web.py           # Export compact website data
 ├── scripts/                    # Command-line entry points

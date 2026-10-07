@@ -38,6 +38,7 @@
         <li><a href="#example">Run the ring-road example</a></li>
         <li><a href="#new">Build a new experiment</a></li>
         <li><a href="#records">Run IDs and run records</a></li>
+        <li><a href="#data">Result data format</a></li>
         <li><a href="#checks">Checks every run must pass</a></li>
         <li><a href="#units">Units and measurements</a></li>
         <li><a href="#decide">Still to decide</a></li>
@@ -92,6 +93,7 @@ source ~/.bashrc</code></pre>
             <tr><td><code>configs/&lt;scenario&gt;/</code></td><td>One TOML file per experiment with every parameter</td><td>Scenario owner</td></tr>
             <tr><td><code>scripts/</code></td><td>Entry points, one per task: <code>&lt;scenario&gt;_sweep.py</code>, <code>plot_&lt;scenario&gt;.py</code></td><td>Scenario owner</td></tr>
             <tr><td><code>src/traffic_project/</code> <code>config.py</code>, <code>io.py</code>, <code>runner.py</code></td><td>Load configs, read SUMO outputs, run SUMO, write run records, common checks</td><td>A</td></tr>
+            <tr><td><code>src/traffic_project/results.py</code></td><td>Result data format (section 6): required columns, checks and writers</td><td>A</td></tr>
             <tr><td><code>src/traffic_project/measurements.py</code></td><td>Measured quantities, one function per scenario</td><td>A; B ring; C network</td></tr>
             <tr><td><code>src/traffic_project/demand.py</code></td><td>Constant-density TraCI controller for the city network (planned)</td><td>C</td></tr>
             <tr><td><code>src/traffic_project/analysis/</code></td><td>Critical points, fluctuations, error bars (planned)</td><td>E</td></tr>
@@ -156,7 +158,7 @@ source ~/.bashrc</code></pre>
             </li>
           </ul>
         </li>
-        <li>Run the whole sweep in the config. For each run the script builds the inputs, runs SUMO, applies the checks in section 6 and writes the run record. It then writes <code>results/ring/idm_sweep.csv</code>.
+        <li>Run the whole sweep in the config. For each run the script builds the inputs, runs SUMO, applies the checks in section 7 and writes the run record. It then writes <code>results/ring/idm_sweep.csv</code>.
 <pre><code>python scripts/ring_sweep.py --config configs/ring/idm_sweep.toml</code></pre>
         </li>
         <li>Plot the fundamental diagram and the space–time diagrams into <code>results/ring/</code>.
@@ -170,26 +172,28 @@ source ~/.bashrc</code></pre>
       <h2>4. Build a new experiment</h2>
       <p>Follow these steps for every experiment, including a variation of an existing one. Copy the matching ring-road file as a starting point.</p>
       <ol>
-        <li><strong>Create a branch</strong> for the experiment (section 9).</li>
+        <li><strong>Create a branch</strong> for the experiment (section 10).</li>
         <li><strong>Write the config</strong> <code>configs/&lt;scenario&gt;/&lt;name&gt;.toml</code>. Start from <code>configs/ring/idm_sweep.toml</code>. The top-level keys <code>name</code>, <code>scenario</code> and <code>model</code> are required; <code>name</code> also names the result files. Give every number a comment with its unit.</li>
         <li><strong>Build the scenario inputs</strong> with a script in <code>scenarios/&lt;scenario&gt;/</code>, like <code>scenarios/ring/build_run.py</code>. It reads the config, writes one folder <code>runs/&lt;run-id&gt;/</code> and prints the run ID. The <code>.sumocfg</code> it writes uses relative paths, sets <code>time-to-teleport</code> to <code>-1</code> and <code>collision.action</code> to <code>warn</code>.</li>
-        <li><strong>Add the measurements</strong> as one function in <code>src/traffic_project/measurements.py</code>, like <code>ring_summary</code>. It reads one run's outputs and returns <code>(measurements, checks)</code>. This changes shared code, so A reviews the pull request.</li>
-        <li><strong>Write the entry script</strong> <code>scripts/&lt;scenario&gt;_sweep.py</code>, like <code>scripts/ring_sweep.py</code>. It takes <code>--config</code>, loops over the sweep and uses the shared calls below, then writes <code>results/&lt;scenario&gt;/&lt;name&gt;.csv</code>.</li>
+        <li><strong>Add the measurements</strong> as one function in <code>src/traffic_project/measurements.py</code>, like <code>ring_summary</code>. It reads one run's outputs and returns <code>(measurements, checks, timeseries)</code> in the format of section 6. This changes shared code, so A must approve the pull request.</li>
+        <li><strong>Write the entry script</strong> <code>scripts/&lt;scenario&gt;_sweep.py</code>, like <code>scripts/ring_sweep.py</code>. It takes <code>--config</code>, loops over the sweep and uses the shared calls below. It writes the summary table and the time series with <code>results.write_summary</code> and <code>results.write_timeseries</code>.</li>
         <li><strong>Run it and read the output.</strong> Every run prints <code>ok</code> or <code>INVALID</code> with the failed checks. Fix the cause of every invalid run before using the results.</li>
         <li><strong>Plot</strong> with <code>scripts/plot_&lt;scenario&gt;.py --config …</code> into <code>results/&lt;scenario&gt;/</code>.</li>
         <li><strong>Commit</strong> the config, code and results together and open a pull request.</li>
       </ol>
       <p>The shared calls every entry script uses, shown as an outline (not runnable as it is):</p>
-<pre><code>from traffic_project import ROOT, config, io, measurements, runner
+<pre><code>from traffic_project import config, measurements, results, runner
 
 cfg = config.load(args.config)
 for each run in the sweep:
     run_id, run_dir = …                      # from scenarios/&lt;scenario&gt;/build_*.py
     runner.write_manifest(run_dir, run_id, cfg, parameters)
     _, checks = runner.run_sumo(run_dir)
-    measured, more_checks = measurements.&lt;scenario&gt;_summary(…)
-    rows.append(runner.finish(run_dir, run_id, measured, {**checks, **more_checks}))
-io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", columns)</code></pre>
+    measured, more_checks, series = measurements.&lt;scenario&gt;_summary(…)
+    results.write_timeseries(run_id, series, cfg)
+    row = dict(measured, scenario=…, model=…, variant=…, seed=…)
+    rows.append(runner.finish(run_dir, run_id, row, {**checks, **more_checks}))
+results.write_summary(rows, cfg)</code></pre>
     </section>
 
     <section class="card model-section" id="records" data-i18n="guide.records">
@@ -211,8 +215,36 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
       <p>Every number in the report or on the website keeps the run IDs it came from. The config hash shows whether the config file changed after the run. A git commit ending in <code>-dirty</code> means the code had uncommitted changes; formal results must come from a clean commit.</p>
     </section>
 
+    <section class="card model-section" id="data" data-i18n="guide.data">
+      <h2>6. Result data format</h2>
+      <p>E analyses every experiment with the same scripts, so B, C and D write their results in one format. <code>runs/</code> is not in git, so everything E needs must be in the two files below, in <code>results/&lt;scenario&gt;/</code>. Both are written by <code>traffic_project.results</code>, which stops with an error when a column is missing, a value is out of range, or an extra column lacks its prefix.</p>
+      <h3>Summary table: <code>results/&lt;scenario&gt;/&lt;name&gt;.csv</code></h3>
+      <p>One row per run. Every scenario has these columns, with these names and units:</p>
+      <div class="table-wrap">
+        <table class="model-table">
+          <thead><tr><th>Column</th><th>Meaning</th><th>Unit</th></tr></thead>
+          <tbody>
+            <tr><td><code>run_id</code></td><td>Run ID</td><td>—</td></tr>
+            <tr><td><code>scenario</code>, <code>model</code></td><td>Scenario and model, as in the config</td><td>—</td></tr>
+            <tr><td><code>variant</code></td><td>Planning variant, such as baseline, closure or new link; empty when there is none</td><td>—</td></tr>
+            <tr><td><code>seed</code></td><td>Random seed</td><td>—</td></tr>
+            <tr><td><code>density_veh_km</code></td><td>Density \(k\): number of vehicles ÷ total lane length</td><td>veh/km</td></tr>
+            <tr><td><code>mean_speed_mps</code></td><td>Space-mean speed \(\bar v\), averaged over the measurement window</td><td>m/s</td></tr>
+            <tr><td><code>flow_veh_h</code></td><td>Flow \(q = k\,\bar v\)</td><td>veh/h</td></tr>
+            <tr><td><code>congested_fraction</code></td><td>Congested fraction \(\phi\), with the scenario's own criterion</td><td>—</td></tr>
+            <tr><td><code>congested_fraction_var</code></td><td>Variance of \(\phi\) over time, the fluctuation \(\chi\)</td><td>—</td></tr>
+            <tr><td><code>valid</code></td><td><code>True</code> if the run passed every check in section 7</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Scenario-specific columns come after these and start with the scenario name, for example <code>ring_vehicles</code> or <code>city_largest_cluster</code>.</p>
+      <h3>Time series: <code>results/&lt;scenario&gt;/&lt;name&gt;/&lt;run_id&gt;.csv</code></h3>
+      <p>One file per run, with one row of instantaneous values every 10 s over the whole run, warm-up included. The columns are <code>time_s</code>, <code>density_veh_km</code>, <code>mean_speed_mps</code>, <code>flow_veh_h</code> and <code>congested_fraction</code>. E uses it to check the warm-up length and to estimate fluctuations and error bars. One run of 1800 s is about 8 KB.</p>
+      <p>The definitions are the same on the ring and in the city network, so E can compare the highway and network critical densities directly.</p>
+    </section>
+
     <section class="card model-section" id="checks" data-i18n="guide.checks">
-      <h2>6. Checks every run must pass</h2>
+      <h2>7. Checks every run must pass</h2>
       <p>SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in <code>summary.json</code>. The first three come from <code>runner.run_sumo</code>, the others from the scenario's measurement function. Keep invalid runs for diagnosis, but leave them out of every table and figure.</p>
       <div class="table-wrap">
         <table class="model-table">
@@ -230,7 +262,7 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
     </section>
 
     <section class="card model-section" id="units" data-i18n="guide.units">
-      <h2>7. Units and measurements</h2>
+      <h2>8. Units and measurements</h2>
       <div class="table-wrap">
         <table class="model-table">
           <thead><tr><th>Quantity</th><th>Unit and rule</th></tr></thead>
@@ -248,7 +280,7 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
     </section>
 
     <section class="card model-section" id="decide" data-i18n="guide.decide">
-      <h2>8. Still to decide</h2>
+      <h2>9. Still to decide</h2>
       <ul>
         <li><strong>IDM parameters</strong> (B, with the group). The example uses placeholders: accel 1.0 m/s², decel 1.5 m/s², time headway 1.5 s, minimum gap 2 m, maximum speed 30 m/s, vehicle length 5 m.</li>
         <li><strong>Ring congestion criterion</strong> (B). The placeholder, speed below 5 m/s, counts uniformly slow traffic above 100 veh/km as fully congested although it has no stop-and-go waves. The criterion must separate the two.</li>
@@ -256,12 +288,13 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
         <li><strong>Density grid and number of seeds per point</strong> (B and C, with E), so that E can estimate error bars.</li>
         <li><strong>Step length and warm-up length</strong> for the continuous models.</li>
         <li><strong>Which runs keep <code>fcd.xml</code>.</strong> One run of 30 vehicles for 1800 s writes about 7 MB, so a full sweep should keep trajectories only for representative runs.</li>
+        <li><strong>Time-series sample interval</strong> (E). The example uses 10 s.</li>
         <li><strong>The pinned SUMO build with NaSch and OVM</strong> (A).</li>
       </ul>
     </section>
 
     <section class="card model-section" id="git" data-i18n="guide.git">
-      <h2>9. Working with Git</h2>
+      <h2>10. Working with Git</h2>
       <p>Nobody pushes to <code>main</code> directly. Every change reaches <code>main</code> through a pull request (PR). <strong>Any other member can approve a PR. A PR that changes <code>src/traffic_project/</code> must be approved by A</strong>; when A opens it, any other member approves.</p>
       <ol>
         <li>Start from the latest <code>main</code>:

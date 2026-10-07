@@ -14,6 +14,7 @@ Object.assign(window.I18N.static.zh, {
       <li><a href='#example'>运行环路示例</a></li>
       <li><a href='#new'>搭建一个新实验</a></li>
       <li><a href='#records'>运行编号和运行记录</a></li>
+      <li><a href='#data'>结果数据格式</a></li>
       <li><a href='#checks'>每次运行必须通过的检查</a></li>
       <li><a href='#units'>单位和测量方法</a></li>
       <li><a href='#decide'>待确定事项</a></li>
@@ -66,6 +67,7 @@ source ~/.bashrc</code></pre>
           <tr><td><code>configs/&lt;scenario&gt;/</code></td><td>每个实验一个 TOML 文件，写明全部参数</td><td>场景负责人</td></tr>
           <tr><td><code>scripts/</code></td><td>命令行入口，每个任务一个：<code>&lt;scenario&gt;_sweep.py</code>、<code>plot_&lt;scenario&gt;.py</code></td><td>场景负责人</td></tr>
           <tr><td><code>src/traffic_project/</code> <code>config.py</code>、<code>io.py</code>、<code>runner.py</code></td><td>读取配置、读取 SUMO 输出、运行 SUMO、写运行记录、通用检查</td><td>A</td></tr>
+          <tr><td><code>src/traffic_project/results.py</code></td><td>结果数据格式（第 6 节）：必需列、检查和写出函数</td><td>A</td></tr>
           <tr><td><code>src/traffic_project/measurements.py</code></td><td>测量量，每个场景一个函数</td><td>A；环路 B；路网 C</td></tr>
           <tr><td><code>src/traffic_project/demand.py</code></td><td>城区路网的恒定密度 TraCI 控制器（尚未建立）</td><td>C</td></tr>
           <tr><td><code>src/traffic_project/analysis/</code></td><td>临界点、涨落和误差范围（尚未建立）</td><td>E</td></tr>
@@ -129,7 +131,7 @@ source ~/.bashrc</code></pre>
           </li>
         </ul>
       </li>
-      <li>运行配置文件中的全部扫描。脚本对每次运行依次生成输入、运行 SUMO、执行第 6 节的检查并写出运行记录，最后写出 <code>results/ring/idm_sweep.csv</code>。
+      <li>运行配置文件中的全部扫描。脚本对每次运行依次生成输入、运行 SUMO、执行第 7 节的检查并写出运行记录，最后写出 <code>results/ring/idm_sweep.csv</code>。
 <pre><code>python scripts/ring_sweep.py --config configs/ring/idm_sweep.toml</code></pre>
       </li>
       <li>把基本图和时空图画到 <code>results/ring/</code>。
@@ -142,26 +144,28 @@ source ~/.bashrc</code></pre>
     <h2>4. 搭建一个新实验</h2>
     <p>每个实验都按以下步骤进行，包括在已有实验基础上改动参数。可以复制环路示例中对应的文件作为起点。</p>
     <ol>
-      <li><strong>新建分支</strong>（见第 9 节）。</li>
+      <li><strong>新建分支</strong>（见第 10 节）。</li>
       <li><strong>编写配置文件</strong> <code>configs/&lt;scenario&gt;/&lt;name&gt;.toml</code>。以 <code>configs/ring/idm_sweep.toml</code> 为起点。顶层的 <code>name</code>、<code>scenario</code> 和 <code>model</code> 必须填写；<code>name</code> 同时决定结果文件的名称。每个数字都用注释写明单位。</li>
       <li><strong>生成场景输入。</strong>在 <code>scenarios/&lt;scenario&gt;/</code> 中编写脚本，参照 <code>scenarios/ring/build_run.py</code>。脚本读取配置文件，为每次运行写出一个 <code>runs/&lt;run-id&gt;/</code> 目录并输出运行编号。写出的 <code>.sumocfg</code> 使用相对路径，把 <code>time-to-teleport</code> 设为 <code>-1</code>，把 <code>collision.action</code> 设为 <code>warn</code>。</li>
-      <li><strong>添加测量函数。</strong>在 <code>src/traffic_project/measurements.py</code> 中加一个函数，参照 <code>ring_summary</code>。函数读取一次运行的输出，返回 <code>(measurements, checks)</code>。这一步修改了共用代码，PR 由 A 审核。</li>
-      <li><strong>编写入口脚本</strong> <code>scripts/&lt;scenario&gt;_sweep.py</code>，参照 <code>scripts/ring_sweep.py</code>。脚本接受 <code>--config</code> 参数，按扫描逐次运行，使用下方的共用调用，最后写出 <code>results/&lt;scenario&gt;/&lt;name&gt;.csv</code>。</li>
+      <li><strong>添加测量函数。</strong>在 <code>src/traffic_project/measurements.py</code> 中加一个函数，参照 <code>ring_summary</code>。函数读取一次运行的输出，按第 6 节的格式返回 <code>(measurements, checks, timeseries)</code>。这一步修改了共用代码，PR 必须由 A 批准。</li>
+      <li><strong>编写入口脚本</strong> <code>scripts/&lt;scenario&gt;_sweep.py</code>，参照 <code>scripts/ring_sweep.py</code>。脚本接受 <code>--config</code> 参数，按扫描逐次运行，使用下方的共用调用，并用 <code>results.write_summary</code> 和 <code>results.write_timeseries</code> 写出汇总表和时间序列。</li>
       <li><strong>运行并检查输出。</strong>每次运行都会输出 <code>ok</code>，或输出 <code>INVALID</code> 和未通过的检查项。先排除每次无效运行的原因，再使用结果。</li>
       <li><strong>画图</strong>：用 <code>scripts/plot_&lt;scenario&gt;.py --config …</code> 把图表写到 <code>results/&lt;scenario&gt;/</code>。</li>
       <li><strong>提交</strong>：把配置文件、代码和结果一起提交，然后发起 PR。</li>
     </ol>
     <p>每个入口脚本都使用以下共用调用。下面只是结构示意，不能直接运行：</p>
-<pre><code>from traffic_project import ROOT, config, io, measurements, runner
+<pre><code>from traffic_project import config, measurements, results, runner
 
 cfg = config.load(args.config)
 for each run in the sweep:
     run_id, run_dir = …                      # from scenarios/&lt;scenario&gt;/build_*.py
     runner.write_manifest(run_dir, run_id, cfg, parameters)
     _, checks = runner.run_sumo(run_dir)
-    measured, more_checks = measurements.&lt;scenario&gt;_summary(…)
-    rows.append(runner.finish(run_dir, run_id, measured, {**checks, **more_checks}))
-io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", columns)</code></pre>`,
+    measured, more_checks, series = measurements.&lt;scenario&gt;_summary(…)
+    results.write_timeseries(run_id, series, cfg)
+    row = dict(measured, scenario=…, model=…, variant=…, seed=…)
+    rows.append(runner.finish(run_dir, run_id, row, {**checks, **more_checks}))
+results.write_summary(rows, cfg)</code></pre>`,
 
   "guide.records": `
     <h2>5. 运行编号和运行记录</h2>
@@ -181,8 +185,35 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
     </div>
     <p>报告和网站上的每个数字都要保留来源运行编号。配置文件的哈希值可以说明运行之后配置文件是否改动过。git commit 以 <code>-dirty</code> 结尾，表示运行时代码有未提交的修改；正式结果必须来自干净的 commit。</p>`,
 
+  "guide.data": `
+    <h2>6. 结果数据格式</h2>
+    <p>E 用同一套脚本分析所有实验，所以 B、C、D 必须按同一格式写出结果。<code>runs/</code> 不进 git，E 需要的数据必须全部放在 <code>results/&lt;scenario&gt;/</code> 下的两类文件中。两类文件都由 <code>traffic_project.results</code> 写出；缺少某列、数值超出范围或附加列缺少前缀时，它会报错并停止。</p>
+    <h3>汇总表：<code>results/&lt;scenario&gt;/&lt;name&gt;.csv</code></h3>
+    <p>每次运行一行。所有场景都必须包含以下各列，列名和单位不得改动：</p>
+    <div class='table-wrap'>
+      <table class='model-table'>
+        <thead><tr><th>列</th><th>含义</th><th>单位</th></tr></thead>
+        <tbody>
+          <tr><td><code>run_id</code></td><td>运行编号</td><td>—</td></tr>
+          <tr><td><code>scenario</code>、<code>model</code></td><td>场景和模型，与配置文件一致</td><td>—</td></tr>
+          <tr><td><code>variant</code></td><td>规划方案，如基准、封路、新增道路；没有方案时留空</td><td>—</td></tr>
+          <tr><td><code>seed</code></td><td>随机种子</td><td>—</td></tr>
+          <tr><td><code>density_veh_km</code></td><td>密度 \\(k\\)：车辆数 ÷ 车道总长度</td><td>veh/km</td></tr>
+          <tr><td><code>mean_speed_mps</code></td><td>空间平均速度 \\(\\bar v\\)，在测量时段内取平均</td><td>m/s</td></tr>
+          <tr><td><code>flow_veh_h</code></td><td>流量 \\(q = k\\,\\bar v\\)</td><td>veh/h</td></tr>
+          <tr><td><code>congested_fraction</code></td><td>拥堵车辆比例 \\(\\phi\\)，判据由各场景自行定义</td><td>—</td></tr>
+          <tr><td><code>congested_fraction_var</code></td><td>\\(\\phi\\) 随时间的方差，即涨落 \\(\\chi\\)</td><td>—</td></tr>
+          <tr><td><code>valid</code></td><td>通过第 7 节全部检查时为 <code>True</code></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>场景特有的列排在这些列之后，并以场景名开头，例如 <code>ring_vehicles</code>、<code>city_largest_cluster</code>。</p>
+    <h3>时间序列：<code>results/&lt;scenario&gt;/&lt;name&gt;/&lt;run_id&gt;.csv</code></h3>
+    <p>每次运行一个文件。覆盖整个运行过程（包括预热段），每 10 秒记录一行瞬时值，列为 <code>time_s</code>、<code>density_veh_km</code>、<code>mean_speed_mps</code>、<code>flow_veh_h</code> 和 <code>congested_fraction</code>。E 用它检查预热时长是否足够，并估计涨落和误差范围。一次 1800 秒的运行约 8 KB。</p>
+    <p>环路和城市路网使用相同的定义，所以 E 可以直接比较 highway 和路网的临界密度。</p>`,
+
   "guide.checks": `
-    <h2>6. 每次运行必须通过的检查</h2>
+    <h2>7. 每次运行必须通过的检查</h2>
     <p>有几类问题会悄悄改变实验，SUMO 却不会因此停止运行。所以每次运行都把下列检查结果写入 <code>summary.json</code>。前三项由 <code>runner.run_sumo</code> 检查，其余由场景的测量函数检查。无效的运行保留下来用于排查，但不得进入任何表格和图表。</p>
     <div class='table-wrap'>
       <table class='model-table'>
@@ -199,7 +230,7 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
     <p>环路还要遵守两条规则。每条边都显式设置 <code>length</code>，并用 <code>--no-internal-links</code> 生成路网，保证密度严格等于车辆数 ÷ 环路长度。模型有已知结果时，用它核对仿真：IDM 平衡速度、NaSch 在 \\(p = 0\\) 时的结果、OVM 稳定性条件。</p>`,
 
   "guide.units": `
-    <h2>7. 单位和测量方法</h2>
+    <h2>8. 单位和测量方法</h2>
     <div class='table-wrap'>
       <table class='model-table'>
         <thead><tr><th>物理量</th><th>单位和规则</th></tr></thead>
@@ -216,7 +247,7 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
     <p>在环路上，平均速度 \\(\\bar v\\) 是每个时间步所有车辆速度的平均值，再在测量时段内取时间平均。环路上没有车辆进出，所以流量为 \\(q = k\\,\\bar v\\)。拥堵车辆比例 \\(\\phi\\) 是速度低于阈值的车辆所占比例，它随时间的方差即涨落 \\(\\chi\\)。城市路网的测量方法由 C 按同样的方式定义。</p>`,
 
   "guide.decide": `
-    <h2>8. 待确定事项</h2>
+    <h2>9. 待确定事项</h2>
     <ul>
       <li><strong>IDM 参数</strong>（B 牵头，全组商定）。示例使用的是暂定值：加速度 1.0 m/s²、舒适减速度 1.5 m/s²、车头时距 1.5 s、最小间距 2 m、最高速度 30 m/s、车长 5 m。</li>
       <li><strong>环路拥堵判据</strong>（B）。暂定判据「速度低于 5 m/s」会把 100 veh/km 以上均匀的慢速车流判为完全拥堵，而这时并没有走走停停的拥堵波。新判据必须能区分这两种状态。</li>
@@ -224,11 +255,12 @@ io.write_csv(rows, ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv", co
       <li><strong>密度取值和每个密度的种子数</strong>（B、C 与 E 商定），供 E 估计误差范围。</li>
       <li><strong>连续模型的步长和预热时长</strong>。</li>
       <li><strong>哪些运行保留 <code>fcd.xml</code>。</strong>30 辆车运行 1800 秒约产生 7 MB，完整扫描只应为代表性运行保留轨迹。</li>
+      <li><strong>时间序列的取样间隔</strong>（E）。示例使用 10 秒。</li>
       <li><strong>包含 NaSch 和 OVM 的固定版 SUMO</strong>（A）。</li>
     </ul>`,
 
   "guide.git": `
-    <h2>9. 用 Git 协作</h2>
+    <h2>10. 用 Git 协作</h2>
     <p>任何人都不直接推送到 <code>main</code>。所有改动都通过 Pull Request（PR）合并到 <code>main</code>。<strong>PR 由任意一位其他成员批准即可；改动 <code>src/traffic_project/</code> 的 PR 必须由 A 批准</strong>，A 自己发起的除外，由任意一位其他成员批准。</p>
     <ol>
       <li>从最新的 <code>main</code> 开始：

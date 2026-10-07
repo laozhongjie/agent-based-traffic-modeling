@@ -58,6 +58,7 @@
 │   ├── runner.py               # SUMO/TraCI 运行与实验记录
 │   ├── demand.py               # 目的地、路线及车辆数控制
 │   ├── measurements.py         # 统一指标定义
+│   ├── results.py              # 交给分析使用的结果数据格式
 │   ├── analysis/               # 临界点、涨落及拥堵簇分析
 │   └── export_web.py           # 导出精简网页数据
 ├── scripts/                    # 命令行入口
