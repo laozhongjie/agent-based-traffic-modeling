@@ -400,6 +400,25 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
   .model-page .card { padding: 18px 16px; }
   .model-table td, .model-table th { padding: 10px 8px; }
 }
+/* Guide page */
+.guide-toc { margin-bottom: 20px; }
+.guide-toc h2 { margin: 0 0 10px !important; font-size: 16px !important; }
+.guide-toc ol { columns: 2; column-gap: 32px; margin: 0; padding-left: 20px; }
+.guide-toc li { break-inside: avoid; }
+@media (max-width: 640px) { .guide-toc ol { columns: 1; } }
+.guide section { scroll-margin-top: 72px; }
+.guide section ol, .guide section ul { color: var(--muted); padding-left: 22px; }
+.guide section li + li { margin-top: 10px; }
+.guide section li strong { color: var(--text); }
+.guide pre { margin: 8px 0 0; padding: 12px 14px; overflow-x: auto; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; line-height: 1.5; }
+.guide pre code { padding: 0; background: none; font-size: 13px; color: var(--text); white-space: pre; }
+.guide .table-wrap { margin: 14px 0; }
+.guide .model-table th:first-child { width: 34%; }
+/* Three-column tables: the last column holds a short yes/no. */
+.guide .model-table th:last-child:not(:nth-child(2)) { width: 16%; }
+.guide .model-table td:first-child { font-weight: 400; }
+.chip.decide { background: var(--warn-bg); color: var(--warn-text); text-transform: none; letter-spacing: 0; vertical-align: 1px; }
+
 .model-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 
 .model-viz .viz-intro { margin-bottom: 20px; }

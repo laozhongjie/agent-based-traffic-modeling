@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-site-locked="true">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="assets/access.js"></script>
+  <title>Shared conventions · Agent-Based Traffic Modeling</title>
+  <meta name="description" content="How every member sets up SUMO, where files go, how runs are named and recorded, and which checks each run must pass.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-title-key="guide.meta">
+  <noscript><main class="access-gate">Enable JavaScript to enter the password. / 请启用 JavaScript 后输入密码。</main></noscript>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="index.html">Agent-Based Traffic Modeling</a>
+      <nav aria-label="Guide sections" data-i18n-aria="guide.nav">
+        <a href="index.html" data-i18n="lab.nav.hub">Project hub</a>
+        <a href="guide.html" aria-current="page" data-i18n="nav.guide">Guide</a>
+      </nav>
+      <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
+    </div>
+  </header>
+
+  <main class="wrap model-page guide">
+    <header class="model-head">
+      <p class="eyebrow" data-i18n="guide.tag">Shared conventions · Read before your first run</p>
+      <h1 data-i18n="guide.title">How we run experiments</h1>
+      <p class="lede" data-i18n="guide.lede">This page is the single reference for how every member sets up SUMO, where files go, how runs are named and recorded, and which checks each run must pass. Everything here was tested on the ring-road example in the repository.</p>
+      <p class="note" data-i18n="guide.status">Items marked <span class="chip decide">To decide</span> still need group agreement. A maintains this page; propose changes at the group meeting before relying on them.</p>
+    </header>
+
+    <div class="card guide-toc" role="navigation" aria-labelledby="guide-toc-title" data-i18n="guide.toc">
+      <h2 id="guide-toc-title">On this page</h2>
+      <ol>
+        <li><a href="#setup">Set up SUMO and Python</a></li>
+        <li><a href="#layout">Where files go</a></li>
+        <li><a href="#example">Run the ring-road example</a></li>
+        <li><a href="#records">Run IDs and run records</a></li>
+        <li><a href="#checks">Checks every run must pass</a></li>
+        <li><a href="#units">Units and measurements</a></li>
+        <li><a href="#decide">Still to decide</a></li>
+        <li><a href="#commit">Before you commit</a></li>
+      </ol>
+    </div>
+
+    <section class="card model-section" id="setup" data-i18n="guide.setup">
+      <h2>1. Set up SUMO and Python</h2>
+      <p>Use the official SUMO release <strong>1.27.1</strong> for development. It includes IDM. NaSch is only in the SUMO development version, and OVM is added by this project, so formal runs will use a pinned build that A provides. The release is enough to learn the workflow and to develop scenarios.</p>
+      <ol>
+        <li>Install SUMO 1.27.1 from the <a href="https://sumo.dlr.de/docs/Installing/index.html">SUMO installation page</a> for your system.</li>
+        <li>Set <code>SUMO_HOME</code> and add the SUMO <code>bin</code> folder to <code>PATH</code>. On macOS the installer does neither. In fish:
+<pre><code>set -Ux SUMO_HOME /Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo
+fish_add_path /Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin</code></pre>
+        </li>
+        <li>Check the installation. The first line must read <code>Eclipse SUMO sumo 1.27.1</code>.
+<pre><code>sumo --version</code></pre>
+        </li>
+        <li>On macOS, install XQuartz before using <code>sumo-gui</code>, then log out and in again. Without XQuartz, <code>sumo-gui</code> stops with <code>unable to open display</code>. The command-line tools do not need it. <code>Fontconfig warning</code> lines printed by <code>sumo-gui</code> are harmless.
+<pre><code>brew install --cask xquartz</code></pre>
+        </li>
+        <li>Use Python 3 with <code>scipy</code> and <code>matplotlib</code>. <span class="chip decide">To decide</span> A will add <code>environment.yml</code> so everyone uses the same package versions.</li>
+      </ol>
+    </section>
+
+    <section class="card model-section" id="layout" data-i18n="guide.layout">
+      <h2>2. Where files go</h2>
+      <p>The rule that matters most: <strong>files that stay the same for every run go in <code>scenarios/</code>; anything generated for one run goes in <code>runs/&lt;run-id&gt;/</code>.</strong> A full sweep produces hundreds of runs, and mixing them into <code>scenarios/</code> makes both unusable.</p>
+      <div class="table-wrap">
+        <table class="model-table">
+          <thead><tr><th>Folder</th><th>What goes in it</th><th>In git</th></tr></thead>
+          <tbody>
+            <tr><td><code>scenarios/&lt;name&gt;/</code></td><td>Networks, signal plans and the scripts that build them, for example <code>scenarios/ring/build_net.py</code></td><td>Yes</td></tr>
+            <tr><td><code>configs/</code></td><td>Parameter sets, density grids, seed lists and durations</td><td>Yes</td></tr>
+            <tr><td><code>scripts/</code></td><td>Command-line entry points, for example <code>scripts/ring_sweep.py</code></td><td>Yes</td></tr>
+            <tr><td><code>src/traffic_project/</code></td><td>Shared Python code (runner, measurements, analysis); planned</td><td>Yes</td></tr>
+            <tr><td><code>runs/&lt;run-id&gt;/</code></td><td>One folder per run: generated inputs, SUMO outputs, log, record and checks</td><td><strong>No</strong></td></tr>
+            <tr><td><code>results/&lt;scenario&gt;/</code></td><td>Tables that collect many runs, and figures; keep files small</td><td>Yes</td></tr>
+            <tr><td><code>data/raw/</code></td><td>Original external data: OSM, PeMS, highD, LTA</td><td><strong>No</strong></td></tr>
+            <tr><td><code>docs/data/</code></td><td>Compact exports for the website, generated from <code>results/</code></td><td>Yes</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>.gitignore</code> already excludes <code>runs/</code>, <code>data/raw/</code> and every <code>*.fcd.xml</code>. Share large files through external storage and write down how to get them.</p>
+    </section>
+
+    <section class="card model-section" id="example" data-i18n="guide.example">
+      <h2>3. Run the ring-road example</h2>
+      <p>Run every command from the repository root. The example runs IDM on a 1000 m single-lane ring.</p>
+      <ol>
+        <li>Build the ring network. This writes <code>scenarios/ring/ring_1000.net.xml</code>, which is already in git.
+<pre><code>python scenarios/ring/build_net.py --length 1000</code></pre>
+        </li>
+        <li>Generate the inputs for one run with 30 vehicles and seed 1. This creates <code>runs/ring_idm_L1000_n30_s1/</code>.
+<pre><code>python scenarios/ring/build_run.py --vehicles 30 --seed 1</code></pre>
+        </li>
+        <li>Run SUMO without the window, or watch the run in <code>sumo-gui</code>. Without <code>--delay</code> the 1800 s run finishes in under a second and shows nothing.
+<pre><code>sumo -c runs/ring_idm_L1000_n30_s1/run.sumocfg
+sumo-gui -c runs/ring_idm_L1000_n30_s1/run.sumocfg --delay 100 --start</code></pre>
+        </li>
+        <li>Run a density sweep. For each vehicle count the script builds the run, runs SUMO, applies the checks in section 5 and writes the run record. It then writes <code>results/ring/idm_sweep.csv</code>.
+<pre><code>python scripts/ring_sweep.py --vehicles 10 20 30 40 50 60 70 80 90 100 110 120 --seeds 1</code></pre>
+        </li>
+        <li>Plot the fundamental diagram and the space–time diagrams into <code>results/ring/</code>.
+<pre><code>python scripts/plot_ring.py</code></pre>
+        </li>
+      </ol>
+      <p><strong>Expected result:</strong> at 30 veh/km the mean speed is 16.6 m/s, the IDM equilibrium speed for that spacing. Flow peaks near 30 veh/km. Stop-and-go waves appear between about 40 and 80 veh/km; above 100 veh/km traffic is uniformly slow. If your numbers differ, check your SUMO version first.</p>
+    </section>
+
+    <section class="card model-section" id="records" data-i18n="guide.records">
+      <h2>4. Run IDs and run records</h2>
+      <p>A run ID names the scenario, the model, the parameters that vary and the seed, joined by underscores, with no spaces. The ring example uses <code>ring_idm_L1000_n30_s1</code>: ring, IDM, length 1000 m, 30 vehicles, seed 1. Owners of other scenarios follow the same pattern and list their format here.</p>
+      <div class="table-wrap">
+        <table class="model-table">
+          <thead><tr><th>File in <code>runs/&lt;run-id&gt;/</code></th><th>Contents</th></tr></thead>
+          <tbody>
+            <tr><td><code>run.sumocfg</code></td><td>SUMO configuration: network, routes, duration, step length, seed and outputs. Paths are relative, so the run works on any computer.</td></tr>
+            <tr><td><code>vehicles.rou.xml</code></td><td>Vehicle type with its model parameters, routes and start positions</td></tr>
+            <tr><td><code>fcd.xml</code></td><td>Position and speed of every vehicle at every step; large</td></tr>
+            <tr><td><code>log.txt</code></td><td>SUMO messages, used by the collision and teleport checks</td></tr>
+            <tr><td><code>manifest.json</code></td><td>Run ID, scenario, model, parameters, SUMO version, git commit and creation time</td></tr>
+            <tr><td><code>summary.json</code></td><td>Measurements and the result of every check, with <code>valid</code> = true or false</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every number in the report or on the website keeps the run IDs it came from. A git commit ending in <code>-dirty</code> means the code had uncommitted changes; formal results must come from a clean commit.</p>
+    </section>
+
+    <section class="card model-section" id="checks" data-i18n="guide.checks">
+      <h2>5. Checks every run must pass</h2>
+      <p>SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in <code>summary.json</code>. Keep invalid runs for diagnosis, but leave them out of every table and figure.</p>
+      <div class="table-wrap">
+        <table class="model-table">
+          <thead><tr><th>Check</th><th>What it catches</th></tr></thead>
+          <tbody>
+            <tr><td><code>all_vehicles_present</code></td><td>SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, <code>build_run.py</code> also refuses a vehicle count that cannot fit.</td></tr>
+            <tr><td><code>no_teleport</code></td><td>By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Every run sets <code>time-to-teleport</code> to <code>-1</code> to turn this off.</td></tr>
+            <tr><td><code>no_collision</code></td><td>Vehicles overlapping. Every run sets <code>collision.action</code> to <code>warn</code> so collisions appear in the log.</td></tr>
+            <tr><td><code>no_negative_speed</code></td><td>Model errors, especially in the new OVM code</td></tr>
+            <tr><td><code>sumo_exit_ok</code></td><td>SUMO stopped with an error</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Two more rules apply to the ring. Set each edge's <code>length</code> explicitly and build the network with <code>--no-internal-links</code>, so that density = vehicles ÷ ring length exactly. When a model has a known result, compare with it: the IDM equilibrium speed, the NaSch result at \(p = 0\) and the OVM stability condition.</p>
+    </section>
+
+    <section class="card model-section" id="units" data-i18n="guide.units">
+      <h2>6. Units and measurements</h2>
+      <div class="table-wrap">
+        <table class="model-table">
+          <thead><tr><th>Quantity</th><th>Unit and rule</th></tr></thead>
+          <tbody>
+            <tr><td>Time</td><td>s; step length 1 s in the current example <span class="chip decide">To decide</span></td></tr>
+            <tr><td>Length, position</td><td>m</td></tr>
+            <tr><td>Speed</td><td>m/s in files; km/h only in text and labels</td></tr>
+            <tr><td>Density \(k\)</td><td>veh/km</td></tr>
+            <tr><td>Flow \(q\)</td><td>veh/h</td></tr>
+            <tr><td>Warm-up</td><td>The first 600 s are discarded; measurements use 600–1800 s <span class="chip decide">To decide</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>On the ring, the mean speed \(\bar v\) is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as \(q = k\,\bar v\). The congested fraction \(\phi\) is the share of vehicles slower than a threshold, and its variance over time is the fluctuation \(\chi\). City-network measurements are defined by C in the same way.</p>
+    </section>
+
+    <section class="card model-section" id="decide" data-i18n="guide.decide">
+      <h2>7. Still to decide</h2>
+      <ul>
+        <li><strong>IDM parameters</strong> (B, with the group). The example uses placeholders: accel 1.0 m/s², decel 1.5 m/s², time headway 1.5 s, minimum gap 2 m, maximum speed 30 m/s, vehicle length 5 m.</li>
+        <li><strong>Ring congestion criterion</strong> (B). The placeholder, speed below 5 m/s, counts uniformly slow traffic above 100 veh/km as fully congested although it has no stop-and-go waves. The criterion must separate the two.</li>
+        <li><strong>Network congestion criterion</strong> (C).</li>
+        <li><strong>Density grid and number of seeds per point</strong> (B and C, with E), so that E can estimate error bars.</li>
+        <li><strong>Step length and warm-up length</strong> for the continuous models.</li>
+        <li><strong>Which runs keep <code>fcd.xml</code>.</strong> One run of 30 vehicles for 1800 s writes about 7 MB, so a full sweep should keep trajectories only for representative runs.</li>
+        <li><strong><code>environment.yml</code> and the pinned SUMO build with NaSch and OVM</strong> (A).</li>
+      </ul>
+    </section>
+
+    <section class="card model-section" id="commit" data-i18n="guide.commit">
+      <h2>8. Before you commit</h2>
+      <ol>
+        <li>Check that <code>git status</code> lists no files under <code>runs/</code> or <code>data/raw/</code>.</li>
+        <li>Commit code, scenarios and <code>results/</code> together, so a result always matches the code that produced it.</li>
+        <li>Rerun the result from a clean commit before it goes into the report or onto the website.</li>
+        <li>When you change a convention on this page, tell the group first, then update the page in the same commit.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-inner"><a href="index.html" data-i18n="lab.back">← Back to project hub</a></div></footer>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script defer src="assets/i18n.js"></script>
+  <script defer src="assets/guide-i18n.js"></script>
+  <script defer src="assets/common.js"></script>
+  <script defer src="assets/guide.js"></script>
+</body>
+</html>
