@@ -75,9 +75,15 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
       <li>生成一次运行的输入：30 辆车，种子 1。命令会创建 <code>runs/ring_idm_L1000_n30_s1/</code>。
 <pre><code>python scenarios/ring/build_run.py --vehicles 30 --seed 1</code></pre>
       </li>
-      <li>不打开窗口运行 SUMO，或者在 <code>sumo-gui</code> 中观看。不加 <code>--delay</code> 时，1800 秒的仿真不到 1 秒就会结束，看不到任何画面。
-<pre><code>sumo -c runs/ring_idm_L1000_n30_s1/run.sumocfg
-sumo-gui -c runs/ring_idm_L1000_n30_s1/run.sumocfg --delay 100 --start</code></pre>
+      <li>运行 SUMO。以下两条命令任选其一：
+        <ul>
+          <li>只运行，不打开窗口：
+<pre><code>sumo -c runs/ring_idm_L1000_n30_s1/run.sumocfg</code></pre>
+          </li>
+          <li>在 <code>sumo-gui</code> 中观看。保留 <code>--delay 100</code>：不加这个参数时，1800 秒的仿真不到 1 秒就会结束，看不到任何画面。
+<pre><code>sumo-gui -c runs/ring_idm_L1000_n30_s1/run.sumocfg --delay 100 --start</code></pre>
+          </li>
+        </ul>
       </li>
       <li>运行密度扫描。脚本对每个车辆数依次生成输入、运行 SUMO、执行第 5 节的检查并写出运行记录，最后写出 <code>results/ring/idm_sweep.csv</code>。
 <pre><code>python scripts/ring_sweep.py --vehicles 10 20 30 40 50 60 70 80 90 100 110 120 --seeds 1</code></pre>

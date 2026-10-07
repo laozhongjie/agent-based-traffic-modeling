@@ -102,9 +102,15 @@ export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseS
         <li>Generate the inputs for one run with 30 vehicles and seed 1. This creates <code>runs/ring_idm_L1000_n30_s1/</code>.
 <pre><code>python scenarios/ring/build_run.py --vehicles 30 --seed 1</code></pre>
         </li>
-        <li>Run SUMO without the window, or watch the run in <code>sumo-gui</code>. Without <code>--delay</code> the 1800 s run finishes in under a second and shows nothing.
-<pre><code>sumo -c runs/ring_idm_L1000_n30_s1/run.sumocfg
-sumo-gui -c runs/ring_idm_L1000_n30_s1/run.sumocfg --delay 100 --start</code></pre>
+        <li>Run SUMO. Choose one of the two commands:
+          <ul>
+            <li>Run without a window:
+<pre><code>sumo -c runs/ring_idm_L1000_n30_s1/run.sumocfg</code></pre>
+            </li>
+            <li>Watch the run in <code>sumo-gui</code>. Keep <code>--delay 100</code>: without it the 1800 s run finishes in under a second and shows nothing.
+<pre><code>sumo-gui -c runs/ring_idm_L1000_n30_s1/run.sumocfg --delay 100 --start</code></pre>
+            </li>
+          </ul>
         </li>
         <li>Run a density sweep. For each vehicle count the script builds the run, runs SUMO, applies the checks in section 5 and writes the run record. It then writes <code>results/ring/idm_sweep.csv</code>.
 <pre><code>python scripts/ring_sweep.py --vehicles 10 20 30 40 50 60 70 80 90 100 110 120 --seeds 1</code></pre>
