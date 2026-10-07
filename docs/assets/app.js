@@ -174,44 +174,66 @@
     return node;
   }
 
-  // Members sit on a circle; an arc runs clockwise from each member to the one it reviews.
-  function loopSvg(members, id, label) {
-    const n = members.length;
-    const cx = 120, cy = n === 2 ? 95 : 105, R = 64, r = 22;
-    const start = n === 2 ? Math.PI : -Math.PI / 2;
-    const ang = (i) => start + (2 * Math.PI * i) / n;
-    const pt = (a) => [cx + R * Math.cos(a), cy + R * Math.sin(a)].map((v) => v.toFixed(1));
-    const trim = (r + 6) / R;
-    const marker = "review-arrow-" + id;
-    const root = svg("svg", { viewBox: "0 0 240 190", role: "img", "aria-label": label }, [
-      svg("defs", {}, svg("marker", {
-        id: marker, viewBox: "0 0 10 10", refX: 9, refY: 5,
-        markerWidth: 9, markerHeight: 9, markerUnits: "userSpaceOnUse", orient: "auto"
-      }, svg("path", { d: "M0,0 L10,5 L0,10 z" })))
-    ]);
-    members.forEach((m, i) => {
-      const [x0, y0] = pt(ang(i) + trim), [x1, y1] = pt(ang(i + 1) - trim);
-      root.append(svg("path", { class: "arc", d: `M${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1}`, "marker-end": `url(#${marker})` }));
-    });
-    members.forEach((m, i) => {
-      const [x, y] = pt(ang(i));
-      root.append(svg("g", { class: "node" }, [svg("circle", { cx: x, cy: y, r }), svg("text", { x, y }, m)]));
-    });
+  // Outer ring: A (top) and E (bottom) review each other. Inner ring: the experiment loop.
+  // Review arcs run clockwise from reviewer to reviewee; dashed arrows are hand-offs between the rings.
+  function reviewSvg(R, label) {
+    const cx = 220, cy = 225;
+    const root = svg("svg", { viewBox: "0 0 440 450", role: "img", "aria-label": label });
+    const defs = svg("defs");
+    ["outer", "inner", "flow"].forEach((k) => defs.append(svg("marker", {
+      id: "review-arrow-" + k, class: k, viewBox: "0 0 10 10", refX: 9, refY: 5,
+      markerWidth: 9, markerHeight: 9, markerUnits: "userSpaceOnUse", orient: "auto"
+    }, svg("path", { d: "M0,0 L10,5 L0,10 z" }))));
+    root.append(defs);
+
+    function ring(members, cls, rad, r, start) {
+      const n = members.length;
+      const ang = (i) => start + (2 * Math.PI * i) / n;
+      const pt = (a) => [cx + rad * Math.cos(a), cy + rad * Math.sin(a)].map((v) => +v.toFixed(1));
+      const trim = (r + 6) / rad;
+      const g = svg("g", { class: cls });
+      members.forEach((m, i) => {
+        const [x0, y0] = pt(ang(i) + trim), [x1, y1] = pt(ang(i + 1) - trim);
+        g.append(svg("path", { class: "arc", d: `M${x0},${y0} A${rad},${rad} 0 0 1 ${x1},${y1}`, "marker-end": `url(#review-arrow-${cls})` }));
+      });
+      members.forEach((m, i) => {
+        const [x, y] = pt(ang(i));
+        g.append(svg("g", { class: "node" }, [svg("circle", { cx: x, cy: y, r }), svg("text", { x, y }, m)]));
+      });
+      return g;
+    }
+    function flow(x, y0, y1, text, side) {
+      return svg("g", { class: "flow" }, [
+        svg("line", { x1: x, y1: y0, x2: x, y2: y1, "marker-end": "url(#review-arrow-flow)" }),
+        svg("text", { x: x + (side === "end" ? -8 : 8), y: (y0 + y1) / 2, "text-anchor": side }, tr(R.flows[text]))
+      ]);
+    }
+
+    const outerR = 175, haloR = 96;
+    root.append(svg("circle", { class: "halo", cx, cy, r: haloR }));
+    root.append(ring(R.outer, "outer", outerR, 24, -Math.PI / 2));
+    root.append(ring(R.inner, "inner", 58, 22, -Math.PI / 2));
+    const [top, bottom] = R.outer;
+    root.append(svg("text", { class: "role", x: cx, y: cy - outerR - 34 }, tr(R.roles[top])));
+    root.append(svg("text", { class: "role", x: cx, y: cy + outerR + 36 }, tr(R.roles[bottom])));
+    const yTop = cy - outerR + 30, yHaloTop = cy - haloR - 4, yHaloBot = cy + haloR + 4, yBot = cy + outerR - 30;
+    root.append(flow(cx, yTop, yHaloTop, "tools", "start"));
+    root.append(flow(cx - 16, yHaloBot, yBot, "results", "end"));
+    root.append(flow(cx + 16, yBot, yHaloBot, "methods", "start"));
     return root;
   }
 
   function renderReview() {
+    const R = P.review;
     const name = (m) => { const w = P.workstreams.find((x) => x.owner === m); return w ? tr(w.name) : ""; };
-    const grid = clear("review-loops");
-    P.reviewLoops.forEach((loop, k) => {
-      const m = loop.members;
-      const label = m.map((x, i) => U().reviews(x, m[(i + 1) % m.length])).join(", ");
-      grid.append(h("figure", { class: "loop loop-" + k }, [
-        h("figcaption", { class: "tag", text: tr(loop.title) }),
-        loopSvg(m, k, label),
-        h("ul", { class: "loop-legend" }, [...m].sort().map((x) => h("li", {}, [h("strong", { text: x }), name(x)])))
-      ]));
-    });
+    const pairs = (m) => m.map((x, i) => U().reviews(x, m[(i + 1) % m.length]));
+    const label = pairs(R.outer).concat(pairs(R.inner)).join(", ");
+    const group = (m) => (R.outer.includes(m) ? "outer" : "inner");
+    clear("review-map").append(
+      reviewSvg(R, label),
+      h("ul", { class: "review-legend" }, R.outer.concat(R.inner).sort().map((x) =>
+        h("li", { class: group(x) }, [h("strong", { text: x }), name(x)])))
+    );
   }
 
   // ---------- resources ----------

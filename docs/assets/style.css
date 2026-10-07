@@ -264,20 +264,25 @@ tr:last-child td { border-bottom: none; }
 .progress-summary .bar { flex: 1 1 240px; }
 
 .review { margin-bottom: 16px; }
-.review-loops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
-@media (max-width: 640px) { .review-loops { grid-template-columns: 1fr; } }
-.loop { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.loop-0 { --loop: var(--accent); }
-.loop-1 { --loop: var(--free); }
-.loop .tag { color: var(--loop) !important; margin-bottom: 0 !important; }
-.loop svg { width: 100%; max-width: 260px; height: auto; }
-.loop .arc { fill: none; stroke: var(--loop); stroke-width: 2; }
-.loop marker path { fill: var(--loop); }
-.loop .node circle { fill: var(--surface); stroke: var(--loop); stroke-width: 2; }
-.loop .node text { fill: var(--text); font-size: 18px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
-.review .loop-legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; font-size: 14px; }
-.review .loop-legend li + li { margin-top: 0; }
-.review .loop-legend strong { color: var(--loop); margin-right: 6px; }
+.review-map { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 12px; }
+.review-map svg { width: 100%; max-width: 460px; height: auto; }
+.review-map .outer { --loop: var(--accent); }
+.review-map .inner { --loop: var(--free); }
+.review-map .arc { fill: none; stroke: var(--loop); stroke-width: 2; }
+.review-map marker.outer path { fill: var(--accent); }
+.review-map marker.inner path { fill: var(--free); }
+.review-map marker.flow path { fill: var(--muted); }
+.review-map .node circle { fill: var(--surface); stroke: var(--loop); stroke-width: 2; }
+.review-map .node text { fill: var(--text); font-size: 18px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.review-map .halo { fill: color-mix(in srgb, var(--free) 6%, transparent); stroke: var(--free); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .7; }
+.review-map .role { fill: var(--accent); font-size: 14px; font-weight: 600; text-anchor: middle; dominant-baseline: central; }
+.review-map .flow line { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.review-map .flow text { fill: var(--muted); font-size: 14px; dominant-baseline: central; }
+.review .review-legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; font-size: 14px; }
+.review .review-legend li + li { margin-top: 0; }
+.review .review-legend .outer strong { color: var(--accent); }
+.review .review-legend .inner strong { color: var(--free); }
+.review .review-legend strong { margin-right: 6px; }
 
 .workstreams { grid-template-columns: 1fr; }
 .ws { display: grid; grid-template-columns: 320px 1fr; gap: 28px; align-items: start; }

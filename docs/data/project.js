@@ -115,21 +115,32 @@ window.PROJECT = {
     }
   ],
 
-  // Cross-review loops: each member reviews the next one; the last reviews the first.
-  reviewLoops: [
-    { title: { en: "Run data and analysis", zh: "运行数据与分析" }, members: ["A", "E"] },
-    { title: { en: "Experiment streams", zh: "实验方向" }, members: ["D", "C", "B"] }
-  ],
+  // Cross-review. In each ring a member reviews the next one and the last reviews the first:
+  // A and E review each other (outer ring); D → C → B → D (inner ring).
+  // `flows` label the hand-offs: A passes tools and the plan to B–D; E sends methods and receives results.
+  review: {
+    outer: ["A", "E"],
+    inner: ["D", "C", "B"],
+    roles: {
+      A: { en: "A · coordinates the project, supplies tools and rules", zh: "A · 全局统筹，提供工具和规则" },
+      E: { en: "E · sets analysis methods, pulls results together", zh: "E · 制定分析方法，汇总结论" }
+    },
+    flows: {
+      tools: { en: "Tools & plan", zh: "工具与安排" },
+      results: { en: "Results", zh: "实验结果" },
+      methods: { en: "Methods", zh: "分析方法" }
+    }
+  },
 
   // status: "todo" | "doing" | "done"; owner is the primary owner.
   workstreams: [
     {
       name: { en: "Shared framework & model validation", zh: "共享框架与模型验证" },
-      stage: { en: "A · Foundation", zh: "A · 公共基础" },
+      stage: { en: "A · Coordination & foundation", zh: "A · 统筹与基础" },
       owner: "A",
       summary: {
-        en: "Define the shared run protocol, build SUMO, implement OVM and make the smallest end-to-end experiment runnable.",
-        zh: "定义共享运行协议，编译 SUMO，实现 OVM，并打通最小端到端实验。"
+        en: "Coordinate the project, define the shared run protocol, build SUMO, implement OVM and make the smallest end-to-end experiment runnable.",
+        zh: "统筹全局安排，定义共享运行协议，编译 SUMO，实现 OVM，并打通最小端到端实验。"
       },
       tasks: [
         { text: { en: "Define config, run-record and output interfaces", zh: "定义配置、运行记录和输出接口" }, status: "doing" },
