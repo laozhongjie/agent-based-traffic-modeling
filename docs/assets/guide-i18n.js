@@ -28,12 +28,14 @@ Object.assign(window.I18N.static.zh, {
       <li>设置 <code>SUMO_HOME</code>，并把 SUMO 的 <code>bin</code> 目录加入 <code>PATH</code>：
         <ul>
           <li><strong>Windows：</strong><code>.msi</code> 安装包会自动设置这两项。安装后关闭并重新打开终端。</li>
-          <li><strong>macOS：</strong>安装包不会设置这两项。把下面两行加到 <code>~/.zshrc</code> 末尾，再运行 <code>source ~/.zshrc</code>：
-<pre><code>export SUMO_HOME="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo"
-export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin:$PATH"</code></pre>
+          <li><strong>macOS：</strong>安装包不会设置这两项。在终端运行下面三行，它们会把两项设置追加到 <code>~/.zshrc</code> 末尾并立即生效：
+<pre><code>echo 'export SUMO_HOME="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo"' >> ~/.zshrc
+echo 'export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc</code></pre>
           </li>
-          <li><strong>Linux：</strong>把下面一行加到 <code>~/.bashrc</code> 末尾，然后注销并重新登录。在 Ubuntu 上用 apt 安装时，路径通常是 <code>/usr/share/sumo</code>，而且程序已经在 <code>PATH</code> 中。
-<pre><code>export SUMO_HOME="/usr/share/sumo"</code></pre>
+          <li><strong>Linux：</strong>在终端运行下面两行。在 Ubuntu 上用 apt 安装时，路径通常是 <code>/usr/share/sumo</code>，而且程序已经在 <code>PATH</code> 中。
+<pre><code>echo 'export SUMO_HOME="/usr/share/sumo"' >> ~/.bashrc
+source ~/.bashrc</code></pre>
           </li>
         </ul>
       </li>

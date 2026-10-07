@@ -53,12 +53,14 @@
         <li>Set <code>SUMO_HOME</code> and add the SUMO <code>bin</code> folder to <code>PATH</code>:
           <ul>
             <li><strong>Windows:</strong> the <code>.msi</code> installer sets both. Close and reopen the terminal afterwards.</li>
-            <li><strong>macOS:</strong> the installer sets neither. Add these two lines to the end of <code>~/.zshrc</code>, then run <code>source ~/.zshrc</code>:
-<pre><code>export SUMO_HOME="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo"
-export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin:$PATH"</code></pre>
+            <li><strong>macOS:</strong> the installer sets neither. Run these three lines in the terminal. They add both settings to the end of <code>~/.zshrc</code> and load them:
+<pre><code>echo 'export SUMO_HOME="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo"' >> ~/.zshrc
+echo 'export PATH="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc</code></pre>
             </li>
-            <li><strong>Linux:</strong> add this line to the end of <code>~/.bashrc</code>, then log out and in again. <code>/usr/share/sumo</code> is the usual path after installing with apt on Ubuntu; apt already puts the programs on <code>PATH</code>.
-<pre><code>export SUMO_HOME="/usr/share/sumo"</code></pre>
+            <li><strong>Linux:</strong> run these two lines in the terminal. <code>/usr/share/sumo</code> is the usual path after installing with apt on Ubuntu; apt already puts the programs on <code>PATH</code>.
+<pre><code>echo 'export SUMO_HOME="/usr/share/sumo"' >> ~/.bashrc
+source ~/.bashrc</code></pre>
             </li>
           </ul>
         </li>
