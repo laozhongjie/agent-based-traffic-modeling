@@ -148,7 +148,8 @@ window.PROJECT = {
         { text: { en: "Implement OVM in SUMO (C++) and go through its validation with B", zh: "用 C++ 在 SUMO 中实现 OVM，并与 B 一起确认验证结果" }, status: "todo" },
         { text: { en: "Add validation checks and a minimal end-to-end run", zh: "加入验证检查并打通最小端到端运行" }, status: "todo" },
         { text: { en: "Review E's analysis scripts and their use of run data", zh: "复核 E 的分析脚本及其对运行数据的使用" }, status: "todo" },
-        { text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" }, status: "todo" }
+        { text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" }, status: "todo" },
+        { text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" }, status: "todo" }
       ]
     },
     {
@@ -207,16 +208,15 @@ window.PROJECT = {
       stage: { en: "E · Cross-cutting", zh: "E · 跨方向" },
       owner: "E",
       summary: {
-        en: "Define shared metrics, quantify uncertainty, compare with real data and assemble the report, slides and site exports.",
-        zh: "定义统一指标，量化不确定性，与真实数据对照，并整合报告、幻灯片和网站数据。"
+        en: "Define shared metrics, quantify uncertainty, compare with real data and pull the results into conclusions and site exports.",
+        zh: "定义统一指标，量化不确定性，与真实数据对照，并把结果汇总成结论和网站数据。"
       },
       tasks: [
         { text: { en: "Define order parameters, congestion criteria and critical-point estimates", zh: "定义序参量、拥堵判据和临界点估计方法" }, status: "todo" },
         { text: { en: "Build shared analysis scripts for diagrams, fluctuations and uncertainty; confirm the method with B and C", zh: "建立基本图、涨落和不确定性的统一分析脚本，并与 B、C 确认方法" }, status: "todo" },
         { text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
         { text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
-        { text: { en: "Export validated data and figures to the site", zh: "将通过验证的数据和图表导出到网站" }, status: "todo" },
-        { text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" }, status: "todo" }
+        { text: { en: "Export validated data and figures to the site", zh: "将通过验证的数据和图表导出到网站" }, status: "todo" }
       ]
     }
   ],
