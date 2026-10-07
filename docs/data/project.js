@@ -149,7 +149,8 @@ window.PROJECT = {
         { text: { en: "Add validation checks and a minimal end-to-end run", zh: "加入验证检查并打通最小端到端运行" }, status: "todo" },
         { text: { en: "Review E's analysis scripts and their use of run data", zh: "复核 E 的分析脚本及其对运行数据的使用" }, status: "todo" },
         { text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" }, status: "todo" },
-        { text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" }, status: "todo" }
+        { text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" }, status: "todo" },
+        { text: { en: "Maintain the site and add the in-browser ring demo to the ring page", zh: "维护网站，并把浏览器内的环路演示加入环路页面" }, status: "todo" }
       ]
     },
     {
@@ -161,7 +162,7 @@ window.PROJECT = {
         zh: "负责环路实验，区分自发拥堵与瓶颈引起的拥堵。"
       },
       tasks: [
-        { text: { en: "Define ring-road scenarios and density-sweep protocol", zh: "定义环路场景和密度扫描协议" }, status: "todo" },
+        { text: { en: "Define ring-road scenarios, density sweeps and the ring congestion criterion", zh: "定义环路场景、密度扫描和环路拥堵判据" }, status: "todo" },
         { text: { en: "Run NaSch / OVM / IDM ring-road experiments", zh: "运行 NaSch / OVM / IDM 环路实验" }, status: "todo" },
         { text: { en: "Compare density, system size, randomness and bottleneck", zh: "比较密度、系统尺寸、随机性和瓶颈条件" }, status: "todo" },
         { text: { en: "Produce fundamental and space–time diagrams", zh: "生成基本图和时空图" }, status: "todo" },
@@ -179,7 +180,7 @@ window.PROJECT = {
       },
       tasks: [
         { text: { en: "Choose a district and import it from OSM into SUMO", zh: "选定城区并从 OSM 导入 SUMO" }, status: "todo" },
-        { text: { en: "Validate the pipeline on a 4×4 grid", zh: "用 4×4 网格验证整个流程" }, status: "todo" },
+        { text: { en: "Define the network congestion criterion for road segments", zh: "定义路网拥堵判据（判定路段拥堵的标准）" }, status: "todo" },
         { text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" }, status: "todo" },
         { text: { en: "Run network-density sweeps and export representative runs", zh: "运行网络密度扫描并导出代表性运行" }, status: "todo" },
         { text: { en: "Measure MFD inputs, queues and congested clusters", zh: "测量宏观基本图输入、排队和拥堵连通区域" }, status: "todo" },
@@ -191,12 +192,13 @@ window.PROJECT = {
       stage: { en: "D · Stage 3", zh: "D · 阶段三" },
       owner: "D",
       summary: {
-        en: "Compare baseline, road closure and new-link scenarios under the same density grid and seeds.",
-        zh: "在相同密度网格和随机种子下比较基准、封路和新增连接方案。"
+        en: "Build the 4×4 test grid early, then compare baseline, road closure and new-link scenarios under the same density values and seeds.",
+        zh: "先搭建 4×4 测试网格，再在相同密度取值和随机种子下比较基准、封路和新增连接方案。"
       },
       tasks: [
-        { text: { en: "Create baseline, road-closure and new-link scenarios", zh: "创建基准、封路和新增连接场景" }, status: "todo" },
-        { text: { en: "Reuse Stage 2 density grid, routes and seed groups", zh: "沿用阶段二的密度网格、路线和随机种子组" }, status: "todo" },
+        { text: { en: "Build the 4×4 test grid and validate the pipeline with C", zh: "搭建 4×4 测试网格，并与 C 一起验证流程" }, status: "todo" },
+        { text: { en: "Prototype baseline, road-closure and new-link scenarios on the grid, then port them to the district", zh: "先在网格上做出基准、封路和新增连接场景，再移植到城区路网" }, status: "todo" },
+        { text: { en: "Reuse Stage 2 density values, routes and seed groups", zh: "沿用阶段二的密度取值、路线和随机种子组" }, status: "todo" },
         { text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" }, status: "todo" },
         { text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" }, status: "todo" },
         { text: { en: "Review C's network pipeline, units and seeds before reusing them", zh: "复核 C 的路网流程、单位和随机种子，确认可以直接沿用" }, status: "todo" },
@@ -208,12 +210,13 @@ window.PROJECT = {
       stage: { en: "E · Cross-cutting", zh: "E · 跨方向" },
       owner: "E",
       summary: {
-        en: "Define shared metrics, quantify uncertainty, compare with real data and pull the results into conclusions and site exports.",
-        zh: "定义统一指标，量化不确定性，与真实数据对照，并把结果汇总成结论和网站数据。"
+        en: "Set the critical-point and uncertainty methods, compare with real data and pull the results into conclusions and site exports.",
+        zh: "制定临界点估计和误差分析方法，与真实数据对照，并把结果汇总成结论和网站数据。"
       },
       tasks: [
-        { text: { en: "Define order parameters, congestion criteria and critical-point estimates", zh: "定义序参量、拥堵判据和临界点估计方法" }, status: "todo" },
+        { text: { en: "Define critical-point estimators and error bars; B and C supply the congestion criteria", zh: "制定临界点估计方法和误差范围（拥堵判据由 B、C 分别定义）" }, status: "todo" },
         { text: { en: "Build shared analysis scripts for diagrams, fluctuations and uncertainty; confirm the method with B and C", zh: "建立基本图、涨落和不确定性的统一分析脚本，并与 B、C 确认方法" }, status: "todo" },
+        { text: { en: "Apply for PeMS / highD / LTA access in week 1 (approval takes time)", zh: "第一周提交 PeMS / highD / LTA 数据申请（审核需要时间）" }, status: "todo" },
         { text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
         { text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
         { text: { en: "Export validated data and figures to the site", zh: "将通过验证的数据和图表导出到网站" }, status: "todo" }
