@@ -29,19 +29,21 @@ The ring-road, city-network and planning pages will display experimental results
 
 ## Repository layout
 
-The tree below is the intended layout. The repository currently contains the overview documents and website; add the experiment directories and environment file as their implementation begins. Directory names describe responsibilities, not team assignments.
+The tree below is the intended layout. The repository currently contains the overview documents, the website and a first ring-road scenario; add the other directories as their implementation begins. Directory names describe responsibilities, not team assignments.
 
 ```text
 .
 ├── README.md / README_zh.md
 ├── Project_Overview.md / Project_Overview_EN.md
 ├── environment.yml             # Reproducible Python environment
+├── pyproject.toml              # Makes src/traffic_project importable (pip install -e .)
 ├── .github/workflows/          # Pages deployment and future checks
-├── research/                   # Experiment protocol, validation, decisions
+├── research/                   # Decision log and validation notes
 ├── sumo/
 │   ├── version.txt             # Pinned upstream SUMO commit
-│   └── patches/                # OVM implementation and integration changes
-├── scenarios/                  # SUMO road, route and signal inputs
+│   ├── ovm/                    # MSCFModel_OVM.h/.cpp, kept as complete files
+│   └── patches/                # Small edits that register OVM in SUMO
+├── scenarios/                  # Fixed SUMO inputs and their generators
 │   ├── ring/                   # Ring road and bottleneck variants
 │   ├── grid/                   # 4×4 network for pipeline validation
 │   └── city/                   # Baseline, closure and new-link variants
@@ -59,13 +61,14 @@ The tree below is the intended layout. The repository currently contains the ove
 ├── scripts/                    # Command-line entry points
 ├── tests/                      # Model, controller and measurement checks
 ├── data/                       # External data, separate from run outputs
-│   ├── raw/                    # Original OSM, PeMS, highD or LTA data
+│   ├── raw/                    # Original OSM, PeMS, highD or LTA data (not in git)
 │   └── processed/              # Cleaned external data
-├── runs/                       # Per-run records, logs and SUMO outputs
-├── results/                    # Aggregated statistics and generated figures
+├── runs/                       # One folder per run: inputs, record, log, outputs (not in git)
+├── results/                    # Aggregated statistics and figures (in git, keep small)
 ├── reports/                    # Report and presentation sources
 └── docs/                       # Published website; retain existing structure
     ├── index.html
+    ├── guide.html              # Shared conventions for all members
     ├── assets/                 # Shared styles, scripts and illustrations
     ├── models/                 # NaSch, OVM and IDM explanations
     ├── lab/                    # Ring, network and planning result views
@@ -76,10 +79,12 @@ The tree below is the intended layout. The repository currently contains the ove
         └── planning/           # Exported planning comparisons
 ```
 
-- `scenarios/` defines the simulated roads and traffic setup; `configs/` defines the experiment combinations. The three ring-road models share the same execution and analysis pipeline.
+- `scenarios/` holds only inputs that stay fixed across runs (networks, signal plans) and the scripts that generate them. Anything generated for a single run (vehicle placement, `.sumocfg`, outputs) goes into `runs/<run-id>/`. `configs/` defines the experiment combinations. The three ring-road models share the same execution and analysis pipeline.
 - `runs/<run-id>/` preserves the resolved configuration, random seed, project and SUMO versions, scenario identity, validation outcome, logs and outputs. `results/` aggregates these runs; every published point should retain its source run identifiers.
+- Git tracks code, scenarios, configs, `results/` and `docs/`. It ignores `runs/` and `data/raw/` (see `.gitignore`); share large files through external storage and record how to retrieve them.
 - `docs/data/` contains compact exports generated from validated results. GitHub Pages publishes all of `docs/`, so keep full trajectories, private data and experiment inputs outside it.
-- Keep the upstream SUMO checkout and build outside this repository; record its version and preserve the OVM integration changes here. Large raw datasets and simulation outputs should use external storage with retrieval instructions. Configure `.gitignore` before generating them; the current ignore file does not yet exclude these planned data directories.
+- `docs/guide.html` is the single reference for the shared conventions (units, run IDs, directories, checks). `research/` records how those decisions were reached and the validation results.
+- Keep the upstream SUMO checkout and build outside this repository; record its version in `sumo/version.txt`, the new OVM files in `sumo/ovm/` and the edits to existing SUMO files in `sumo/patches/`.
 
 ## Experiment workflow
 

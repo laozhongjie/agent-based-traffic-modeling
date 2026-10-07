@@ -4,3 +4,8 @@ __pycache__/
 .ipynb_checkpoints/
 .venv/
 node_modules/
+
+# Experiment outputs and large external data (see README: Repository layout)
+runs/
+data/raw/
+*.fcd.xml

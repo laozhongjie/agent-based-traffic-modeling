@@ -29,19 +29,21 @@
 
 ## 仓库目录
 
-以下为目标目录结构。目前仓库已有项目概览和网站；实验目录及环境文件在开始实现时按需添加。目录名称表示文件职责，不代表团队分工。
+以下为目标目录结构。目前仓库已有项目概览、网站和第一个环路场景；其他目录在开始实现时按需添加。目录名称表示文件职责，不代表团队分工。
 
 ```text
 .
 ├── README.md / README_zh.md
 ├── Project_Overview.md / Project_Overview_EN.md
 ├── environment.yml             # 可复现的 Python 环境
+├── pyproject.toml              # 让 src/traffic_project 可以导入（pip install -e .）
 ├── .github/workflows/          # 网站部署及后续自动检查
-├── research/                   # 实验协议、验证方法、设计决策
+├── research/                   # 决策记录和验证结果
 ├── sumo/
 │   ├── version.txt             # 固定的上游 SUMO commit
-│   └── patches/                # OVM 实现及注册、构建改动
-├── scenarios/                  # SUMO 道路、路线和信号输入
+│   ├── ovm/                    # MSCFModel_OVM.h/.cpp 完整源文件
+│   └── patches/                # 在 SUMO 中注册 OVM 的少量改动
+├── scenarios/                  # 固定不变的 SUMO 输入及其生成脚本
 │   ├── ring/                   # 环路及瓶颈变体
 │   ├── grid/                   # 验证流程的 4×4 网格
 │   └── city/                   # 基准、封路和新增连接变体
@@ -59,13 +61,14 @@
 ├── scripts/                    # 命令行入口
 ├── tests/                      # 模型、控制器和指标检查
 ├── data/                       # 外部数据，与实验输出分开
-│   ├── raw/                    # OSM、PeMS、highD 或 LTA 原始数据
+│   ├── raw/                    # OSM、PeMS、highD 或 LTA 原始数据（不进 git）
 │   └── processed/              # 清洗后的外部数据
-├── runs/                       # 各次运行的记录、日志和 SUMO 输出
-├── results/                    # 汇总统计及程序生成的图表
+├── runs/                       # 每次运行一个目录：输入、记录、日志和输出（不进 git）
+├── results/                    # 汇总统计和图表（进 git，保持精简）
 ├── reports/                    # 报告和幻灯片源文件
 └── docs/                       # 发布的网站，保留现有结构
     ├── index.html
+    ├── guide.html              # 全组统一做法
     ├── assets/                 # 共用样式、脚本和原理演示
     ├── models/                 # NaSch、OVM 和 IDM 介绍
     ├── lab/                    # 环路、路网和规划结果页面
@@ -76,10 +79,12 @@
         └── planning/           # 规划实验导出对照
 ```
 
-- `scenarios/` 定义道路和交通场景，`configs/` 定义实验组合。环路上的三种模型共用运行和分析流程。
+- `scenarios/` 只放各次运行共用、固定不变的输入（路网、信号方案）及生成它们的脚本。为某一次运行生成的文件（车辆初始位置、`.sumocfg`、输出）一律放进 `runs/<run-id>/`。`configs/` 定义实验组合。环路上的三种模型共用运行和分析流程。
 - `runs/<run-id>/` 保存本次运行的完整配置、随机种子、项目与 SUMO 版本、场景标识、验证结果、日志和输出。`results/` 汇总这些运行；每个发布的数据点应保留来源运行编号。
+- git 跟踪代码、场景、配置、`results/` 和 `docs/`，不跟踪 `runs/` 和 `data/raw/`（见 `.gitignore`）。大文件通过外部存储共享，并记录获取方式。
 - `docs/data/` 存放由有效实验结果生成的精简数据。GitHub Pages 会发布整个 `docs/`，完整轨迹、私有数据和实验输入应保存在该目录之外。
-- 上游 SUMO 源码和编译目录放在仓库之外，仓库保存版本记录及 OVM 集成改动。大体积原始数据和模拟输出使用外部存储，并记录获取方式。生成这些文件前先配置 `.gitignore`；当前忽略规则尚未排除这些计划中的数据目录。
+- `docs/guide.html` 是全组统一做法的唯一依据（单位、运行编号、目录、检查项）。`research/` 记录这些决定的由来和验证结果。
+- 上游 SUMO 源码和编译目录放在仓库之外。`sumo/version.txt` 记录版本，`sumo/ovm/` 保存 OVM 新增的源文件，`sumo/patches/` 保存对 SUMO 原有文件的改动。
 
 ## 实验工作流程
 
