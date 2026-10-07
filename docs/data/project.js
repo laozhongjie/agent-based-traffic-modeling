@@ -4,7 +4,7 @@
 // fill in owners, bump `updated`, then commit and push.
 
 window.PROJECT = {
-  updated: "2026-10-06",
+  updated: "2026-10-07",
   repo: "https://github.com/laozhongjie/agent-based-traffic-modeling",
 
   // All times are Singapore time (UTC+8).
@@ -128,9 +128,9 @@ window.PROJECT = {
       tasks: [
         { text: { en: "Define config, run-record and output interfaces", zh: "定义配置、运行记录和输出接口" }, status: "doing" },
         { text: { en: "Build SUMO from source at a pinned commit", zh: "从源码编译 SUMO，并固定 commit" }, status: "todo" },
-        { text: { en: "Implement OVM in SUMO (C++)", zh: "用 C++ 在 SUMO 中实现 OVM" }, status: "todo" },
+        { text: { en: "Implement OVM in SUMO (C++) and go through its validation with B", zh: "用 C++ 在 SUMO 中实现 OVM，并与 B 一起确认验证结果" }, status: "todo" },
         { text: { en: "Add validation checks and a minimal end-to-end run", zh: "加入验证检查并打通最小端到端运行" }, status: "todo" },
-        { text: { en: "Review B's ring protocol and verify the shared interface", zh: "复核 B 的环路协议并验证共享接口" }, status: "todo" },
+        { text: { en: "Review E's analysis scripts and their use of run data", zh: "复核 E 的分析脚本及其对运行数据的使用" }, status: "todo" },
         { text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" }, status: "todo" }
       ]
     },
@@ -181,7 +181,7 @@ window.PROJECT = {
         { text: { en: "Reuse Stage 2 density grid, routes and seed groups", zh: "沿用阶段二的密度网格、路线和随机种子组" }, status: "todo" },
         { text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" }, status: "todo" },
         { text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" }, status: "todo" },
-        { text: { en: "Review E's uncertainty and comparison protocol", zh: "复核 E 的不确定性和比较协议" }, status: "todo" },
+        { text: { en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" }, status: "todo" },
         { text: { en: "Prepare planning figures for the report and site", zh: "为报告和网站整理规划方案图表" }, status: "todo" }
       ]
     },
@@ -195,7 +195,7 @@ window.PROJECT = {
       },
       tasks: [
         { text: { en: "Define order parameters, congestion criteria and critical-point estimates", zh: "定义序参量、拥堵判据和临界点估计方法" }, status: "todo" },
-        { text: { en: "Build shared analysis scripts for diagrams, fluctuations and uncertainty", zh: "建立基本图、涨落和不确定性的统一分析脚本" }, status: "todo" },
+        { text: { en: "Build shared analysis scripts for diagrams, fluctuations and uncertainty; confirm the method with B and C", zh: "建立基本图、涨落和不确定性的统一分析脚本，并与 B、C 确认方法" }, status: "todo" },
         { text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
         { text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
         { text: { en: "Export validated data and figures to the site", zh: "将通过验证的数据和图表导出到网站" }, status: "todo" },
