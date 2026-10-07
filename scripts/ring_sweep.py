@@ -4,7 +4,9 @@ For every vehicle count and seed in the config this script
   1. writes the run inputs with scenarios/ring/build_run.py,
   2. runs SUMO and writes the run record (traffic_project.runner),
   3. measures and checks the run (traffic_project.measurements),
-and finally collects all runs into results/ring/<name>.csv.
+  4. writes its time series to results/ring/<name>/<run_id>.csv,
+and finally writes the summary table results/ring/<name>.csv. Both files follow
+the data interface in traffic_project.results.
 
 Usage (from the repository root):
     python scripts/ring_sweep.py --config configs/ring/idm_sweep.toml
@@ -13,11 +15,9 @@ import argparse
 import subprocess
 import sys
 
-from traffic_project import ROOT, config, io, measurements, runner
+from traffic_project import ROOT, config, measurements, results, runner
 
 BUILD_RUN = ROOT / "scenarios" / "ring" / "build_run.py"
-COLUMNS = ["run_id", "vehicles", "seed", "density_veh_km", "mean_speed_mps", "flow_veh_h",
-           "congested_fraction", "congested_fraction_var", "valid"]
 
 
 def run_one(cfg, n, seed):
@@ -33,10 +33,13 @@ def run_one(cfg, n, seed):
                   "vtype": cfg["vtype"], "measure": cfg["measure"]}
     runner.write_manifest(run_dir, run_id, cfg, parameters)
     _, checks = runner.run_sumo(run_dir)
-    measured, ring_checks = measurements.ring_summary(
+    m = cfg["measure"]
+    measured, ring_checks, series = measurements.ring_summary(
         run_dir / "fcd.xml", n, cfg["ring"]["length_m"], cfg["run"]["warmup_s"],
-        cfg["measure"]["jam_speed_mps"])
-    summary = dict(measured, vehicles=n, seed=seed)
+        m["jam_speed_mps"], m["timeseries_every_s"])
+    results.write_timeseries(run_id, series, cfg)
+    summary = dict(measured, scenario=cfg["scenario"], model=cfg["model"], variant="",
+                   seed=seed, ring_vehicles=n)
     return runner.finish(run_dir, run_id, summary, {**checks, **ring_checks})
 
 
@@ -56,9 +59,8 @@ def main():
                   f"q={s['flow_veh_h']:6.0f} veh/h  phi={s['congested_fraction']:.2f}  "
                   f"{'ok' if s['valid'] else 'INVALID: ' + ', '.join(failed)}")
 
-    out = ROOT / "results" / "ring" / f"{cfg['name']}.csv"
-    io.write_csv(rows, out, COLUMNS)
-    print(f"wrote {out.relative_to(ROOT)}")
+    out = results.write_summary(rows, cfg)
+    print(f"wrote {out.relative_to(ROOT)} and {len(rows)} time series in {out.with_suffix('').relative_to(ROOT)}/")
 
 
 if __name__ == "__main__":
