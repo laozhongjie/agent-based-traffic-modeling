@@ -9,3 +9,7 @@ node_modules/
 runs/
 data/raw/
 *.fcd.xml
+
+# Personal experiments; move code out before it produces a result
+sandbox/
+*.egg-info/

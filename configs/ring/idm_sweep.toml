@@ -1,0 +1,39 @@
+# Ring-road density sweep with IDM.
+# Run:  python scripts/ring_sweep.py --config configs/ring/idm_sweep.toml
+# Plot: python scripts/plot_ring.py  --config configs/ring/idm_sweep.toml
+# IDM parameters and the congestion threshold are placeholders until B fixes the ring protocol.
+
+name = "idm_sweep"        # results go to results/ring/<name>.csv
+scenario = "ring"
+model = "IDM"
+
+[ring]
+length_m = 1000           # needs scenarios/ring/ring_<length>.net.xml (build_net.py)
+
+[run]
+end_s = 1800
+step_s = 1.0
+warmup_s = 600            # discarded before measuring
+jitter_m = 0.5            # max seeded offset of each start position
+
+[sweep]
+vehicles = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+seeds = [1]
+
+[vtype]                   # written unchanged into the SUMO <vType> element
+carFollowModel = "IDM"
+length = 5                # m
+minGap = 2                # m, IDM s0
+accel = 1.0               # m/s^2, IDM a
+decel = 1.5               # m/s^2, IDM b (comfortable deceleration)
+tau = 1.5                 # s, IDM time headway T
+delta = 4                 # IDM acceleration exponent
+maxSpeed = 30             # m/s, IDM v0
+speedDev = 0              # all vehicles share the same desired speed
+speedFactor = 1
+
+[measure]
+jam_speed_mps = 5.0       # placeholder congestion threshold
+
+[plot]
+spacetime = [20, 50, 100] # vehicle counts shown in the space-time diagram

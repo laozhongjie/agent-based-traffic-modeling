@@ -1,67 +1,59 @@
-"""Place N IDM vehicles on the ring and write one run's SUMO input files.
+"""Place N vehicles on the ring and write one run's SUMO input files.
 
 Vehicles start at rest, evenly spaced, with a small seeded offset so that the
 seed controls the initial perturbation. Each vehicle's route starts on its own
 edge and repeats, so it keeps circling for the whole run.
 
-Usage:
-    python build_run.py --length 1000 --vehicles 30 --seed 1 --end 1800
-Writes runs/<run-id>/vehicles.rou.xml and run.sumocfg at the repository root,
-with run-id = ring_idm_L<L>_n<N>_s<seed>. SUMO writes its outputs into the
-same folder. The network scenarios/ring/ring_<L>.net.xml must exist (see build_net.py).
+Usage (from the repository root):
+    python scenarios/ring/build_run.py --config configs/ring/idm_sweep.toml --vehicles 30 --seed 1
+Writes runs/<run-id>/vehicles.rou.xml and run.sumocfg, with
+run-id = ring_<model>_L<length>_n<N>_s<seed>, and prints the run-id.
+The network scenarios/ring/ring_<length>.net.xml must exist (see build_net.py).
 """
 import argparse
 import os
 import random
-from pathlib import Path
+
+from traffic_project import ROOT, config
 
 N_EDGES = 4
 
-# IDM parameters (placeholders until the group fixes the ring protocol).
-VTYPE = dict(carFollowModel="IDM", length=5, minGap=2, accel=1.0, decel=1.5,
-             tau=1.5, delta=4, maxSpeed=30, speedDev=0, speedFactor=1)
 
-
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--length", type=float, default=1000.0, help="ring length in m")
-    ap.add_argument("--vehicles", type=int, required=True, help="number of vehicles N")
-    ap.add_argument("--seed", type=int, default=1, help="seed for the initial offsets and SUMO")
-    ap.add_argument("--jitter", type=float, default=0.5, help="max position offset in m")
-    ap.add_argument("--end", type=float, default=1800, help="simulation end time in s")
-    ap.add_argument("--step", type=float, default=1.0, help="step length in s")
-    args = ap.parse_args()
-
-    here = Path(__file__).resolve().parent
-    net = here / f"ring_{int(args.length)}.net.xml"
+def build(cfg, n, seed):
+    length = cfg["ring"]["length_m"]
+    run, vtype = cfg["run"], cfg["vtype"]
+    here = ROOT / "scenarios" / "ring"
+    net = here / f"ring_{int(length)}.net.xml"
     if not net.exists():
-        raise SystemExit(f"missing {net.name}; run build_net.py --length {args.length:g} first")
-    run_id = f"ring_idm_L{int(args.length)}_n{args.vehicles}_s{args.seed}"
-    run_dir = here.parents[1] / "runs" / run_id
-    run_dir.mkdir(parents=True, exist_ok=True)
-    edge_len = args.length / N_EDGES
-    spacing = args.length / args.vehicles
+        raise SystemExit(f"missing {net.name}; run build_net.py --length {length:g} first")
+
+    edge_len = length / N_EDGES
+    spacing = length / n
     # Two neighbours can move towards each other by 2 * jitter; SUMO silently delays
     # inserting a vehicle that would start closer than length + minGap.
-    if spacing - 2 * args.jitter < VTYPE["length"] + VTYPE["minGap"]:
-        raise SystemExit(f"{args.vehicles} vehicles do not fit: spacing {spacing:.2f} m, "
-                         f"jitter {args.jitter} m, need {VTYPE['length'] + VTYPE['minGap']} m + 2 * jitter")
+    need = vtype["length"] + vtype["minGap"]
+    if spacing - 2 * run["jitter_m"] < need:
+        raise SystemExit(f"{n} vehicles do not fit: spacing {spacing:.2f} m, "
+                         f"jitter {run['jitter_m']} m, need {need} m + 2 * jitter")
 
-    rng = random.Random(args.seed)
-    vtype = " ".join(f'{k}="{v}"' for k, v in VTYPE.items())
-    lines = ["<routes>", f'    <vType id="idm" {vtype}/>']
-    laps = int(args.end * VTYPE["maxSpeed"] / args.length) + 2  # enough laps for the whole run
+    run_id = f"ring_{cfg['model'].lower()}_L{int(length)}_n{n}_s{seed}"
+    run_dir = ROOT / "runs" / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    rng = random.Random(seed)
+    attrs = " ".join(f'{k}="{v}"' for k, v in vtype.items())
+    lines = ["<routes>", f'    <vType id="car" {attrs}/>']
+    laps = int(run["end_s"] * vtype["maxSpeed"] / length) + 2  # enough laps for the whole run
     for k in range(N_EDGES):
         edges = " ".join(f"e{(k + j) % N_EDGES}" for j in range(N_EDGES))
         lines.append(f'    <route id="r{k}" edges="{edges}" repeat="{laps}"/>')
-    for i in range(args.vehicles):
+    for i in range(n):
         # departPos is the position of the vehicle's front on its first edge; the rear
         # may reach back onto the previous edge, which SUMO handles.
-        s = (i * spacing + rng.uniform(-args.jitter, args.jitter)) % args.length
+        s = (i * spacing + rng.uniform(-run["jitter_m"], run["jitter_m"])) % length
         edge = min(int(s // edge_len), N_EDGES - 1)
-        pos = s - edge * edge_len
-        lines.append(f'    <vehicle id="v{i}" type="idm" route="r{edge}" depart="0" '
-                     f'departPos="{pos:.3f}" departSpeed="0"/>')
+        lines.append(f'    <vehicle id="v{i}" type="car" route="r{edge}" depart="0" '
+                     f'departPos="{s - edge * edge_len:.3f}" departSpeed="0"/>')
     lines.append("</routes>")
     (run_dir / "vehicles.rou.xml").write_text("\n".join(lines) + "\n")
 
@@ -73,11 +65,11 @@ def main():
     </input>
     <time>
         <begin value="0"/>
-        <end value="{args.end:g}"/>
-        <step-length value="{args.step:g}"/>
+        <end value="{run['end_s']:g}"/>
+        <step-length value="{run['step_s']:g}"/>
     </time>
     <random_number>
-        <seed value="{args.seed}"/>
+        <seed value="{seed}"/>
     </random_number>
     <processing>
         <collision.action value="warn"/>
@@ -89,7 +81,17 @@ def main():
     </output>
 </configuration>
 """)
-    print(f"wrote runs/{run_id}/  (k = {1000 * args.vehicles / args.length:.1f} veh/km)")
+    return run_id, run_dir
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--config", required=True, help="configs/ring/<name>.toml")
+    ap.add_argument("--vehicles", type=int, required=True, help="number of vehicles N")
+    ap.add_argument("--seed", type=int, required=True)
+    args = ap.parse_args()
+    run_id, _ = build(config.load(args.config), args.vehicles, args.seed)
+    print(run_id)
 
 
 if __name__ == "__main__":

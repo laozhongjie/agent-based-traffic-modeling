@@ -1,0 +1,15 @@
+# Shared Python environment. Create once from the repository root:
+#   conda env create -f environment.yml
+#   conda activate traffic
+# SUMO itself is installed separately (see docs/guide.html).
+name: traffic
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy=1.26
+  - scipy=1.13
+  - matplotlib=3.10
+  - pip
+  - pip:
+      - -e .

@@ -1,0 +1,15 @@
+# Makes src/traffic_project importable everywhere: pip install -e .
+# (environment.yml already does this when the environment is created.)
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "traffic-project"
+version = "0.1.0"
+description = "Shared simulation and analysis code for the PC5253 traffic-congestion project"
+requires-python = ">=3.11"
+dependencies = ["numpy", "scipy", "matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
