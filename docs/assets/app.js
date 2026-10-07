@@ -102,7 +102,7 @@
     const filter = clear("timeline-filter");
     filter.append(h("span", { class: "label", text: U().showOnly }));
     ["all"].concat(members).forEach((m) => {
-      const b = h("button", { type: "button", "aria-pressed": String(timelineWho === m), text: m === "all" ? U().everyone : m });
+      const b = h("button", { type: "button", "aria-pressed": String(timelineWho === m), text: m === "all" ? U().everyone : memberLabel(m) });
       b.addEventListener("click", () => { timelineWho = m; saveWho(m); renderTimeline(); });
       filter.append(b);
     });
@@ -131,6 +131,12 @@
   function loadWho() { try { return localStorage.getItem("timeline-who") || "all"; } catch (e) { return "all"; } }
   function saveWho(m) { try { localStorage.setItem("timeline-who", m); } catch (e) { /* storage unavailable */ } }
   let timelineWho = loadWho();
+
+  // A member's display name, e.g. "B Guowei"; falls back to the letter alone.
+  function memberLabel(m) {
+    const w = P.workstreams.find((x) => x.owner === m);
+    return w && w.ownerName ? m + " " + tr(w.ownerName) : m;
+  }
 
   // ---------- progress ----------
   const WEIGHT = { done: 1, doing: 0.5, todo: 0 };
@@ -250,7 +256,7 @@
     clear("review-map").append(
       reviewSvg(R, label),
       h("ul", { class: "review-legend" }, R.outer.concat(R.inner).sort().map((x) =>
-        h("li", { class: group(x) }, [h("strong", { text: x }), name(x)])))
+        h("li", { class: group(x) }, [h("strong", { text: memberLabel(x) }), name(x)])))
     );
   }
 

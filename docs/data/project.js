@@ -150,7 +150,7 @@ window.PROJECT = {
       name: { en: "Shared framework & model validation", zh: "共享框架与模型验证" },
       stage: { en: "A · Coordination & foundation", zh: "A · 统筹与基础" },
       owner: "A",
-      ownerName: { en: "Lao Zhongjie", zh: "劳中杰" },
+      ownerName: "Zhongjie",
       summary: {
         en: "Coordinate the project, define the shared run protocol, build SUMO, implement OVM and make the smallest end-to-end experiment runnable.",
         zh: "统筹全局安排，定义共享运行协议，编译 SUMO，实现 OVM，并打通最小端到端实验。"
@@ -170,6 +170,7 @@ window.PROJECT = {
       name: { en: "Highway congestion mechanisms", zh: "高速公路拥堵机制" },
       stage: { en: "B · RQ1", zh: "B · RQ1" },
       owner: "B",
+      ownerName: "Guowei",
       summary: {
         en: "Own the ring-road experiment and distinguish spontaneous congestion from bottleneck-induced congestion.",
         zh: "负责环路实验，区分自发拥堵与瓶颈引起的拥堵。"
@@ -187,6 +188,7 @@ window.PROJECT = {
       name: { en: "City network experiments", zh: "城市路网实验" },
       stage: { en: "C · RQ2", zh: "C · RQ2" },
       owner: "C",
+      ownerName: "Yixiang",
       summary: {
         en: "Build the city-network pipeline, keep density constant and measure how local jams spread.",
         zh: "搭建城市路网流程，保持网络密度恒定，并测量局部拥堵的扩展。"
@@ -204,6 +206,7 @@ window.PROJECT = {
       name: { en: "Planning interventions", zh: "规划干预方案" },
       stage: { en: "D · RQ3", zh: "D · RQ3" },
       owner: "D",
+      ownerName: "Daniel",
       summary: {
         en: "Build the 4×4 test grid early, then compare baseline, road closure and new-link scenarios under the same density values and seeds.",
         zh: "先搭建 4×4 测试网格，再在相同密度取值和随机种子下比较基准、封路和新增连接方案。"
@@ -222,6 +225,7 @@ window.PROJECT = {
       name: { en: "Analysis, data & integration", zh: "分析、数据与整合" },
       stage: { en: "E · Methods & data", zh: "E · 方法与数据" },
       owner: "E",
+      ownerName: "Hongfang",
       summary: {
         en: "Set the critical-point and uncertainty methods, compare with real data and pull the results into conclusions and site exports.",
         zh: "制定临界点估计和误差分析方法，与真实数据对照，并把结果汇总成结论和网站数据。"
