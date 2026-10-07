@@ -62,22 +62,23 @@ window.PROJECT = {
     },
     {
       start: "2026-10-15", end: "2026-10-21",
-      title: { en: "Stage 1 & 2 experiments", zh: "阶段一、二实验" },
+      title: { en: "Main experiments", zh: "主要实验" },
       items: [
         { en: "Ring-road sweeps: density, system size, randomness, bottleneck", zh: "环路扫描：密度、系统尺寸、随机性、瓶颈" },
         { en: "Critical-point analysis for the highway", zh: "高速公路的临界点分析" },
         { en: "Network density sweeps and MFD", zh: "路网密度扫描与宏观基本图" },
+        { en: "Prototype planning scenarios on the 4×4 grid", zh: "在 4×4 网格上试做规划场景" },
         { en: "In-browser ring-road illustration on this site", zh: "在本网站实现浏览器内的环路示意演示" }
       ]
     },
     {
       start: "2026-10-22", end: "2026-10-28",
-      title: { en: "Stage 3 & figures", zh: "阶段三与图表" },
+      title: { en: "Planning runs & figures", zh: "规划实验与图表" },
       note: { en: "Lighter week: course test on 24 Oct", zh: "任务较轻的一周：10月24日有课程测验" },
       items: [
-        { en: "Planning scenarios: road closure, new link", zh: "规划场景：封路、新增道路" },
+        { en: "Planning scenarios on the district: road closure, new link", zh: "在城区路网上运行规划场景：封路、新增道路" },
         { en: "Comparison with real traffic data", zh: "与真实交通数据对比" },
-        { en: "Final figures for all stages", zh: "完成各阶段的最终图表" }
+        { en: "Final figures for every workstream", zh: "完成各方向的最终图表" }
       ]
     },
     {
@@ -155,7 +156,7 @@ window.PROJECT = {
     },
     {
       name: { en: "Highway congestion mechanisms", zh: "高速公路拥堵机制" },
-      stage: { en: "B · Stage 1", zh: "B · 阶段一" },
+      stage: { en: "B · RQ1", zh: "B · RQ1" },
       owner: "B",
       summary: {
         en: "Own the ring-road experiment and distinguish spontaneous congestion from bottleneck-induced congestion.",
@@ -172,7 +173,7 @@ window.PROJECT = {
     },
     {
       name: { en: "City network experiments", zh: "城市路网实验" },
-      stage: { en: "C · Stage 2", zh: "C · 阶段二" },
+      stage: { en: "C · RQ2", zh: "C · RQ2" },
       owner: "C",
       summary: {
         en: "Build the city-network pipeline, keep density constant and measure how local jams spread.",
@@ -189,7 +190,7 @@ window.PROJECT = {
     },
     {
       name: { en: "Planning interventions", zh: "规划干预方案" },
-      stage: { en: "D · Stage 3", zh: "D · 阶段三" },
+      stage: { en: "D · RQ3", zh: "D · RQ3" },
       owner: "D",
       summary: {
         en: "Build the 4×4 test grid early, then compare baseline, road closure and new-link scenarios under the same density values and seeds.",
@@ -198,7 +199,7 @@ window.PROJECT = {
       tasks: [
         { text: { en: "Build the 4×4 test grid and validate the pipeline with C", zh: "搭建 4×4 测试网格，并与 C 一起验证流程" }, status: "todo" },
         { text: { en: "Prototype baseline, road-closure and new-link scenarios on the grid, then port them to the district", zh: "先在网格上做出基准、封路和新增连接场景，再移植到城区路网" }, status: "todo" },
-        { text: { en: "Reuse Stage 2 density values, routes and seed groups", zh: "沿用阶段二的密度取值、路线和随机种子组" }, status: "todo" },
+        { text: { en: "Reuse C's density values, routes and seed groups", zh: "沿用 C 的密度取值、路线和随机种子组" }, status: "todo" },
         { text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" }, status: "todo" },
         { text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" }, status: "todo" },
         { text: { en: "Review C's network pipeline, units and seeds before reusing them", zh: "复核 C 的路网流程、单位和随机种子，确认可以直接沿用" }, status: "todo" },
@@ -207,7 +208,7 @@ window.PROJECT = {
     },
     {
       name: { en: "Analysis, data & integration", zh: "分析、数据与整合" },
-      stage: { en: "E · Cross-cutting", zh: "E · 跨方向" },
+      stage: { en: "E · Methods & data", zh: "E · 方法与数据" },
       owner: "E",
       summary: {
         en: "Set the critical-point and uncertainty methods, compare with real data and pull the results into conclusions and site exports.",
