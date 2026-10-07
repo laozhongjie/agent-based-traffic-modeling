@@ -41,8 +41,11 @@ def main():
     run_dir.mkdir(parents=True, exist_ok=True)
     edge_len = args.length / N_EDGES
     spacing = args.length / args.vehicles
-    if spacing < VTYPE["length"] + VTYPE["minGap"]:
-        raise SystemExit(f"{args.vehicles} vehicles do not fit: spacing {spacing:.2f} m")
+    # Two neighbours can move towards each other by 2 * jitter; SUMO silently delays
+    # inserting a vehicle that would start closer than length + minGap.
+    if spacing - 2 * args.jitter < VTYPE["length"] + VTYPE["minGap"]:
+        raise SystemExit(f"{args.vehicles} vehicles do not fit: spacing {spacing:.2f} m, "
+                         f"jitter {args.jitter} m, need {VTYPE['length'] + VTYPE['minGap']} m + 2 * jitter")
 
     rng = random.Random(args.seed)
     vtype = " ".join(f'{k}="{v}"' for k, v in VTYPE.items())
@@ -78,6 +81,8 @@ def main():
     </random_number>
     <processing>
         <collision.action value="warn"/>
+        <!-- never teleport vehicles stuck in a jam: it would change N on the ring -->
+        <time-to-teleport value="-1"/>
     </processing>
     <output>
         <fcd-output value="fcd.xml"/>
