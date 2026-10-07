@@ -407,6 +407,10 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 .guide-toc li { break-inside: avoid; }
 @media (max-width: 640px) { .guide-toc ol { columns: 1; } }
 .guide section { scroll-margin-top: 72px; }
+.guide section h3 { margin: 24px 0 8px; font-size: 16px; }
+/* Space a paragraph that follows a list, code block or table. */
+.guide section > :is(pre, ul, ol, .table-wrap) + p { margin-top: 12px; }
+.guide section > p + :is(ul, ol) { margin-top: 8px; }
 .guide section ol, .guide section ul { color: var(--muted); padding-left: 22px; }
 .guide section li + li { margin-top: 10px; }
 .guide section li strong { color: var(--text); }

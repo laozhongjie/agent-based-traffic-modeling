@@ -60,9 +60,9 @@ source ~/.bashrc</code></pre>
       <table class='model-table'>
         <thead><tr><th>位置</th><th>存放内容</th><th>负责人</th></tr></thead>
         <tbody>
-          <tr><td><code>scenarios/ring/</code></td><td>环路路网，以及为一次运行摆放车辆的脚本</td><td>B</td></tr>
-          <tr><td><code>scenarios/grid/</code></td><td>4×4 测试网格，以及在网格上试做的规划场景</td><td>D</td></tr>
-          <tr><td><code>scenarios/city/</code></td><td>OSM 城区路网；城区路网的规划方案</td><td>C；D</td></tr>
+          <tr><td><code>scenarios/ring/</code></td><td>环路路网文件（<code>ring_&lt;长度&gt;.net.xml</code> 及其源文件）、生成路网的 <code>build_net.py</code>，以及为一次运行摆放车辆的 <code>build_run.py</code></td><td>B</td></tr>
+          <tr><td><code>scenarios/grid/</code></td><td>4×4 测试网格的路网文件和生成脚本；在网格上试做的规划方案</td><td>D</td></tr>
+          <tr><td><code>scenarios/city/</code></td><td>由 OSM 数据转换的城区路网文件；封路、新增道路后的路网版本</td><td>C；D</td></tr>
           <tr><td><code>configs/&lt;scenario&gt;/</code></td><td>每个实验一个 TOML 文件，写明全部参数</td><td>场景负责人</td></tr>
           <tr><td><code>scripts/</code></td><td>命令行入口，每个任务一个：<code>&lt;scenario&gt;_sweep.py</code>、<code>plot_&lt;scenario&gt;.py</code></td><td>场景负责人</td></tr>
           <tr><td><code>src/traffic_project/</code> <code>config.py</code>、<code>io.py</code>、<code>runner.py</code></td><td>读取配置、读取 SUMO 输出、运行 SUMO、写运行记录、通用检查</td><td>A</td></tr>
@@ -77,6 +77,28 @@ source ~/.bashrc</code></pre>
         </tbody>
       </table>
     </div>
+    <h3><code>scenarios/</code> 中的路网文件</h3>
+    <p>SUMO 的路网由几个 XML 文本文件组成：</p>
+    <div class='table-wrap'>
+      <table class='model-table'>
+        <thead><tr><th>文件</th><th>内容</th></tr></thead>
+        <tbody>
+          <tr><td><code>&lt;名称&gt;.nod.xml</code></td><td>节点（路口）：编号和 x、y 坐标（m）。由脚本或手工编写。</td></tr>
+          <tr><td><code>&lt;名称&gt;.edg.xml</code></td><td>边（路段）：从哪个节点到哪个节点、车道数、限速（m/s）、长度（m）和形状。由脚本或手工编写。</td></tr>
+          <tr><td><code>&lt;名称&gt;.net.xml</code></td><td>SUMO 运行时读取的完整路网：车道、路口、车道之间的连接和红绿灯。由 <code>netconvert</code> 或 <code>netgenerate</code> 生成，不手工修改。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>例如，<code>ring_1000.nod.xml</code> 中的一个节点和 <code>ring_1000.edg.xml</code> 中的一条边：</p>
+<pre><code>&lt;node id="n0" x="159.155" y="0.000" type="priority"/&gt;
+&lt;edge id="e0" from="n0" to="n1" numLanes="1" speed="30.0" length="250.000" shape="…"/&gt;</code></pre>
+    <p>三个场景的路网来源不同：</p>
+    <ul>
+      <li><strong>环路：</strong><code>build_net.py</code> 写出 <code>.nod.xml</code> 和 <code>.edg.xml</code>，再调用 <code>netconvert</code> 生成 <code>ring_&lt;长度&gt;.net.xml</code>。</li>
+      <li><strong>4×4 网格</strong>（计划）：可以用 SUMO 自带的 <code>netgenerate --grid</code> 直接生成 <code>.net.xml</code>，具体做法由 D 确定。</li>
+      <li><strong>城区</strong>（计划）：OpenStreetMap 原始数据（<code>.osm</code> 文件）存放在 <code>data/raw/</code>。<code>netconvert --osm-files</code> 把它转换成 <code>.net.xml</code>，存放在 <code>scenarios/city/</code>。D 的每个规划方案（如封路、新增道路）都是在它基础上修改出的另一个 <code>.net.xml</code>。</li>
+    </ul>
+    <p>车辆和路线不属于路网。它们每次运行都不同，由场景脚本写进 <code>runs/&lt;run-id&gt;/vehicles.rou.xml</code>。</p>
     <p>git 忽略 <code>runs/</code>、<code>data/raw/</code>、<code>sandbox/</code> 和所有 <code>*.fcd.xml</code>，表中其他内容都提交到 git。</p>
     <p><strong>规定</strong></p>
     <ol>
