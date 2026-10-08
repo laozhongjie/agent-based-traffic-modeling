@@ -387,6 +387,10 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 .spec th[scope="row"] { width: 9em; vertical-align: top; }
 .spec td ol { margin: 0; padding-left: 20px; }
 .spec td li + li { margin-top: 4px; }
+.spec ul.outputs { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.spec ul.outputs li + li { margin-top: 0; }
+.spec ul.outputs .who { flex: none; min-width: 86px; }
+.spec .outputs-note { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
 .lab th[scope="row"] { vertical-align: top; }
 
 .model-page { padding-top: 40px; max-width: 960px; }
