@@ -1,34 +1,36 @@
-# 实验手册
+# How we run experiments
 
-本文件是网页版实验手册 [`docs/guide.html`](docs/guide.html) 的 Markdown 版本，内容与网页一致，可以离线阅读，也可以直接发给 AI 作为上下文。两处内容必须同步：修改任何规定时，在同一个 PR 中同时更新网页和本文件。
+[English](GUIDE.md) | [中文](GUIDE_zh.md)
 
-本手册是全组做实验的唯一依据：怎样安装 SUMO、代码和文件放在哪里、怎样搭建一个新实验、运行怎样命名和检查，以及代码怎样合并到主分支。仓库里的环路示例遵守本手册的每一条规定，可以直接作为模板。
+This file is the Markdown version of the guide page [`docs/guide.html`](docs/guide.html), with the same content, for reading offline or giving to an AI as context. The Chinese version is [`GUIDE_zh.md`](GUIDE_zh.md). The three must stay in sync: when you change a convention, update the page and both Markdown files in the same PR.
 
-项目背景：本项目用 SUMO 研究交通从自由流到拥堵的转变（视为非平衡相变），先在单车道环路上比较 NaSch、OVM 和 IDM 三种模型，再扩展到城市路网和规划方案。成员用字母 A–E 表示。
+This guide is the single reference for how every member sets up SUMO, where code and files go, how to build a new experiment, how runs are named and checked, and how code reaches the main branch. The ring-road example in the repository follows every rule here and serves as the template.
 
-标有 **（待确定）** 的事项仍需全组商定。本手册由 A 维护；要修改某项做法，先在组会上提出，再按新做法执行。
+Project background: the project uses SUMO to study the transition from free flow to congestion as a nonequilibrium phase transition. It first compares the NaSch, OVM and IDM models on a single-lane ring road, then extends to a city road network and planning variants. Members are referred to by the letters A–E.
 
-## 目录
+Items marked **(To decide)** still need group agreement. A maintains this guide; propose changes at the group meeting before relying on them.
 
-1. [安装 SUMO 和 Python](#1-安装-sumo-和-python)
-2. [代码和文件放在哪里](#2-代码和文件放在哪里)
-3. [运行环路示例](#3-运行环路示例)
-4. [搭建一个新实验](#4-搭建一个新实验)
-5. [运行编号和运行记录](#5-运行编号和运行记录)
-6. [结果数据格式](#6-结果数据格式)
-7. [每次运行必须通过的检查](#7-每次运行必须通过的检查)
-8. [单位和测量方法](#8-单位和测量方法)
-9. [待确定事项](#9-待确定事项)
-10. [用 Git 协作](#10-用-git-协作)
+## Contents
 
-## 1. 安装 SUMO 和 Python
+1. [Set up SUMO and Python](#1-set-up-sumo-and-python)
+2. [Where code and files go](#2-where-code-and-files-go)
+3. [Run the ring-road example](#3-run-the-ring-road-example)
+4. [Build a new experiment](#4-build-a-new-experiment)
+5. [Run IDs and run records](#5-run-ids-and-run-records)
+6. [Result data format](#6-result-data-format)
+7. [Checks every run must pass](#7-checks-every-run-must-pass)
+8. [Units and measurements](#8-units-and-measurements)
+9. [Still to decide](#9-still-to-decide)
+10. [Working with Git](#10-working-with-git)
 
-开发阶段使用 SUMO 正式版 **1.27.1**，其中已包含 IDM。NaSch 只在 SUMO 开发版中提供，OVM 由本项目自行加入，所以正式实验将使用 A 提供的固定版本。正式版足以熟悉流程和开发场景。
+## 1. Set up SUMO and Python
 
-1. 按 [SUMO 安装说明](https://sumo.dlr.de/docs/Installing/index.html) 安装适合自己系统的 SUMO 1.27.1。
-2. 设置 `SUMO_HOME`，并把 SUMO 的 `bin` 目录加入 `PATH`：
-   - **Windows：** `.msi` 安装包会自动设置这两项。安装后关闭并重新打开终端。
-   - **macOS：** 安装包不会设置这两项。在终端运行下面三行，它们会把两项设置追加到 `~/.zshrc` 末尾并立即生效：
+Use the official SUMO release **1.27.1** for development. It includes IDM. NaSch is only in the SUMO development version, and OVM is added by this project, so formal runs will use a pinned build that A provides. The release is enough to learn the workflow and to develop scenarios.
+
+1. Install SUMO 1.27.1 from the [SUMO installation page](https://sumo.dlr.de/docs/Installing/index.html) for your system.
+2. Set `SUMO_HOME` and add the SUMO `bin` folder to `PATH`:
+   - **Windows:** the `.msi` installer sets both. Close and reopen the terminal afterwards.
+   - **macOS:** the installer sets neither. Run these three lines in the terminal. They add both settings to the end of `~/.zshrc` and load them:
 
      ```bash
      echo 'export SUMO_HOME="/Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/share/sumo"' >> ~/.zshrc
@@ -36,158 +38,158 @@
      source ~/.zshrc
      ```
 
-   - **Linux：** 在终端运行下面两行。在 Ubuntu 上用 apt 安装时，路径通常是 `/usr/share/sumo`，而且程序已经在 `PATH` 中。
+   - **Linux:** run these two lines in the terminal. `/usr/share/sumo` is the usual path after installing with apt on Ubuntu; apt already puts the programs on `PATH`.
 
      ```bash
      echo 'export SUMO_HOME="/usr/share/sumo"' >> ~/.bashrc
      source ~/.bashrc
      ```
 
-3. 检查安装结果。输出的第一行应为 `Eclipse SUMO sumo 1.27.1`。
+3. Check the installation. The first line must read `Eclipse SUMO sumo 1.27.1`.
 
    ```bash
    sumo --version
    ```
 
-4. **可选：** `sumo-gui` 用窗口显示仿真过程，可以看到车辆怎样移动、拥堵在哪里形成，适合用来检查新搭建的场景是否正确。做实验不需要它：除了第 3 节中一个可选步骤，本手册的所有命令都不打开窗口。在 Windows 上，安装 SUMO 后即可使用 `sumo-gui`。在 macOS 上需要先安装 XQuartz（用下面的 Homebrew 命令，或从 [xquartz.org](https://www.xquartz.org/) 下载），再注销并重新登录。没有 XQuartz 时，`sumo-gui` 会报错 `unable to open display`。`sumo-gui` 输出的 `Fontconfig warning` 不影响运行。
+4. **Optional:** `sumo-gui` shows a run in a window, so you can watch vehicles move and see where jams form. It helps when you check that a new scenario is built correctly. Experiments do not need it: every command in this guide except one optional step in section 3 runs without a window. On Windows `sumo-gui` works after installing SUMO. On macOS it needs XQuartz: install it (with Homebrew as below, or from [xquartz.org](https://www.xquartz.org/)), then log out and in again. Without XQuartz, `sumo-gui` stops with `unable to open display`. `Fontconfig warning` lines printed by `sumo-gui` are harmless.
 
    ```bash
    brew install --cask xquartz
    ```
 
-5. 在仓库根目录创建全组共用的 Python 环境，只需做一次。这一步会安装固定版本的 Python 和软件包，并安装 `src/traffic_project` 中的项目代码，让所有脚本都能导入它。
+5. Create the shared Python environment once, from the repository root. It installs fixed versions of Python and the packages, and installs the project code in `src/traffic_project` so that every script can import it.
 
    ```bash
    conda env create -f environment.yml
    ```
 
-   如果你在 10 月 8 日加入 pandas 和 JupyterLab 之前已经创建过环境，改为运行下面的命令更新：
+   If you created the environment before pandas and JupyterLab were added on 8 Oct, update it instead:
 
    ```bash
    conda env update -f environment.yml --prune
    ```
 
-6. 每次打开新终端，运行项目命令前先激活环境：
+6. Activate the environment in every new terminal before running project commands:
 
    ```bash
    conda activate traffic
    ```
 
-## 2. 代码和文件放在哪里
+## 2. Where code and files go
 
-代码按功能存放，不按作者存放。每一类代码只有一个位置和一个负责人。
+Code is organised by what it does, not by who wrote it. Each kind of code has one place and one owner.
 
-| 位置 | 存放内容 | 负责人 |
+| Location | What goes in it | Owner |
 | --- | --- | --- |
-| `scenarios/ring/` | 环路路网文件（`ring_<长度>.net.xml` 及其源文件）、生成路网的 `build_net.py`，以及为一次运行摆放车辆的 `build_run.py` | B |
-| `scenarios/grid/` | 4×4 测试网格的路网文件和生成脚本；在网格上试做的规划方案 | D |
-| `scenarios/city/` | 由 OSM 数据转换的城区路网文件；封路、新增道路后的路网版本 | C；D |
-| `configs/<scenario>/` | 每个实验一个 TOML 文件，写明全部参数 | 场景负责人 |
-| `scripts/` | 命令行入口，每个任务一个：`<scenario>_sweep.py`、`plot_<scenario>.py` | 场景负责人 |
-| `src/traffic_project/` 中的 `config.py`、`io.py`、`runner.py` | 读取配置、读取 SUMO 输出、运行 SUMO、写运行记录、通用检查 | A |
-| `src/traffic_project/results.py` | 结果数据格式（第 6 节）：必需列、检查和写出函数 | A |
-| `src/traffic_project/measurements.py` | 测量量，每个场景一个函数 | A；环路 B；路网 C |
-| `src/traffic_project/demand.py` | 城区路网的恒定密度 TraCI 控制器（尚未建立） | C |
-| `src/traffic_project/analysis/` | 临界点、涨落和误差范围（尚未建立） | E |
-| `results/<scenario>/` | 汇总多次运行的表格和图表，文件保持精简 | 场景负责人 |
-| `data/raw/`、`data/processed/` | 外部数据：OSM、PeMS、highD、LTA | E |
-| `runs/<run-id>/` | 每次运行一个目录，由脚本写出，不手工修改 | — |
-| `sandbox/<your-name>/` | 个人试验代码和 notebook | 本人 |
-| `docs/` | 项目网站 | A |
+| `scenarios/ring/` | Ring network files (`ring_<length>.net.xml` and its sources), `build_net.py` that generates them, and `build_run.py` that places the vehicles for one run | B |
+| `scenarios/grid/` | Network files of the 4×4 test grid and the script that generates them; planning prototypes on the grid | D |
+| `scenarios/city/` | City-district network converted from OSM data; its variants with a closed road or a new link | C; D |
+| `configs/<scenario>/` | One TOML file per experiment with every parameter | Scenario owner |
+| `scripts/` | Entry points, one per task: `<scenario>_sweep.py`, `plot_<scenario>.py` | Scenario owner |
+| `src/traffic_project/` `config.py`, `io.py`, `runner.py` | Load configs, read SUMO outputs, run SUMO, write run records, common checks | A |
+| `src/traffic_project/results.py` | Result data format (section 6): required columns, checks and writers | A |
+| `src/traffic_project/measurements.py` | Measured quantities, one function per scenario | A; B ring; C network |
+| `src/traffic_project/demand.py` | Constant-density TraCI controller for the city network (planned) | C |
+| `src/traffic_project/analysis/` | Critical points, fluctuations, error bars (planned) | E |
+| `results/<scenario>/` | Tables that collect many runs, and figures; keep files small | Scenario owner |
+| `data/raw/`, `data/processed/` | External data: OSM, PeMS, highD, LTA | E |
+| `runs/<run-id>/` | One folder per run, written by the scripts; never edited by hand | — |
+| `sandbox/<your-name>/` | Your own experiments and notebooks | You |
+| `docs/` | The project website | A |
 
-### `scenarios/` 中的路网文件
+### Network files in `scenarios/`
 
-SUMO 的路网由几个 XML 文本文件组成：
+A SUMO road network is a set of XML text files:
 
-| 文件 | 内容 |
+| File | Contents |
 | --- | --- |
-| `<名称>.nod.xml` | 节点（路口）：编号和 x、y 坐标（m）。由脚本或手工编写。 |
-| `<名称>.edg.xml` | 边（路段）：从哪个节点到哪个节点、车道数、限速（m/s）、长度（m）和形状。由脚本或手工编写。 |
-| `<名称>.net.xml` | SUMO 运行时读取的完整路网：车道、路口、车道之间的连接和红绿灯。由 `netconvert` 或 `netgenerate` 生成，不手工修改。 |
+| `<name>.nod.xml` | Nodes (junctions): ID and x, y coordinates in m. Written by a script or by hand. |
+| `<name>.edg.xml` | Edges (road segments): from which node to which node, number of lanes, speed limit (m/s), length (m) and shape. Written by a script or by hand. |
+| `<name>.net.xml` | The complete network that SUMO reads: lanes, junctions, the connections between lanes, and traffic lights. Generated by `netconvert` or `netgenerate`; never edited by hand. |
 
-例如，`ring_1000.nod.xml` 中的一个节点和 `ring_1000.edg.xml` 中的一条边：
+For example, one node in `ring_1000.nod.xml` and one edge in `ring_1000.edg.xml`:
 
 ```xml
 <node id="n0" x="159.155" y="0.000" type="priority"/>
 <edge id="e0" from="n0" to="n1" numLanes="1" speed="30.0" length="250.000" shape="…"/>
 ```
 
-三个场景的路网来源不同：
+Each scenario gets its network from a different source:
 
-- **环路：** `build_net.py` 写出 `.nod.xml` 和 `.edg.xml`，再调用 `netconvert` 生成 `ring_<长度>.net.xml`。
-- **4×4 网格**（计划）：可以用 SUMO 自带的 `netgenerate --grid` 直接生成 `.net.xml`，具体做法由 D 确定。
-- **城区**（计划）：OpenStreetMap 原始数据（`.osm` 文件）存放在 `data/raw/`。`netconvert --osm-files` 把它转换成 `.net.xml`，存放在 `scenarios/city/`。D 的每个规划方案（如封路、新增道路）都是在它基础上修改出的另一个 `.net.xml`。
+- **Ring:** `build_net.py` writes the `.nod.xml` and `.edg.xml` files, then calls `netconvert` to produce `ring_<length>.net.xml`.
+- **4×4 grid** (planned): SUMO's `netgenerate --grid` can produce the `.net.xml` directly. D decides the details.
+- **City district** (planned): the raw OpenStreetMap data (an `.osm` file) stays in `data/raw/`. `netconvert --osm-files` converts it into a `.net.xml` stored in `scenarios/city/`. Each planning variant from D, such as a closed road or a new link, is another `.net.xml` derived from it.
 
-车辆和路线不属于路网。它们每次运行都不同，由场景脚本写进 `runs/<run-id>/vehicles.rou.xml`。
+Vehicles and routes are not part of the network. They change with every run, so the scenario script writes them into `runs/<run-id>/vehicles.rou.xml`.
 
-git 忽略 `runs/`、`data/raw/`、`sandbox/` 和所有 `*.fcd.xml`，表中其他内容都提交到 git。
+Git ignores `runs/`, `data/raw/`, `sandbox/` and every `*.fcd.xml`. Everything else in the table is committed.
 
-### 规定
+### Rules
 
-1. **不复制共用代码。** 运行 SUMO、读取输出、写运行记录时，一律导入 `traffic_project`。缺少某项功能时，告诉 A，或提交一个 PR 把它加到共用代码中。
-2. **参数不写在代码里。** 模型参数、密度、种子和时长全部写在 `configs/` 中该实验的 TOML 文件里。
-3. **一个实验对应一个配置文件和一条命令。** 任何人从干净的 commit 出发都能复现。
-4. **`sandbox/` 中的代码不得产出正式结果。** 结果写进报告或放上网站前，先把代码移到上表规定的位置。
-5. **每个脚本开头写文档字符串**，说明用途和运行方法。
-6. **notebook 用来探索和画图，不用来跑正式实验。** notebook 放在 `sandbox/<你的名字>/` 中；这个文件夹不进 git，notebook 只保存在你自己的电脑上。读取结果用 `load_summary` 和 `load_timeseries`（见第 6 节），像脚本一样导入 `traffic_project`。正式实验一律用配置文件加 `scripts/` 中的脚本运行，保证每个结果都有运行记录。notebook 里的分析或图要写进报告时，把代码移到 `scripts/` 或 `src/traffic_project/analysis/`（规则 4）。
+1. **Do not copy shared code.** To run SUMO, read outputs or write records, import `traffic_project`. If something is missing, ask A or open a pull request that adds it there.
+2. **Keep parameters out of code.** Every model parameter, density, seed and duration lives in the experiment's TOML file in `configs/`.
+3. **One experiment is one config file and one command.** Anyone can reproduce it from a clean commit.
+4. **`sandbox/` never produces a reported result.** Move the code into the places above before its output goes into the report or onto the website.
+5. **Start every script with a docstring** that says what it does and how to run it.
+6. **Notebooks are for exploring and plotting, not for formal runs.** Keep them in `sandbox/<your-name>/`; that folder is not in git, so a notebook stays on your computer. Read results with `load_summary` and `load_timeseries` (section 6), and import `traffic_project` as a script would. Formal runs always use a config file and a script in `scripts/`, so that every result has a run record. When a notebook's analysis or figure is going into the report, move its code into `scripts/` or `src/traffic_project/analysis/` (rule 4).
 
-## 3. 运行环路示例
+## 3. Run the ring-road example
 
-所有命令都在仓库根目录、激活 `traffic` 环境后运行。示例在长度 1000 m 的单车道环路上运行 IDM，全部参数写在 `configs/ring/idm_sweep.toml` 中。
+Run every command from the repository root, with the `traffic` environment active. The example runs IDM on a 1000 m single-lane ring; all its parameters are in `configs/ring/idm_sweep.toml`.
 
-1. 生成环路路网。命令会写出 `scenarios/ring/ring_1000.net.xml`，该文件已在 git 中。
+1. Build the ring network. This writes `scenarios/ring/ring_1000.net.xml`, which is already in git.
 
    ```bash
    python scenarios/ring/build_net.py --length 1000
    ```
 
-2. 生成一次运行的输入：30 辆车，种子 1。命令会创建 `runs/ring_idm_L1000_n30_s1/`。
+2. Generate the inputs for one run with 30 vehicles and seed 1. This creates `runs/ring_idm_L1000_n30_s1/`.
 
    ```bash
    python scenarios/ring/build_run.py --config configs/ring/idm_sweep.toml --vehicles 30 --seed 1
    ```
 
-3. 运行 SUMO。以下两条命令任选其一：
-   - 只运行，不打开窗口：
+3. Run SUMO. Choose one of the two commands:
+   - Run without a window:
 
      ```bash
      sumo -c runs/ring_idm_L1000_n30_s1/run.sumocfg
      ```
 
-   - 在 `sumo-gui` 中观看。保留 `--delay 100`：不加这个参数时，1800 秒的仿真不到 1 秒就会结束，看不到任何画面。
+   - Watch the run in `sumo-gui`. Keep `--delay 100`: without it the 1800 s run finishes in under a second and shows nothing.
 
      ```bash
      sumo-gui -c runs/ring_idm_L1000_n30_s1/run.sumocfg --delay 100 --start
      ```
 
-4. 运行配置文件中的全部扫描。脚本对每次运行依次生成输入、运行 SUMO、执行第 7 节的检查并写出运行记录，最后写出 `results/ring/idm_sweep.csv`。
+4. Run the whole sweep in the config. For each run the script builds the inputs, runs SUMO, applies the checks in section 7 and writes the run record. It then writes `results/ring/idm_sweep.csv`.
 
    ```bash
    python scripts/ring_sweep.py --config configs/ring/idm_sweep.toml
    ```
 
-5. 把基本图和时空图画到 `results/ring/`。
+5. Plot the fundamental diagram and the space–time diagrams into `results/ring/`.
 
    ```bash
    python scripts/plot_ring.py --config configs/ring/idm_sweep.toml
    ```
 
-**预期结果：** 密度为 30 veh/km 时，平均速度为 16.6 m/s，与该间距下的 IDM 平衡速度一致。流量在 30 veh/km 附近达到峰值。约 40 到 80 veh/km 之间出现走走停停的拥堵波；100 veh/km 以上是均匀的慢速车流。结果不一致时，先检查 SUMO 版本。
+**Expected result:** at 30 veh/km the mean speed is 16.6 m/s, the IDM equilibrium speed for that spacing. Flow peaks near 30 veh/km. Stop-and-go waves appear between about 40 and 80 veh/km; above 100 veh/km traffic is uniformly slow. If your numbers differ, check your SUMO version first.
 
-## 4. 搭建一个新实验
+## 4. Build a new experiment
 
-每个实验都按以下步骤进行，包括在已有实验基础上改动参数。可以复制环路示例中对应的文件作为起点。
+Follow these steps for every experiment, including a variation of an existing one. Copy the matching ring-road file as a starting point.
 
-1. **新建分支**（见第 10 节）。
-2. **编写配置文件** `configs/<scenario>/<name>.toml`。以 `configs/ring/idm_sweep.toml` 为起点。顶层的 `name`、`scenario` 和 `model` 必须填写；`name` 同时决定结果文件的名称。每个数字都用注释写明单位。
-3. **生成场景输入。** 在 `scenarios/<scenario>/` 中编写脚本，参照 `scenarios/ring/build_run.py`。脚本读取配置文件，为每次运行写出一个 `runs/<run-id>/` 目录并输出运行编号。写出的 `.sumocfg` 使用相对路径，把 `time-to-teleport` 设为 `-1`，把 `collision.action` 设为 `warn`。
-4. **添加测量函数。** 在 `src/traffic_project/measurements.py` 中加一个函数，参照 `ring_summary`。函数读取一次运行的输出，按第 6 节的格式返回 `(measurements, checks, timeseries)`。这一步修改了共用代码，PR 必须由 A 批准。
-5. **编写入口脚本** `scripts/<scenario>_sweep.py`，参照 `scripts/ring_sweep.py`。脚本接受 `--config` 参数，按扫描逐次运行，使用下方的共用调用，并用 `results.write_summary` 和 `results.write_timeseries` 写出汇总表和时间序列。
-6. **运行并检查输出。** 每次运行都会输出 `ok`，或输出 `INVALID` 和未通过的检查项。先排除每次无效运行的原因，再使用结果。
-7. **画图**：用 `scripts/plot_<scenario>.py --config …` 把图表写到 `results/<scenario>/`。
-8. **提交**：把配置文件、代码和结果一起提交，然后发起 PR。
+1. **Create a branch** for the experiment (section 10).
+2. **Write the config** `configs/<scenario>/<name>.toml`. Start from `configs/ring/idm_sweep.toml`. The top-level keys `name`, `scenario` and `model` are required; `name` also names the result files. Give every number a comment with its unit.
+3. **Build the scenario inputs** with a script in `scenarios/<scenario>/`, like `scenarios/ring/build_run.py`. It reads the config, writes one folder `runs/<run-id>/` and prints the run ID. The `.sumocfg` it writes uses relative paths, sets `time-to-teleport` to `-1` and `collision.action` to `warn`.
+4. **Add the measurements** as one function in `src/traffic_project/measurements.py`, like `ring_summary`. It reads one run's outputs and returns `(measurements, checks, timeseries)` in the format of section 6. This changes shared code, so A must approve the pull request.
+5. **Write the entry script** `scripts/<scenario>_sweep.py`, like `scripts/ring_sweep.py`. It takes `--config`, loops over the sweep and uses the shared calls below. It writes the summary table and the time series with `results.write_summary` and `results.write_timeseries`.
+6. **Run it and read the output.** Every run prints `ok` or `INVALID` with the failed checks. Fix the cause of every invalid run before using the results.
+7. **Plot** with `scripts/plot_<scenario>.py --config …` into `results/<scenario>/`.
+8. **Commit** the config, code and results together and open a pull request.
 
-每个入口脚本都使用以下共用调用。下面只是结构示意，不能直接运行：
+The shared calls every entry script uses, shown as an outline (not runnable as it is):
 
 ```python
 from traffic_project import config, measurements, results, runner
@@ -204,129 +206,129 @@ for each run in the sweep:
 results.write_summary(rows, cfg)
 ```
 
-## 5. 运行编号和运行记录
+## 5. Run IDs and run records
 
-运行编号依次写出场景、模型、变化的参数和种子，用下划线连接，不含空格。环路示例的编号是 `ring_idm_L1000_n30_s1`：环路、IDM、长度 1000 m、30 辆车、种子 1。其他场景的负责人按同样的方式命名，并把格式补充到本节。
+A run ID names the scenario, the model, the parameters that vary and the seed, joined by underscores, with no spaces. The ring example uses `ring_idm_L1000_n30_s1`: ring, IDM, length 1000 m, 30 vehicles, seed 1. Owners of other scenarios follow the same pattern and add their format here.
 
-| `runs/<run-id>/` 中的文件 | 内容 |
+| File in `runs/<run-id>/` | Contents |
 | --- | --- |
-| `run.sumocfg` | SUMO 运行配置：路网、路线、时长、步长、种子和输出。路径都是相对路径，换一台电脑也能运行。 |
-| `vehicles.rou.xml` | 车型及其模型参数、路线和初始位置 |
-| `fcd.xml` | 每辆车在每个时间步的位置和速度，文件较大 |
-| `log.txt` | SUMO 的运行信息，用于碰撞和瞬移检查 |
-| `manifest.json` | 运行编号、场景、模型、配置文件及其哈希值、全部参数、SUMO 版本、git commit 和生成时间 |
-| `summary.json` | 测量结果和每项检查的结果，`valid` 为 true 或 false |
+| `run.sumocfg` | SUMO configuration: network, routes, duration, step length, seed and outputs. Paths are relative, so the run works on any computer. |
+| `vehicles.rou.xml` | Vehicle type with its model parameters, routes and start positions |
+| `fcd.xml` | Position and speed of every vehicle at every step; large |
+| `log.txt` | SUMO messages, used by the collision and teleport checks |
+| `manifest.json` | Run ID, scenario, model, config file and its hash, all parameters, SUMO version, git commit and creation time |
+| `summary.json` | Measurements and the result of every check, with `valid` = true or false |
 
-报告和网站上的每个数字都要保留来源运行编号。配置文件的哈希值可以说明运行之后配置文件是否改动过。git commit 以 `-dirty` 结尾，表示运行时代码有未提交的修改；正式结果必须来自干净的 commit。
+Every number in the report or on the website keeps the run IDs it came from. The config hash shows whether the config file changed after the run. A git commit ending in `-dirty` means the code had uncommitted changes; formal results must come from a clean commit.
 
-## 6. 结果数据格式
+## 6. Result data format
 
-E 用同一套脚本分析所有实验，所以 B、C、D 必须按同一格式写出结果。`runs/` 不进 git，E 需要的数据必须全部放在 `results/<scenario>/` 下的两类文件中。两类文件都由 `traffic_project.results` 写出；缺少某列、数值超出范围或附加列缺少前缀时，它会报错并停止。
+E analyses every experiment with the same scripts, so B, C and D write their results in one format. `runs/` is not in git, so everything E needs must be in the two files below, in `results/<scenario>/`. Both are written by `traffic_project.results`, which stops with an error when a column is missing, a value is out of range, or an extra column lacks its prefix.
 
-### 汇总表：`results/<scenario>/<name>.csv`
+### Summary table: `results/<scenario>/<name>.csv`
 
-每次运行一行。所有场景都必须包含以下各列，列名和单位不得改动：
+One row per run. Every scenario has these columns, with these names and units:
 
-| 列 | 含义 | 单位 |
+| Column | Meaning | Unit |
 | --- | --- | --- |
-| `run_id` | 运行编号 | — |
-| `scenario`、`model` | 场景和模型，与配置文件一致 | — |
-| `variant` | 规划方案，如基准、封路、新增道路；没有方案时留空 | — |
-| `seed` | 随机种子 | — |
-| `density_veh_km` | 密度 $k$：车辆数 ÷ 车道总长度 | veh/km |
-| `mean_speed_mps` | 空间平均速度 $\bar v$，在测量时段内取平均 | m/s |
-| `flow_veh_h` | 流量 $q = k\,\bar v$ | veh/h |
-| `congested_fraction` | 拥堵车辆比例 $\phi$，判据由各场景自行定义 | — |
-| `congested_fraction_var` | $\phi$ 随时间的方差，即涨落 $\chi$ | — |
-| `valid` | 通过第 7 节全部检查时为 `True` | — |
+| `run_id` | Run ID | — |
+| `scenario`, `model` | Scenario and model, as in the config | — |
+| `variant` | Planning variant, such as baseline, closure or new link; empty when there is none | — |
+| `seed` | Random seed | — |
+| `density_veh_km` | Density $k$: number of vehicles ÷ total lane length | veh/km |
+| `mean_speed_mps` | Space-mean speed $\bar v$, averaged over the measurement window | m/s |
+| `flow_veh_h` | Flow $q = k\,\bar v$ | veh/h |
+| `congested_fraction` | Congested fraction $\phi$, with the scenario's own criterion | — |
+| `congested_fraction_var` | Variance of $\phi$ over time, the fluctuation $\chi$ | — |
+| `valid` | `True` if the run passed every check in section 7 | — |
 
-场景特有的列排在这些列之后，并以场景名开头，例如 `ring_vehicles`、`city_largest_cluster`。
+Scenario-specific columns come after these and start with the scenario name, for example `ring_vehicles` or `city_largest_cluster`.
 
-### 时间序列：`results/<scenario>/<name>/<run_id>.csv`
+### Time series: `results/<scenario>/<name>/<run_id>.csv`
 
-每次运行一个文件。覆盖整个运行过程（包括预热段），每 10 秒记录一行瞬时值，列为 `time_s`、`density_veh_km`、`mean_speed_mps`、`flow_veh_h` 和 `congested_fraction`。E 用它检查预热时长是否足够，并估计涨落和误差范围。一次 1800 秒的运行约 8 KB。
+One file per run, with one row of instantaneous values every 10 s over the whole run, warm-up included. The columns are `time_s`, `density_veh_km`, `mean_speed_mps`, `flow_veh_h` and `congested_fraction`. E uses it to check the warm-up length and to estimate fluctuations and error bars. One run of 1800 s is about 8 KB.
 
-环路和城市路网使用相同的定义，所以 E 可以直接比较 highway 和路网的临界密度。
+The definitions are the same on the ring and in the city network, so E can compare the highway and network critical densities directly.
 
-### 在 Python 或 notebook 中读取结果
+### Reading the results in Python or a notebook
 
-两种文件都能读成 pandas 表格，在任何文件夹下都能用；数字读出来就是数字，`valid` 是 `True`/`False`：
+Both files read back as pandas tables, from any folder, with numbers as numbers and `valid` as `True`/`False`:
 
 ```python
 from traffic_project.results import load_summary, load_timeseries
 
-df = load_summary("ring", "idm_sweep")                               # 每次运行一行
-ts = load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")   # 单次运行的时间序列
-df = df[df.valid]                                                     # 只保留通过全部检查的运行
+df = load_summary("ring", "idm_sweep")                               # one row per run
+ts = load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")   # one run over time
+df = df[df.valid]                                                     # keep runs that passed every check
 ```
 
-## 7. 每次运行必须通过的检查
+## 7. Checks every run must pass
 
-有几类问题会悄悄改变实验，SUMO 却不会因此停止运行。所以每次运行都把下列检查结果写入 `summary.json`。前三项由 `runner.run_sumo` 检查，其余由场景的测量函数检查。无效的运行保留下来用于排查，但不得进入任何表格和图表。
+SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in `summary.json`. The first three come from `runner.run_sumo`, the others from the scenario's measurement function. Keep invalid runs for diagnosis, but leave them out of every table and figure.
 
-| 检查项 | 发现什么问题 |
+| Check | What it catches |
 | --- | --- |
-| `sumo_exit_ok` | SUMO 因错误而停止 |
-| `no_teleport` | SUMO 默认会把等待超过 300 秒的车移走，再放到前方。每次运行都把 `time-to-teleport` 设为 `-1`，关闭这一行为。 |
-| `no_collision` | 车辆重叠。每次运行都把 `collision.action` 设为 `warn`，让碰撞记录在日志中。 |
-| `all_vehicles_present` | 车辆初始位置离其他车太近时，SUMO 会推迟插入这辆车，并且不报错。此时车辆数和密度都是错的。在环路上，`build_run.py` 还会直接拒绝放不下的车辆数。 |
-| `no_negative_speed` | 模型错误，尤其是新写的 OVM 代码 |
+| `sumo_exit_ok` | SUMO stopped with an error |
+| `no_teleport` | By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Every run sets `time-to-teleport` to `-1` to turn this off. |
+| `no_collision` | Vehicles overlapping. Every run sets `collision.action` to `warn` so collisions appear in the log. |
+| `all_vehicles_present` | SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, `build_run.py` also refuses a vehicle count that cannot fit. |
+| `no_negative_speed` | Model errors, especially in the new OVM code |
 
-环路还要遵守两条规则。每条边都显式设置 `length`，并用 `--no-internal-links` 生成路网，保证密度严格等于车辆数 ÷ 环路长度。模型有已知结果时，用它核对仿真：IDM 平衡速度、NaSch 在 $p = 0$ 时的结果、OVM 稳定性条件。
+Two more rules apply to the ring. Set each edge's `length` explicitly and build the network with `--no-internal-links`, so that density = vehicles ÷ ring length exactly. When a model has a known result, compare with it: the IDM equilibrium speed, the NaSch result at $p = 0$ and the OVM stability condition.
 
-## 8. 单位和测量方法
+## 8. Units and measurements
 
-| 物理量 | 单位和规则 |
+| Quantity | Unit and rule |
 | --- | --- |
-| 时间 | s；当前示例的步长为 1 s **（待确定）** |
-| 长度、位置 | m |
-| 速度 | 文件中一律用 m/s；只在正文和图表标签中使用 km/h |
-| 密度 $k$ | veh/km |
-| 流量 $q$ | veh/h |
-| 预热 | 舍弃前 600 s，测量使用 600–1800 s 的数据 **（待确定）** |
+| Time | s; step length 1 s in the current example **(To decide)** |
+| Length, position | m |
+| Speed | m/s in files; km/h only in text and labels |
+| Density $k$ | veh/km |
+| Flow $q$ | veh/h |
+| Warm-up | The first 600 s are discarded; measurements use 600–1800 s **(To decide)** |
 
-在环路上，平均速度 $\bar v$ 是每个时间步所有车辆速度的平均值，再在测量时段内取时间平均。环路上没有车辆进出，所以流量为 $q = k\,\bar v$。拥堵车辆比例 $\phi$ 是速度低于阈值的车辆所占比例，它随时间的方差即涨落 $\chi$。城市路网的测量方法由 C 按同样的方式定义。
+On the ring, the mean speed $\bar v$ is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as $q = k\,\bar v$. The congested fraction $\phi$ is the share of vehicles slower than a threshold, and its variance over time is the fluctuation $\chi$. City-network measurements are defined by C in the same way.
 
-## 9. 待确定事项
+## 9. Still to decide
 
-- **IDM 参数**（B 牵头，全组商定）。示例使用的是暂定值：加速度 1.0 m/s²、舒适减速度 1.5 m/s²、车头时距 1.5 s、最小间距 2 m、最高速度 30 m/s、车长 5 m。
-- **环路拥堵判据**（B）。暂定判据「速度低于 5 m/s」会把 100 veh/km 以上均匀的慢速车流判为完全拥堵，而这时并没有走走停停的拥堵波。新判据必须能区分这两种状态。
-- **路网拥堵判据**（C）。
-- **密度取值和每个密度的种子数**（B、C 与 E 商定），供 E 估计误差范围。
-- **连续模型的步长和预热时长**。
-- **哪些运行保留 `fcd.xml`。** 30 辆车运行 1800 秒约产生 7 MB，完整扫描只应为代表性运行保留轨迹。
-- **时间序列的取样间隔**（E）。示例使用 10 秒。
-- **包含 NaSch 和 OVM 的固定版 SUMO**（A）。
+- **IDM parameters** (B, with the group). The example uses placeholders: accel 1.0 m/s², decel 1.5 m/s², time headway 1.5 s, minimum gap 2 m, maximum speed 30 m/s, vehicle length 5 m.
+- **Ring congestion criterion** (B). The placeholder, speed below 5 m/s, counts uniformly slow traffic above 100 veh/km as fully congested although it has no stop-and-go waves. The criterion must separate the two.
+- **Network congestion criterion** (C).
+- **Density grid and number of seeds per point** (B and C, with E), so that E can estimate error bars.
+- **Step length and warm-up length** for the continuous models.
+- **Which runs keep `fcd.xml`.** One run of 30 vehicles for 1800 s writes about 7 MB, so a full sweep should keep trajectories only for representative runs.
+- **Time-series sample interval** (E). The example uses 10 s.
+- **The pinned SUMO build with NaSch and OVM** (A).
 
-## 10. 用 Git 协作
+## 10. Working with Git
 
-任何人都不直接推送到 `main`。所有改动都通过 Pull Request（PR）合并到 `main`。**PR 由任意一位其他成员批准即可；改动 `src/traffic_project/` 的 PR 必须由 A 批准**，A 自己发起的除外，由任意一位其他成员批准。
+Nobody pushes to `main` directly. Every change reaches `main` through a pull request (PR). **Any other member can approve a PR. A PR that changes `src/traffic_project/` must be approved by A**; when A opens it, any other member approves.
 
-1. 从最新的 `main` 开始：
+1. Start from the latest `main`:
 
    ```bash
    git switch main
    git pull
    ```
 
-2. 新建分支，命名为 `<成员字母>/<内容>`，例如：
+2. Create a branch named `<your letter>/<topic>`, for example:
 
    ```bash
    git switch -c b/ring-bottleneck
    ```
 
-3. 提交改动，提交说明写清改了什么。
-4. 推送分支：
+3. Commit your changes with a message that says what changed.
+4. Push the branch:
 
    ```bash
    git push -u origin b/ring-bottleneck
    ```
 
-5. 在 GitHub 上发起合并到 `main` 的 PR，请另一位成员审核。获得批准后再合并。
+5. On GitHub, open a pull request into `main` and ask another member to review it. Merge only after the approval.
 
-### 发起 PR 前
+### Before opening a PR
 
-1. 确认 `git status` 中没有 `runs/`、`data/raw/` 或 `sandbox/` 下的文件。
-2. 把配置文件、代码和 `results/` 一起提交，保证结果始终对应产生它的代码。
-3. 结果写进报告或放上网站前，先从干净的 commit 重新运行一次。
-4. 如果修改了本手册中的某项规定，在同一个 PR 中同时更新网页 `docs/guide.html`（含 `docs/assets/guide-i18n.js`）和本文件 `GUIDE.md`。
+1. Check that `git status` lists no files under `runs/`, `data/raw/` or `sandbox/`.
+2. Commit the config, code and `results/` together, so a result always matches the code that produced it.
+3. Rerun the result from a clean commit before it goes into the report or onto the website.
+4. If you changed a convention in this guide, update the page `docs/guide.html` (with `docs/assets/guide-i18n.js`), `GUIDE.md` and `GUIDE_zh.md` in the same PR.
