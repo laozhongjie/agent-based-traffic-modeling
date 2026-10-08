@@ -413,7 +413,7 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 .placeholder .q { font-size: 12px; color: var(--muted); }
 .grid .placeholder.wide { grid-column: 1 / -1; }
 .placeholder.summary { min-height: 0; align-items: stretch; text-align: left; }
-.placeholder.summary > .who, .placeholder.summary > strong { align-self: flex-start; }
+.placeholder.summary > strong { align-self: flex-start; }
 .placeholder.summary > span.q { max-width: none; }
 .placeholder.summary .table-wrap { margin: 4px 0; background: var(--surface); }
 .placeholder.summary td { color: var(--muted); }
