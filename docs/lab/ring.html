@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="../assets/access.js"></script>
-  <title>Highway ring road · Agent-Based Traffic Modeling</title>
+  <title>Phase transition on a highway · Agent-Based Traffic Modeling</title>
   <meta name="description" content="Locate the critical density on a road without traffic lights, using fundamental diagrams, the order parameter and space–time diagrams of NaSch, OVM and IDM from SUMO.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232f6fde' stroke-width='4'/%3E%3Ccircle cx='16' cy='5' r='3.5' fill='%23d9534f'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
@@ -28,37 +28,110 @@
   <main class="wrap lab">
     <header class="lab-head">
       <p class="eyebrow" data-i18n="lab.ring.tag">RQ1 · Ring-road experiment</p>
-      <h1 data-i18n="lab.ring.title">Highway ring road</h1>
-      <p class="lede" data-i18n="lab.ring.lede">Locate the critical density on a road without traffic lights, using fundamental diagrams, the order parameter and space–time diagrams of NaSch, OVM and IDM from SUMO.</p>
-      <p class="status-note"><span class="chip" data-i18n="exp.reserved">Reserved</span><span data-i18n="lab.status">This page is reserved for the experiment environment. The boxes below show what each part will contain.</span></p>
+      <h1 data-i18n="lab.ring.title">Phase transition on a highway</h1>
+      <p class="lede" data-i18n="lab.ring.lede">Find the critical density at which free flow breaks down on a single-lane ring road without traffic lights, and tell spontaneous jams apart from jams caused by a bottleneck.</p>
+      <nav class="lab-toc" aria-label="On this page" data-i18n-aria="lab.tocLabel">
+        <a href="#question" data-i18n="lab.q">Question</a>
+        <a href="#method" data-i18n="lab.m">Method</a>
+        <a href="#results" data-i18n="lab.r">Results</a>
+        <a href="#data" data-i18n="lab.data">Data</a>
+      </nav>
     </header>
 
-    <div class="lab-grid">
-      <aside class="card lab-controls">
-        <h2 class="lab-h" data-i18n="lab.controls">Controls</h2>
-        <ul class="planned">
-          <li><strong data-i18n="lab.ring.c0">Model</strong><span data-i18n="lab.ring.c0d">NaSch / OVM / IDM</span></li>
-          <li><strong data-i18n="lab.ring.c1">Vehicle density</strong><span data-i18n="lab.ring.c1d">\(k\) in veh/km</span></li>
-          <li><strong data-i18n="lab.ring.c2">System size</strong><span data-i18n="lab.ring.c2d">Ring length \(L\)</span></li>
-          <li><strong data-i18n="lab.ring.c3">Randomness</strong><span data-i18n="lab.ring.c3d">Slowdown probability \(p\) (NaSch only)</span></li>
-          <li><strong data-i18n="lab.ring.c4">Bottleneck</strong><span data-i18n="lab.ring.c4d">None / reduced-speed section / traffic light</span></li>
-          <li><strong data-i18n="lab.ring.c5">Random seed</strong><span data-i18n="lab.ring.c5d">Switch between repeated runs</span></li>
-        </ul>
-      </aside>
-      <section class="lab-main">
-        <div class="placeholder main"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.main">Ring-road view</strong><span data-i18n="lab.ring.maind">Replay of SUMO runs. The live in-browser illustration can be switched on for intuition.</span></div>
-        <div class="grid two">
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p0">Fundamental diagram</strong><span data-i18n="lab.ring.p0d">Flow \(q\) and mean speed \(\bar v\) against density \(k\) for the three models.</span></div>
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p1">Order parameter and fluctuations</strong><span data-i18n="lab.ring.p1d">\(\phi\) and \(\chi\) against density for several system sizes \(L\).</span></div>
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p2">Space–time diagram</strong><span data-i18n="lab.ring.p2d">Vehicle positions over time; jams appear as bands drifting backwards.</span></div>
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p3">Theory check (OVM)</strong><span data-i18n="lab.ring.p3d">Simulated critical density against the instability condition \(V'(h) &gt; a/2\).</span></div>
-        </div>
-      </section>
-    </div>
+    <section id="question" class="lab-section">
+      <h2 data-i18n="lab.q">Question</h2>
+      <div class="card">
+        <ol class="questions">
+          <li data-i18n="lab.ring.q0">On a road without traffic lights, can the transition from free flow to congestion be described as a phase transition? What is the critical density?</li>
+          <li data-i18n="lab.ring.q1">How does the critical density depend on the vehicle model (NaSch, OVM, IDM), the level of randomness and the system size?</li>
+          <li data-i18n="lab.ring.q2">Can jams form spontaneously without any bottleneck, and how do they differ, in shape and statistics, from jams caused by a bottleneck?</li>
+          <li data-i18n="lab.ring.q3">Does the simulated critical density agree with real highway data?</li>
+        </ol>
+      </div>
+    </section>
 
-    <section class="card lab-data">
-      <h2 class="lab-h" data-i18n="lab.data">Data</h2>
-      <p data-i18n="lab.ring.data">Precomputed SUMO results will be stored in docs/data/ring/. Every point on a chart will link to its run record (configuration, seed, SUMO commit).</p>
+    <section id="method" class="lab-section">
+      <h2 data-i18n="lab.m">Method</h2>
+      <div class="table-wrap">
+        <table class="spec">
+          <tbody>
+            <tr><th scope="row" data-i18n="lab.m.goal">Goal</th><td data-i18n="lab.ring.goal">Find the critical density for the free-flow-to-jam transition on a road without traffic lights; test how it depends on the model, randomness and system size; distinguish spontaneous from bottleneck-induced congestion.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.setting">Setting</th><td data-i18n="lab.ring.setting">Closed single-lane ring road in SUMO. Vehicles neither enter nor leave, and there are no traffic lights.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.models">Models</th><td data-i18n="lab.ring.models"><a href="../models/nasch.html">NaSch</a>, <a href="../models/ovm.html">OVM</a> and <a href="../models/idm.html">IDM</a>, all run in SUMO.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.vary">Control variables</th><td data-i18n="lab.ring.vary"><ol><li><strong>Vehicle density</strong> (veh/km): swept from low to high, with finer steps near the transition.</li><li><strong>System size</strong>: at least three ring lengths.</li><li><strong>Randomness</strong>: the NaSch slowdown probability \(p\).</li><li><strong>Bottleneck</strong>: none, or a reduced-speed section (a work zone, tunnel or similar capacity drop). A traffic light on the ring is an optional bridging case.</li></ol></td></tr>
+            <tr><th scope="row" data-i18n="lab.m.fixed">Held fixed</th><td data-i18n="lab.ring.fixed">Each experiment set changes only one control variable. All other parameters, the simulation length, the warm-up period and the seed set stay the same.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.measure">Measurements</th><td data-i18n="lab.ring.measure">Mean speed, flow at a fixed point, order parameter (fraction of jammed vehicles) and its fluctuations, jam locations, jam-wave speed.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.outputs">Outputs</th><td data-i18n="lab.ring.outputs"><ol><li>Density–speed and density–flow diagrams (fundamental diagrams) for all three models.</li><li>Order parameter and its fluctuations against density, compared across system sizes.</li><li>OVM theoretical instability range against the simulated critical density.</li><li>Fundamental diagrams, space–time diagrams and jam locations with and without the bottleneck.</li><li>Simulated fundamental diagrams against real highway detector data.</li></ol></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="lab-sub" data-i18n="lab.ring.mechH">Telling the two kinds of congestion apart</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th data-i18n="lab.ring.mech0">Signature</th><th data-i18n="lab.ring.mech1">Spontaneous congestion</th><th data-i18n="lab.ring.mech2">Bottleneck-induced congestion</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" data-i18n="lab.ring.mechW">Where jams appear</th><td data-i18n="lab.ring.mechW1">Random; varies between seeds</td><td data-i18n="lab.ring.mechW2">Always just upstream of the bottleneck</td></tr>
+            <tr><th scope="row" data-i18n="lab.ring.mechS">Space–time diagram</th><td data-i18n="lab.ring.mechS1">Jam bands drift backwards at roughly 15 km/h</td><td data-i18n="lab.ring.mechS2">Jam bands stay in place; behind a traffic light they grow and shrink with each cycle</td></tr>
+            <tr><th scope="row" data-i18n="lab.ring.mechF">Fundamental diagram</th><td data-i18n="lab.ring.mechF1">Maximum flow is set by the driving rules</td><td data-i18n="lab.ring.mechF2">Maximum flow is capped by the bottleneck capacity, and the critical density is lower</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" data-i18n="lab.ring.mechNote">Jams without bottlenecks have been observed experimentally: <a href="https://doi.org/10.1088/1367-2630/10/3/033001">Sugiyama et al., 2008</a>.</p>
+
+      <h3 class="lab-sub" data-i18n="lab.m.judge">How the results are read</h3>
+      <div class="grid two">
+        <div class="card">
+          <h3 data-i18n="lab.m.criteria">Criteria</h3>
+          <ul data-i18n="lab.ring.criteria"><li>Does the mean speed drop noticeably?</li><li>Does the flow reach a peak and then decline?</li><li>Does the order parameter rise sharply, and do its fluctuations peak?</li><li>Does the space–time diagram show persistent jams or backward-moving waves?</li><li>For OVM, does the simulated critical density fall within the instability range from linear stability analysis?</li><li>With a bottleneck, are jams pinned upstream of it, or drifting backwards elsewhere?</li></ul>
+        </div>
+        <div class="card">
+          <h3 data-i18n="lab.m.interp">Interpretation</h3>
+          <p data-i18n="lab.ring.interp">If all three models show a flow peak, a rising order parameter and a fluctuation peak at some density, and the transition sharpens as the ring grows, the transition has the hallmarks of a phase transition. If the bottleneck lowers the maximum flow, shifts the critical density down and pins jams just upstream of it, congestion under that condition is bottleneck-dominated.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="lab.m.minimum">Minimum convincing experiment</h3>
+          <p data-i18n="lab.ring.minimum">The same ring road at many densities, with all three models, several system sizes and multiple seeds, run with and without a bottleneck.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="lab.m.pitfall">Common pitfall</h3>
+          <p data-i18n="lab.ring.pitfall">Showing only an animation; or seeing jams in a signalized network and calling them a density-driven phase transition.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="lab-section">
+      <h2 data-i18n="lab.r">Results</h2>
+      <p class="status-note"><span class="chip" data-i18n="exp.reserved">Reserved</span><span data-i18n="lab.status">Results will be filled in as the SUMO runs are completed. The boxes below show what each part will contain.</span></p>
+      <div class="lab-grid">
+        <aside class="card lab-controls">
+          <h3 class="lab-h" data-i18n="lab.controls">Controls</h3>
+          <ul class="planned">
+            <li><strong data-i18n="lab.ring.c0">Model</strong><span data-i18n="lab.ring.c0d">NaSch / OVM / IDM</span></li>
+            <li><strong data-i18n="lab.ring.c1">Vehicle density</strong><span data-i18n="lab.ring.c1d">\(k\) in veh/km</span></li>
+            <li><strong data-i18n="lab.ring.c2">System size</strong><span data-i18n="lab.ring.c2d">Ring length \(L\)</span></li>
+            <li><strong data-i18n="lab.ring.c3">Randomness</strong><span data-i18n="lab.ring.c3d">Slowdown probability \(p\) (NaSch only)</span></li>
+            <li><strong data-i18n="lab.ring.c4">Bottleneck</strong><span data-i18n="lab.ring.c4d">None / reduced-speed section / traffic light</span></li>
+            <li><strong data-i18n="lab.ring.c5">Random seed</strong><span data-i18n="lab.ring.c5d">Switch between repeated runs</span></li>
+          </ul>
+        </aside>
+        <section class="lab-main">
+          <div class="placeholder main"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.main">Ring-road view</strong><span data-i18n="lab.ring.maind">Replay of SUMO runs. The live in-browser illustration can be switched on for intuition.</span></div>
+          <div class="grid two">
+            <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p0">Fundamental diagram</strong><span data-i18n="lab.ring.p0d">Flow \(q\) and mean speed \(\bar v\) against density \(k\) for the three models.</span></div>
+            <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p1">Order parameter and fluctuations</strong><span data-i18n="lab.ring.p1d">\(\phi\) and \(\chi\) against density for several system sizes \(L\).</span></div>
+            <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p2">Space–time diagram</strong><span data-i18n="lab.ring.p2d">Vehicle positions over time; jams appear as bands drifting backwards.</span></div>
+            <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.ring.p3">Theory check (OVM)</strong><span data-i18n="lab.ring.p3d">Simulated critical density against the instability condition \(V'(h) &gt; a/2\).</span></div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="data" class="lab-section">
+      <h2 data-i18n="lab.data">Data</h2>
+      <div class="card lab-data">
+        <p data-i18n="lab.ring.data">Precomputed SUMO results will be stored in docs/data/ring/. Every point on a chart will link to its run record (configuration, seed, SUMO commit).</p>
+      </div>
     </section>
   </main>
 

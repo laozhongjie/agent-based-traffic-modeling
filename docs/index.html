@@ -18,7 +18,8 @@
       <nav aria-label="Sections" data-i18n-aria="nav.label">
         <a href="#overview" data-i18n="nav.overview">Overview</a>
         <a href="#research" data-i18n="nav.research">Research</a>
-        <a href="#experiments" data-i18n="nav.experiments">Experiments</a>
+        <a href="#experiments" data-i18n="nav.experiments">Methods</a>
+        <a href="#models" data-i18n="nav.models">Models</a>
         <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
         <a href="#progress" data-i18n="nav.progress">Progress</a>
         <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
@@ -81,26 +82,58 @@
 
     <section id="research" class="wrap section">
       <h2 data-i18n="research.h">Research questions</h2>
+      <p class="section-intro" data-i18n="research.intro">Each question has its own page: the full question, the experimental method, and the SUMO results as the runs are completed.</p>
       <div class="grid three">
-        <article class="card rq">
+        <a class="card rq exp-card" href="lab/ring.html">
           <p class="tag" data-i18n="rq1.tag">RQ1 · Ring-road experiment</p>
           <h3 data-i18n="rq1.title">Phase transition on a highway</h3>
           <p data-i18n="rq1.text">What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?</p>
-        </article>
-        <article class="card rq">
+          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results →</span></span>
+        </a>
+        <a class="card rq exp-card" href="lab/network.html">
           <p class="tag" data-i18n="rq2.tag">RQ2 · City-network experiment</p>
           <h3 data-i18n="rq2.title">Network-level critical point</h3>
           <p data-i18n="rq2.text">Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?</p>
-        </article>
-        <article class="card rq">
+          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results →</span></span>
+        </a>
+        <a class="card rq exp-card" href="lab/planning.html">
           <p class="tag" data-i18n="rq3.tag">RQ3 · Planning experiment</p>
           <h3 data-i18n="rq3.title">Planning shifts the critical point</h3>
           <p data-i18n="rq3.text">Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?</p>
-        </article>
+          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results →</span></span>
+        </a>
+      </div>
+    </section>
+
+    <section id="experiments" class="wrap section">
+      <h2 data-i18n="method.h">Methods</h2>
+      <p class="section-intro" data-i18n="method.intro">All three experiments share one approach: sweep the density from low to high, change one factor at a time, and locate the critical point with the same measures. The settings of each experiment are on its question page.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th data-i18n="method.colRing">Ring road · RQ1</th><th data-i18n="method.colCity">City network · RQ2, RQ3</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" data-i18n="method.flow">Flow type</th><td data-i18n="method.flowRing">Uninterrupted flow</td><td data-i18n="method.flowCity">Interrupted flow</td></tr>
+            <tr><th scope="row" data-i18n="method.setting">Setting</th><td data-i18n="method.settingRing">Single-lane ring road: an idealized stretch of highway without traffic lights</td><td data-i18n="method.settingCity">Urban district from OpenStreetMap with intersections, traffic lights and varying speed limits</td></tr>
+            <tr><th scope="row" data-i18n="method.cause">Main cause of congestion</th><td data-i18n="method.causeRing">Spontaneous jams from vehicle interactions</td><td data-i18n="method.causeCity">Queues, spillback and gridlock at intersections with limited capacity</td></tr>
+            <tr><th scope="row" data-i18n="method.sweep">Density swept</th><td data-i18n="method.sweepRing">Vehicles per km of ring</td><td data-i18n="method.sweepCity">Vehicles in the network ÷ total lane length, held constant within a run</td></tr>
+            <tr><th scope="row" data-i18n="method.meaning">Critical point</th><td data-i18n="method.meaningRing">Critical density of a single road</td><td data-i18n="method.meaningCity">Critical density of the whole network</td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <h3 class="subhead" id="models" data-i18n="models.h">Vehicle models</h3>
-      <p class="note" data-i18n="models.open">Click a model name to read its detailed introduction, equations, parameters and limitations.</p>
+      <h3 class="subhead" id="critical" data-i18n="critical.h">How we find the critical point</h3>
+      <div class="grid four">
+        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">The share of jammed vehicles: near zero in free flow, rising sharply past the critical density.</span><div class="metric-eq">\(\phi = N_{\text{jam}}/N\)</div></div>
+        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">The variance of the order parameter, or of the flow, peaks at the transition.</span><div class="metric-eq">\(\chi = N\left(\langle\phi^2\rangle-\langle\phi\rangle^2\right)\)</div></div>
+        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat on longer roads; a true transition gets sharper.</span><div class="metric-eq">\(L_1 < L_2 < L_3\)</div></div>
+        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">In the city network, the density at which total flow stops increasing.</span><div class="metric-eq">\(k_c = \arg\max_k\, q(k)\)</div></div>
+      </div>
+      <p class="note" data-i18n="method.note">The critical density is reported as an estimate with error bars. A coarse density grid locates the candidate range first; extra points and repeated runs are then added near it.</p>
+    </section>
+
+    <section id="models" class="wrap section">
+      <h2 data-i18n="models.h">Vehicle models</h2>
+      <p class="section-intro" data-i18n="models.open">Click a model name to read its detailed introduction, equations, parameters and limitations.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th><th data-i18n="models.col5">In SUMO</th></tr></thead>
@@ -132,39 +165,6 @@
           <div class="eq-math">\[\frac{dv_i}{dt}=a\left[1-\left(\frac{v_i}{v_0}\right)^{\delta}-\left(\frac{s^*(v_i,\Delta v_i)}{s_i}\right)^{2}\right]\]\[s^*(v,\Delta v)=s_0+\max\!\left(0,\ vT+\frac{v\,\Delta v}{2\sqrt{ab}}\right)\]</div>
           <p data-i18n="eq.idm">\(s_i\): gap to the car ahead; \(\Delta v_i\): approach rate; \(v_0,\ T,\ s_0,\ a,\ b,\ \delta\): desired speed, time gap, minimum gap, maximum acceleration, comfortable deceleration and exponent.</p>
           <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model →</span></span>
-        </a>
-      </div>
-
-      <h3 class="subhead" data-i18n="critical.h">How we find the critical point</h3>
-      <div class="grid four">
-        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">The share of jammed vehicles: near zero in free flow, rising sharply past the critical density.</span><div class="metric-eq">\(\phi = N_{\text{jam}}/N\)</div></div>
-        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">The variance of the order parameter, or of the flow, peaks at the transition.</span><div class="metric-eq">\(\chi = N\left(\langle\phi^2\rangle-\langle\phi\rangle^2\right)\)</div></div>
-        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat on longer roads; a true transition gets sharper.</span><div class="metric-eq">\(L_1 < L_2 < L_3\)</div></div>
-        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">In the city network, the density at which total flow stops increasing.</span><div class="metric-eq">\(k_c = \arg\max_k\, q(k)\)</div></div>
-      </div>
-    </section>
-
-    <section id="experiments" class="wrap section">
-      <h2 data-i18n="exp.h">Experiments</h2>
-      <p class="section-intro" data-i18n="exp.intro">Each experiment has its own page. The pages are reserved now and will be filled with SUMO results as the runs are completed.</p>
-      <div class="grid three">
-        <a class="card exp-card" href="lab/ring.html">
-          <p class="tag" data-i18n="exp.ring.tag">RQ1 · Ring-road experiment</p>
-          <h3 data-i18n="exp.ring.title">Highway ring road</h3>
-          <p data-i18n="exp.ring.text">Fundamental diagrams, order parameter and space–time diagrams for NaSch, OVM and IDM.</p>
-          <span class="exp-foot"><span class="chip" data-i18n="exp.reserved">Reserved</span><span class="exp-open" data-i18n="exp.open">Open page →</span></span>
-        </a>
-        <a class="card exp-card" href="lab/network.html">
-          <p class="tag" data-i18n="exp.net.tag">RQ2 · City-network experiment</p>
-          <h3 data-i18n="exp.net.title">City network</h3>
-          <p data-i18n="exp.net.text">Network map, macroscopic fundamental diagram and congested clusters on a real urban district.</p>
-          <span class="exp-foot"><span class="chip" data-i18n="exp.reserved">Reserved</span><span class="exp-open" data-i18n="exp.open">Open page →</span></span>
-        </a>
-        <a class="card exp-card" href="lab/planning.html">
-          <p class="tag" data-i18n="exp.plan.tag">RQ3 · Planning experiment</p>
-          <h3 data-i18n="exp.plan.title">Planning scenarios</h3>
-          <p data-i18n="exp.plan.text">Road closure, new link and signal timing, compared by how far they shift the critical density.</p>
-          <span class="exp-foot"><span class="chip" data-i18n="exp.reserved">Reserved</span><span class="exp-open" data-i18n="exp.open">Open page →</span></span>
         </a>
       </div>
     </section>
