@@ -87,7 +87,8 @@
     ]);
   }
   // Each task shows its title and its key points as bullets. With `onToggle`, the status chip is a button
-  // that passes the task and its next status.
+  // that passes the task and its next status, and a click anywhere else in the task's row presses it
+  // (unless the user is selecting text).
   function taskList(tasks, onToggle) {
     return h("ul", { class: "tasks detailed" }, tasks.map((t) => {
       const st = statusOf(t);
@@ -99,13 +100,20 @@
       } else {
         chip = h("span", { class: "status " + st, text: U().status[st] });
       }
-      return h("li", { class: st }, [
+      const row = h("li", { class: st + (onToggle ? " clickable" : "") }, [
         chip,
         h("div", { class: "task-body" }, [
           h("span", { class: "text", text: Site.tr(t.text) }),
           t.detail ? h("ul", { class: "task-points" }, [].concat(Site.tr(t.detail)).map((x) => h("li", { text: x }))) : null
         ])
       ]);
+      if (onToggle) {
+        row.addEventListener("click", (e) => {
+          if (e.target.closest(".status-btn") || String(window.getSelection())) return;
+          chip.click();
+        });
+      }
+      return row;
     }));
   }
 

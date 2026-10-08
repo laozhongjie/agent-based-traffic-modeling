@@ -414,6 +414,9 @@ nav a.member-tab::after { background: var(--m); }
 .ws .tasks.detailed li:first-child { border-top: 0; padding-top: 0 !important; }
 .ws .tasks.detailed li:last-child { padding-bottom: 0 !important; }
 .ws .tasks.detailed li:hover { background: none !important; }
+.ws .tasks.detailed > li.clickable { cursor: pointer; margin: 0 -10px !important; padding: 14px 10px !important; border-radius: 8px; }
+.ws .tasks.detailed > li.clickable:first-child { padding-top: 10px !important; }
+.ws .tasks.detailed > li.clickable:hover { background: color-mix(in srgb, var(--m, var(--accent)) 8%, transparent) !important; }
 .task-body { min-width: 0; }
 .task-body .text { color: var(--text); font-weight: 600; }
 .task-points { margin: 6px 0 0 !important; padding-left: 18px !important; font-size: 13.5px; line-height: 1.6; list-style: disc; }
