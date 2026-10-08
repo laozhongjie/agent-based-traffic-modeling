@@ -223,12 +223,20 @@ p, li { text-wrap: pretty; }
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 14px 18px; box-shadow: var(--shadow); max-width: 520px;
 }
+.next-deadline:has(.phase-goals) { align-items: flex-start; }
+.next-deadline:has(.phase-goals) .days { padding-top: 4px; }
 .next-deadline .days { flex: 0 0 auto; min-width: 64px; text-align: center; font-size: 34px; font-weight: 700; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
 .next-deadline .days small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 6px; white-space: nowrap; }
 .next-deadline .what { font-size: 14px; color: var(--muted); line-height: 1.5; border-left: 1px solid var(--border); padding-left: 16px; }
 .next-deadline .what strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 2px; }
 .next-deadline .what span { display: block; }
-.next-deadline .what .goal { color: var(--text); margin-top: 6px; }
+.next-deadline .what .phase-goals { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+.phase-goals > li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; }
+.next-deadline .phase-goals .chips { display: flex; gap: 3px; min-width: 44px; padding-top: 1px; }
+.next-deadline .phase-goals .who { display: inline-block; }
+.phase-goals ul { margin: 0; padding-left: 14px; list-style: disc; color: var(--text); font-size: 13.5px; line-height: 1.55; }
+.phase-goals ul li::marker { color: var(--muted); }
+.phase-goals ul li + li { margin-top: 2px; }
 .next-deadline .what .minor { font-size: 12px; margin-top: 6px; }
 
 .demo { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }

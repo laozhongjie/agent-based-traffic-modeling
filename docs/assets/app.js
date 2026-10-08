@@ -19,10 +19,28 @@
   const now = new Date();
 
   // ---------- current phase ----------
-  // The hero card shows the current timeline phase and its goal, with days left in the phase
-  // (calendar days in Singapore time, today included); between phases it shows the next one.
-  // The nearest submission deadline stays as a small line underneath.
+  // The hero card shows the current timeline phase, days left in it (calendar days in Singapore time,
+  // today included) and each member's items for the phase, grouped by who does them; between phases
+  // it shows the next phase. The nearest submission deadline stays as a small line underneath.
   const todaySGT = () => dayStart(now.toLocaleDateString("en-CA", { timeZone: TZ }));
+
+  // One row per member (or pair, or the whole group): their chip(s), then their items as bullets.
+  function phaseGoals(ph) {
+    const order = ["all"].concat(P.workstreams.map((w) => w.owner));
+    const rank = (who) => Math.min(...[].concat(who).map((m) => order.indexOf(m)));
+    const groups = new Map();
+    ph.items.forEach((it) => {
+      const key = [].concat(it.who).join(",");
+      if (!groups.has(key)) groups.set(key, { who: [].concat(it.who), items: [] });
+      groups.get(key).items.push(it);
+    });
+    const rows = [...groups.values()].sort((a, b) => rank(a.who) - rank(b.who) || a.who.length - b.who.length);
+    const chip = (m) => h("span", { class: "who " + (m === "all" ? "all" : "m-" + m), text: m === "all" ? U().group : m });
+    return h("ul", { class: "phase-goals" }, rows.map((g) => h("li", {}, [
+      h("span", { class: "chips" }, g.who.map(chip)),
+      h("ul", {}, g.items.map((it) => h("li", { text: tr(it) })))
+    ])));
+  }
 
   function renderPhase() {
     const box = clear("next-deadline");
@@ -33,7 +51,7 @@
     const today = todaySGT();
     const i = P.timeline.findIndex((ph) => dayEnd(ph.end) >= now);
     const ph = P.timeline[i];
-    if (ph && ph.goal) {
+    if (ph) {
       const current = dayStart(ph.start) <= now;
       const days = current
         ? Math.round((dayStart(ph.end) - today) / DAY) + 1
@@ -44,7 +62,7 @@
         h("div", { class: "what" }, [
           h("strong", { text: (current ? U().phaseNow : U().phaseNext) + tr(ph.title) }),
           h("span", { text: range + " · " + U().phaseOf(i + 1, P.timeline.length) }),
-          h("span", { class: "goal", text: tr(ph.goal) }),
+          phaseGoals(ph),
           next ? h("span", { class: "minor", text: U().nextDue + tr(next.label) + " · " + fmtDay(next.at, { weekday: "short" }) + " " + fmtTime(next.at) }) : null
         ])
       );
