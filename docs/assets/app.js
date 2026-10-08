@@ -223,14 +223,10 @@
 
   function renderReview() {
     const R = P.review;
-    const name = (m) => { const w = P.workstreams.find((x) => x.owner === m); return w ? tr(w.name) : ""; };
     const pairs = (m) => m.map((x, i) => U().reviews(x, m[(i + 1) % m.length]));
     const label = pairs(R.outer).concat(pairs(R.inner)).join(", ");
-    clear("review-map").append(
-      reviewSvg(R, label),
-      h("ul", { class: "review-legend" }, R.outer.concat(R.inner).sort().map((x) =>
-        h("li", { class: "m-" + x }, [h("strong", { text: memberLabel(x) }), name(x)])))
-    );
+    // Names and workstreams are listed in the progress column beside the diagram, so no legend here.
+    clear("review-map").append(reviewSvg(R, label));
   }
 
   // ---------- resources ----------
