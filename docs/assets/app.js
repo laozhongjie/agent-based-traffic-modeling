@@ -3,33 +3,12 @@
 
   const P = window.PROJECT;
   const Site = window.Site;
-  const TZ = "Asia/Singapore";
   const DAY = 86400000;
   const tr = Site.tr;
   const U = Site.ui;
+  const { TZ, h, dayStart, dayEnd, fmtDay, memberLabel, memberHref, reviewee, reviewer, counts, countSpans, barEl } = window.Team;
 
   // ---------- helpers ----------
-  function h(tag, attrs, children) {
-    const node = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs || {})) {
-      if (v == null) continue;
-      if (k === "class") node.className = v;
-      else if (k === "text") node.textContent = v;
-      else if (k === "style") node.style.cssText = v;
-      else node.setAttribute(k, v);
-    }
-    for (const c of [].concat(children || [])) {
-      if (c == null) continue;
-      node.append(c instanceof Node ? c : document.createTextNode(c));
-    }
-    return node;
-  }
-  const dayStart = (d) => new Date(d + "T00:00:00+08:00");
-  const dayEnd = (d) => new Date(d + "T23:59:59+08:00");
-  function fmtDay(date, opts) {
-    const base = Site.lang === "zh" ? { month: "long", day: "numeric" } : { day: "numeric", month: "short" };
-    return date.toLocaleDateString(Site.lang === "zh" ? "zh-CN" : "en-GB", Object.assign(base, { timeZone: TZ }, opts));
-  }
   function fmtTime(date) {
     return Site.lang === "zh"
       ? date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: TZ })
@@ -135,109 +114,50 @@
   function saveWho(m) { try { localStorage.setItem("timeline-who", m); } catch (e) { /* storage unavailable */ } }
   let timelineWho = loadWho();
 
-  // A member's display name, e.g. "B Guowei"; falls back to the letter alone.
-  function memberLabel(m) {
-    const w = P.workstreams.find((x) => x.owner === m);
-    return w && w.ownerName ? m + " " + tr(w.ownerName) : m;
-  }
-
-  // ---------- progress ----------
-  const WEIGHT = { done: 1, doing: 0.5, todo: 0 };
-
-  function counts(tasks) {
-    const c = { done: 0, doing: 0, todo: 0 };
-    tasks.forEach((t) => { c[t.status in c ? t.status : "todo"]++; });
-    const score = tasks.reduce((s, t) => s + (WEIGHT[t.status] || 0), 0);
-    return { c, total: tasks.length, pct: tasks.length ? Math.round((score / tasks.length) * 100) : 0 };
-  }
-  const countText = (n, key) => (Site.lang === "zh" ? U()[key] + " " + n : n + " " + U()[key]);
-  function barEl(k) {
-    const label = [countText(k.c.done, "done"), countText(k.c.doing, "doing"), countText(k.c.todo, "todo")].join(", ");
-    return h("div", { class: "bar", role: "img", "aria-label": label }, [
-      h("div", { class: "seg-done", style: "width:" + (k.c.done / k.total) * 100 + "%" }),
-      h("div", { class: "seg-doing", style: "width:" + (k.c.doing / k.total) * 100 + "%" })
-    ]);
-  }
-
+  // ---------- progress: one row per member ----------
   function renderProgress() {
     const all = counts(P.workstreams.flatMap((w) => w.tasks));
     clear("progress-summary").append(
       h("span", { class: "big", text: all.pct + "%" }),
       barEl(all),
-      h("span", { class: "counts" }, [
-        h("span", { text: countText(all.c.done, "done") }),
-        h("span", { text: countText(all.c.doing, "doing") }),
-        h("span", { text: countText(all.c.todo, "todo") })
-      ])
+      h("span", { class: "counts" }, countSpans(all))
     );
 
-    const grid = clear("workstreams");
+    const list = clear("workstreams");
     P.workstreams.forEach((w) => {
       const k = counts(w.tasks);
-      grid.append(h("article", { class: "card ws" + (w.owner ? " m-" + w.owner : "") }, [
-        h("p", { class: "tag", text: tr(w.stage) }),
-        h("div", { class: "ws-head" }, [h("h3", { text: tr(w.name) }), h("span", { class: "pct", text: k.pct + "%" })]),
-        h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.ownerName || w.owner) : U().unclaimed }),
-        barEl(k),
-        h("p", { class: "ws-counts" }, ["done", "doing", "todo"].map((key) => h("span", { text: countText(k.c[key], key) })))
+      list.append(h("article", { class: "card ws ws-row" + (w.owner ? " m-" + w.owner : "") }, [
+        h("div", { class: "ws-row-info" }, [
+          h("p", { class: "tag", text: tr(w.stage) }),
+          h("h3", { text: tr(w.name) }),
+          h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.ownerName || w.owner) : U().unclaimed })
+        ]),
+        h("div", { class: "ws-row-bar" }, [barEl(k), h("p", { class: "ws-counts" }, countSpans(k))]),
+        h("span", { class: "pct", text: k.pct + "%" })
       ]));
     });
   }
 
-  // ---------- task assignment ----------
-  // Each review ring runs reviewer → next member; the last reviews the first.
-  function reviewRing(m) { return [P.review.outer, P.review.inner].find((r) => r.includes(m)); }
-  function reviewee(m) { const r = reviewRing(m); return r ? r[(r.indexOf(m) + 1) % r.length] : null; }
-  function reviewer(m) { const r = reviewRing(m); return r ? r[(r.indexOf(m) + r.length - 1) % r.length] : null; }
-
-  // Which member cards are open survives a re-render (language switch).
-  const openAssign = new Set();
-
+  // ---------- task assignment: one card per member, linking to the member's page ----------
   function renderAssignments() {
-    const ws = (m) => P.workstreams.find((x) => x.owner === m);
-    const person = (m) => h("span", { class: "assign-person" }, [h("span", { class: "who m-" + m, text: m }), " " + tr(ws(m).ownerName || "")]);
     const list = clear("assignments");
-    P.workstreams.forEach((w, i) => {
+    P.workstreams.filter((w) => w.owner).forEach((w) => {
       const m = w.owner;
-      const out = m && reviewee(m), inn = m && reviewer(m);
-      const title = [m ? tr(w.ownerName || m) : U().unclaimed, tr(w.name)].join(" · ");
-      const d = h("details", { class: "card ws assign" + (m ? " m-" + m : ""), id: m ? "tasks-" + m : null }, [
-        h("summary", {}, [
-          h("span", { class: "assign-badge", text: m || "?" }),
-          h("span", { class: "assign-title" }, [
-            h("span", { class: "tag", text: tr(w.stage) }),
-            h("h3", { text: title })
-          ]),
-          h("span", { class: "assign-meta" }, [
-            out ? h("span", {}, U().reviewing(out).join("")) : null,
-            inn ? h("span", {}, U().reviewedBy(inn).join("")) : null,
-            h("span", { text: U().taskCount(w.tasks.length) })
-          ]),
-          h("span", { class: "assign-chev", "aria-hidden": "true" })
+      const out = reviewee(m), inn = reviewer(m);
+      list.append(h("a", { class: "card exp-card ws assign m-" + m, href: memberHref(m) }, [
+        h("p", { class: "tag", text: tr(w.stage) }),
+        h("div", { class: "assign-top" }, [
+          h("span", { class: "assign-badge", text: m }),
+          h("h3", { text: tr(w.ownerName || m) })
         ]),
-        h("div", { class: "assign-body" }, [
-          h("div", {}, [
-            h("p", { class: "ws-summary", text: tr(w.summary) }),
-            out || inn ? h("div", { class: "assign-review" }, [
-              h("strong", { text: U().reviewH }),
-              h("ul", {}, [
-                out ? h("li", {}, U().reviewing(person(out)).concat(" · " + tr(ws(out).name))) : null,
-                inn ? h("li", {}, U().reviewedBy(person(inn))) : null
-              ])
-            ]) : null
-          ]),
-          h("ul", { class: "tasks" }, w.tasks.map((t) => {
-            const st = t.status in U().status ? t.status : "todo";
-            return h("li", { class: st }, [
-              h("span", { class: "status " + st, text: U().status[st] }),
-              h("span", { class: "text", text: tr(t.text) })
-            ]);
-          }))
-        ])
-      ]);
-      d.open = openAssign.has(i);
-      d.addEventListener("toggle", () => { if (d.open) openAssign.add(i); else openAssign.delete(i); });
-      list.append(d);
+        h("p", { class: "assign-ws", text: tr(w.name) }),
+        h("p", { class: "assign-meta" }, [
+          out ? h("span", {}, U().reviewing(out).join("")) : null,
+          inn ? h("span", {}, U().reviewedBy(inn).join("")) : null,
+          h("span", { text: U().taskCount(w.tasks.length) })
+        ]),
+        h("span", { class: "exp-foot" }, h("span", { class: "exp-open", text: U().openTasks }))
+      ]));
     });
   }
 
