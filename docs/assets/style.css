@@ -369,7 +369,7 @@ tr:last-child td { border-bottom: none; }
 .member-title .eyebrow { color: var(--m); margin-bottom: 4px; }
 .member-title h1 { margin: 0; font-size: 30px; line-height: 1.2; }
 .member-head .ws-owner { margin: 4px 0 0 !important; font-size: 14px; }
-.member-head .lede { margin: 16px 0; }
+.member-head .lede { margin: 16px 0; max-width: none; }
 .member-head .bar .seg-done { background: var(--m); }
 .member-head .bar .seg-doing { background: color-mix(in srgb, var(--m) 40%, transparent); }
 .member-page h2 { font-size: 20px; margin: 0 0 14px; }
@@ -377,7 +377,6 @@ tr:last-child td { border-bottom: none; }
 .member-role { color: var(--m) !important; font-weight: 600; font-size: 14px; margin-bottom: 12px !important; }
 .member-review-list { list-style: none; padding: 0 !important; font-size: 14px; }
 .member-review-list li + li { margin-top: 12px; }
-.member-review-list .sub { display: block; font-size: 13px; margin-top: 2px; }
 .member-link { color: var(--text); font-weight: 600; white-space: nowrap; }
 .member-schedule { margin-top: 32px; --time: var(--m); }
 nav a.member-tab[aria-current="page"] { color: var(--m); }
@@ -407,10 +406,18 @@ nav a.member-tab::after { background: var(--m); }
 .ws[class*="m-"] .bar .seg-doing { background: color-mix(in srgb, var(--m) 40%, transparent); }
 .ws[class*="m-"] .tasks li.done .text { text-decoration-color: var(--m); }
 .tasks li.done .text { text-decoration: line-through; text-decoration-color: var(--todo); }
-/* Member page: each task is a button that cycles its status. */
-.tasks.editable li { display: block; }
-.task-btn { display: flex; gap: 8px; align-items: flex-start; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
-.task-btn:focus-visible { outline: 2px solid var(--m, var(--accent)); outline-offset: 3px; border-radius: 6px; }
+/* Member page: one task per row with what and why; the status chip is a button that cycles the status. */
+.ws .tasks.detailed { columns: 1; }
+.ws .tasks.detailed li { gap: 12px; margin: 0 !important; padding: 14px 0 !important; border-top: 1px solid var(--border); }
+.ws .tasks.detailed li:first-child { border-top: 0; padding-top: 0 !important; }
+.ws .tasks.detailed li:last-child { padding-bottom: 0 !important; }
+.ws .tasks.detailed li:hover { background: none !important; }
+.task-body { min-width: 0; }
+.task-body .text { color: var(--text); font-weight: 600; }
+.task-detail { font-size: 13.5px; line-height: 1.6; margin: 4px 0 0 !important; }
+.status-btn { font-family: inherit; line-height: inherit; border: 0; cursor: pointer; }
+.status-btn:hover { transform: scale(1.06); }
+.status-btn:focus-visible { outline: 2px solid var(--m, var(--accent)); outline-offset: 2px; }
 .sync-note { font-size: 13px; margin: -6px 0 14px !important; }
 .sync-note.offline { color: var(--warn-text) !important; }
 .sync-note.error { color: var(--jam) !important; }
@@ -669,5 +676,5 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
   .exp-card:hover, .btn:hover, .lang-toggle:hover, .demo-row button:hover,
-  .exp-card:hover .exp-open, .res-list a:hover::after, .timeline-bar .marker:hover, .flow li:hover::before, .tasks li:hover .status { transform: none !important; }
+  .exp-card:hover .exp-open, .res-list a:hover::after, .timeline-bar .marker:hover, .flow li:hover::before, .tasks li:hover .status, .status-btn:hover { transform: none !important; }
 }

@@ -82,8 +82,8 @@
     fill("member-review",
       role ? h("p", { class: "member-role", text: tr(role) }) : null,
       h("ul", { class: "member-review-list" }, [
-        out ? h("li", {}, U().reviewing(personLink(out)).concat(h("span", { class: "sub", text: tr(member(out).name) }))) : null,
-        inn ? h("li", {}, U().reviewedBy(personLink(inn)).concat(h("span", { class: "sub", text: tr(member(inn).name) }))) : null
+        out ? h("li", {}, U().reviewing(personLink(out))) : null,
+        inn ? h("li", {}, U().reviewedBy(personLink(inn))) : null
       ])
     );
   }

@@ -86,18 +86,26 @@
       h("div", { class: "seg-doing", style: "width:" + (k.c.doing / k.total) * 100 + "%" })
     ]);
   }
-  // With `onToggle`, each task is a button that passes the task and its next status.
+  // Each task shows its title and a short explanation. With `onToggle`, the status chip is a button
+  // that passes the task and its next status.
   function taskList(tasks, onToggle) {
-    return h("ul", { class: "tasks" + (onToggle ? " editable" : "") }, tasks.map((t) => {
+    return h("ul", { class: "tasks detailed" }, tasks.map((t) => {
       const st = statusOf(t);
-      const parts = [
-        h("span", { class: "status " + st, text: U().status[st] }),
-        h("span", { class: "text", text: Site.tr(t.text) })
-      ];
-      if (!onToggle) return h("li", { class: st }, parts);
-      const b = h("button", { type: "button", class: "task-btn", "data-task": t.id, title: U().toggleHint(U().status[nextStatus(st)]) }, parts);
-      b.addEventListener("click", () => onToggle(t, nextStatus(st)));
-      return h("li", { class: st }, b);
+      let chip;
+      if (onToggle) {
+        chip = h("button", { type: "button", class: "status status-btn " + st, "data-task": t.id,
+          title: U().toggleHint(U().status[nextStatus(st)]) }, U().status[st]);
+        chip.addEventListener("click", () => onToggle(t, nextStatus(st)));
+      } else {
+        chip = h("span", { class: "status " + st, text: U().status[st] });
+      }
+      return h("li", { class: st }, [
+        chip,
+        h("div", { class: "task-body" }, [
+          h("span", { class: "text", text: Site.tr(t.text) }),
+          t.detail ? h("p", { class: "task-detail", text: Site.tr(t.detail) }) : null
+        ])
+      ]);
     }));
   }
 
