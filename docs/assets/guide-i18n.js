@@ -54,9 +54,6 @@ source ~/.bashrc</code></pre>
       <li>每次打开新终端，运行项目命令前先激活环境：
 <pre><code>conda activate traffic</code></pre>
       </li>
-      <li><strong>可选：</strong>想用 Jupyter notebook 时，先激活环境，在仓库根目录启动 JupyterLab，notebook 放在 <code>sandbox/&lt;你的名字&gt;/</code> 中（规则见第 2 节）：
-<pre><code>jupyter lab</code></pre>
-      </li>
     </ol>`,
 
   "guide.layout": `
