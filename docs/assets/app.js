@@ -175,21 +175,69 @@
     P.workstreams.forEach((w) => {
       const k = counts(w.tasks);
       grid.append(h("article", { class: "card ws" + (w.owner ? " m-" + w.owner : "") }, [
-        h("div", { class: "ws-main" }, [
-          h("p", { class: "tag", text: tr(w.stage) }),
-          h("div", { class: "ws-head" }, [h("h3", { text: tr(w.name) }), h("span", { class: "pct", text: k.pct + "%" })]),
-          h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.ownerName || w.owner) : U().unclaimed }),
-          h("p", { class: "ws-summary", text: tr(w.summary) }),
-          barEl(k)
-        ]),
-        h("ul", { class: "tasks" }, w.tasks.map((t) => {
-          const st = t.status in U().status ? t.status : "todo";
-          return h("li", { class: st }, [
-            h("span", { class: "status " + st, text: U().status[st] }),
-            h("span", { class: "text", text: tr(t.text) })
-          ]);
-        }))
+        h("p", { class: "tag", text: tr(w.stage) }),
+        h("div", { class: "ws-head" }, [h("h3", { text: tr(w.name) }), h("span", { class: "pct", text: k.pct + "%" })]),
+        h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.ownerName || w.owner) : U().unclaimed }),
+        barEl(k),
+        h("p", { class: "ws-counts" }, ["done", "doing", "todo"].map((key) => h("span", { text: countText(k.c[key], key) })))
       ]));
+    });
+  }
+
+  // ---------- task assignment ----------
+  // Each review ring runs reviewer → next member; the last reviews the first.
+  function reviewRing(m) { return [P.review.outer, P.review.inner].find((r) => r.includes(m)); }
+  function reviewee(m) { const r = reviewRing(m); return r ? r[(r.indexOf(m) + 1) % r.length] : null; }
+  function reviewer(m) { const r = reviewRing(m); return r ? r[(r.indexOf(m) + r.length - 1) % r.length] : null; }
+
+  // Which member cards are open survives a re-render (language switch).
+  const openAssign = new Set();
+
+  function renderAssignments() {
+    const ws = (m) => P.workstreams.find((x) => x.owner === m);
+    const person = (m) => h("span", { class: "assign-person" }, [h("span", { class: "who m-" + m, text: m }), " " + tr(ws(m).ownerName || "")]);
+    const list = clear("assignments");
+    P.workstreams.forEach((w, i) => {
+      const m = w.owner;
+      const out = m && reviewee(m), inn = m && reviewer(m);
+      const title = [m ? tr(w.ownerName || m) : U().unclaimed, tr(w.name)].join(" · ");
+      const d = h("details", { class: "card ws assign" + (m ? " m-" + m : ""), id: m ? "tasks-" + m : null }, [
+        h("summary", {}, [
+          h("span", { class: "assign-badge", text: m || "?" }),
+          h("span", { class: "assign-title" }, [
+            h("span", { class: "tag", text: tr(w.stage) }),
+            h("h3", { text: title })
+          ]),
+          h("span", { class: "assign-meta" }, [
+            out ? h("span", {}, U().reviewing(out).join("")) : null,
+            inn ? h("span", {}, U().reviewedBy(inn).join("")) : null,
+            h("span", { text: U().taskCount(w.tasks.length) })
+          ]),
+          h("span", { class: "assign-chev", "aria-hidden": "true" })
+        ]),
+        h("div", { class: "assign-body" }, [
+          h("div", {}, [
+            h("p", { class: "ws-summary", text: tr(w.summary) }),
+            out || inn ? h("div", { class: "assign-review" }, [
+              h("strong", { text: U().reviewH }),
+              h("ul", {}, [
+                out ? h("li", {}, U().reviewing(person(out)).concat(" · " + tr(ws(out).name))) : null,
+                inn ? h("li", {}, U().reviewedBy(person(inn))) : null
+              ])
+            ]) : null
+          ]),
+          h("ul", { class: "tasks" }, w.tasks.map((t) => {
+            const st = t.status in U().status ? t.status : "todo";
+            return h("li", { class: st }, [
+              h("span", { class: "status " + st, text: U().status[st] }),
+              h("span", { class: "text", text: tr(t.text) })
+            ]);
+          }))
+        ])
+      ]);
+      d.open = openAssign.has(i);
+      d.addEventListener("toggle", () => { if (d.open) openAssign.add(i); else openAssign.delete(i); });
+      list.append(d);
     });
   }
 
@@ -406,6 +454,7 @@
   // ---------- boot ----------
   function renderAll() {
     renderNextDeadline();
+    renderAssignments();
     renderTimeline();
     renderProgress();
     renderReview();

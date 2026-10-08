@@ -20,6 +20,7 @@
         <a href="#research" data-i18n="nav.research">Research</a>
         <a href="#experiments" data-i18n="nav.experiments">Methods</a>
         <a href="#models" data-i18n="nav.models">Models</a>
+        <a href="#tasks" data-i18n="nav.tasks">Tasks</a>
         <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
         <a href="#progress" data-i18n="nav.progress">Progress</a>
         <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
@@ -169,6 +170,17 @@
       </div>
     </section>
 
+    <section id="tasks" class="wrap section">
+      <h2 data-i18n="tasks.h">Task assignment</h2>
+      <p class="section-intro" data-i18n="tasks.intro">Five primary owners work in parallel through shared interfaces. Every member contributes to design, implementation, validation, analysis and delivery, with cross-review between workstreams. Open a member to see their tasks.</p>
+      <div class="assignments" id="assignments"></div>
+      <div class="card review">
+        <h3 data-i18n="tasks.reviewH">Cross-review</h3>
+        <p data-i18n="tasks.reviewNote">A coordinates the project and supplies the tools; E sets the analysis methods and pulls the results together. A and E review each other, and B, C and D review in a loop. Coloured arrows point from reviewer to reviewee; grey dashed arrows show hand-offs.</p>
+        <div class="review-map" id="review-map"></div>
+      </div>
+    </section>
+
     <section id="timeline" class="wrap section">
       <h2 data-i18n="timeline.h">Timeline</h2>
       <p class="section-intro" id="timeline-status"></p>
@@ -180,12 +192,6 @@
     <section id="progress" class="wrap section">
       <h2 data-i18n="progress.h">Progress</h2>
       <div class="progress-summary" id="progress-summary"></div>
-      <p class="section-intro" data-i18n="progress.intro">Five primary owners work in parallel through shared interfaces. Every member contributes to design, implementation, validation, analysis and delivery, with cross-review between workstreams.</p>
-      <div class="card review">
-        <h3 data-i18n="progress.reviewH">Cross-review</h3>
-        <p data-i18n="progress.reviewNote">A coordinates the project and supplies the tools; E sets the analysis methods and pulls the results together. A and E review each other, and B, C and D review in a loop. Coloured arrows point from reviewer to reviewee; grey dashed arrows show hand-offs.</p>
-        <div class="review-map" id="review-map"></div>
-      </div>
       <div class="grid workstreams" id="workstreams"></div>
     </section>
 
