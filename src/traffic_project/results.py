@@ -7,6 +7,9 @@ Every experiment writes two kinds of files into results/<scenario>/, which is in
 
 Both writers check the rows against the columns below and raise ValueError
 on a missing column, a value outside its range, or an unprefixed extra column.
+
+For analysis and notebooks, load_summary() and load_timeseries() read the same
+files back as pandas DataFrames with numeric columns.
 The same definitions hold for the ring and the city network: density is the
 number of vehicles divided by the total lane length, mean speed is the
 space-mean speed of all vehicles, and flow = density * mean speed.
@@ -69,6 +72,31 @@ def write_summary(rows, cfg):
     path = ROOT / "results" / cfg["scenario"] / f"{cfg['name']}.csv"
     write_csv(rows, path, names + extra)
     return path
+
+
+def load_summary(scenario, name):
+    """Read results/<scenario>/<name>.csv as a pandas DataFrame.
+
+    Numbers come back as numbers, valid as bool, and an empty variant as "".
+    Example: load_summary("ring", "idm_sweep")
+    """
+    import pandas as pd
+
+    path = ROOT / "results" / scenario / f"{name}.csv"
+    text = {"run_id": str, "scenario": str, "model": str, "variant": str}
+    df = pd.read_csv(path, dtype=text)
+    df["variant"] = df["variant"].fillna("")
+    return df
+
+
+def load_timeseries(scenario, name, run_id):
+    """Read results/<scenario>/<name>/<run_id>.csv as a pandas DataFrame.
+
+    Example: load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")
+    """
+    import pandas as pd
+
+    return pd.read_csv(ROOT / "results" / scenario / name / f"{run_id}.csv")
 
 
 def write_timeseries(run_id, rows, cfg):

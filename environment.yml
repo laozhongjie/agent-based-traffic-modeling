@@ -10,6 +10,8 @@ dependencies:
   - numpy=1.26
   - scipy=1.13
   - matplotlib=3.10
+  - pandas=2.2              # tables; traffic_project.results.load_summary returns one
+  - jupyterlab=4.4          # notebooks for exploring and plotting (sandbox/<your-name>/)
   - pip
   - pip:
       - -e .

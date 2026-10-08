@@ -73,9 +73,14 @@ source ~/.bashrc</code></pre>
         </li>
         <li>Create the shared Python environment once, from the repository root. It installs fixed versions of Python and the packages, and installs the project code in <code>src/traffic_project</code> so that every script can import it.
 <pre><code>conda env create -f environment.yml</code></pre>
+          If you created the environment before pandas and JupyterLab were added on 8 Oct, update it instead:
+<pre><code>conda env update -f environment.yml --prune</code></pre>
         </li>
         <li>Activate the environment in every new terminal before running project commands:
 <pre><code>conda activate traffic</code></pre>
+        </li>
+        <li><strong>Optional:</strong> to work in Jupyter notebooks, start JupyterLab from the repository root with the environment active, and keep your notebooks in <code>sandbox/&lt;your-name&gt;/</code> (see the rules in section 2):
+<pre><code>jupyter lab</code></pre>
         </li>
       </ol>
     </section>
@@ -135,6 +140,7 @@ source ~/.bashrc</code></pre>
         <li><strong>One experiment is one config file and one command.</strong> Anyone can reproduce it from a clean commit.</li>
         <li><strong><code>sandbox/</code> never produces a reported result.</strong> Move the code into the places above before its output goes into the report or onto the website.</li>
         <li><strong>Start every script with a docstring</strong> that says what it does and how to run it.</li>
+        <li><strong>Notebooks are for exploring and plotting, not for formal runs.</strong> Keep them in <code>sandbox/&lt;your-name&gt;/</code>; that folder is not in git, so a notebook stays on your computer. Read results with <code>load_summary</code> and <code>load_timeseries</code> (section 6), and import <code>traffic_project</code> as a script would. Formal runs always use a config file and a script in <code>scripts/</code>, so that every result has a run record. When a notebook's analysis or figure is going into the report, move its code into <code>scripts/</code> or <code>src/traffic_project/analysis/</code> (rule 4).</li>
       </ol>
     </section>
 
@@ -241,6 +247,13 @@ results.write_summary(rows, cfg)</code></pre>
       <h3>Time series: <code>results/&lt;scenario&gt;/&lt;name&gt;/&lt;run_id&gt;.csv</code></h3>
       <p>One file per run, with one row of instantaneous values every 10 s over the whole run, warm-up included. The columns are <code>time_s</code>, <code>density_veh_km</code>, <code>mean_speed_mps</code>, <code>flow_veh_h</code> and <code>congested_fraction</code>. E uses it to check the warm-up length and to estimate fluctuations and error bars. One run of 1800 s is about 8 KB.</p>
       <p>The definitions are the same on the ring and in the city network, so E can compare the highway and network critical densities directly.</p>
+      <h3>Reading the results in Python or a notebook</h3>
+      <p>Both files read back as pandas tables, from any folder, with numbers as numbers and <code>valid</code> as <code>True</code>/<code>False</code>:</p>
+<pre><code>from traffic_project.results import load_summary, load_timeseries
+
+df = load_summary("ring", "idm_sweep")                               # one row per run
+ts = load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")   # one run over time
+df = df[df.valid]                                                     # keep runs that passed every check</code></pre>
     </section>
 
     <section class="card model-section" id="checks" data-i18n="guide.checks">

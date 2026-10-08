@@ -48,9 +48,14 @@ source ~/.bashrc</code></pre>
       </li>
       <li>在仓库根目录创建全组共用的 Python 环境，只需做一次。这一步会安装固定版本的 Python 和软件包，并安装 <code>src/traffic_project</code> 中的项目代码，让所有脚本都能导入它。
 <pre><code>conda env create -f environment.yml</code></pre>
+        如果你在 10月8日加入 pandas 和 JupyterLab 之前已经创建过环境，改为运行下面的命令更新：
+<pre><code>conda env update -f environment.yml --prune</code></pre>
       </li>
       <li>每次打开新终端，运行项目命令前先激活环境：
 <pre><code>conda activate traffic</code></pre>
+      </li>
+      <li><strong>可选：</strong>想用 Jupyter notebook 时，先激活环境，在仓库根目录启动 JupyterLab，notebook 放在 <code>sandbox/&lt;你的名字&gt;/</code> 中（规则见第 2 节）：
+<pre><code>jupyter lab</code></pre>
       </li>
     </ol>`,
 
@@ -109,6 +114,7 @@ source ~/.bashrc</code></pre>
       <li><strong>一个实验对应一个配置文件和一条命令。</strong>任何人从干净的 commit 出发都能复现。</li>
       <li><strong><code>sandbox/</code> 中的代码不得产出正式结果。</strong>结果写进报告或放上网站前，先把代码移到上表规定的位置。</li>
       <li><strong>每个脚本开头写文档字符串</strong>，说明用途和运行方法。</li>
+      <li><strong>notebook 用来探索和画图，不用来跑正式实验。</strong>notebook 放在 <code>sandbox/&lt;你的名字&gt;/</code> 中；这个文件夹不进 git，notebook 只保存在你自己的电脑上。读取结果用 <code>load_summary</code> 和 <code>load_timeseries</code>（见第 6 节），像脚本一样导入 <code>traffic_project</code>。正式实验一律用配置文件加 <code>scripts/</code> 中的脚本运行，保证每个结果都有运行记录。notebook 里的分析或图要写进报告时，把代码移到 <code>scripts/</code> 或 <code>src/traffic_project/analysis/</code>（规则 4）。</li>
     </ol>`,
 
   "guide.example": `
@@ -210,7 +216,14 @@ results.write_summary(rows, cfg)</code></pre>`,
     <p>场景特有的列排在这些列之后，并以场景名开头，例如 <code>ring_vehicles</code>、<code>city_largest_cluster</code>。</p>
     <h3>时间序列：<code>results/&lt;scenario&gt;/&lt;name&gt;/&lt;run_id&gt;.csv</code></h3>
     <p>每次运行一个文件。覆盖整个运行过程（包括预热段），每 10 秒记录一行瞬时值，列为 <code>time_s</code>、<code>density_veh_km</code>、<code>mean_speed_mps</code>、<code>flow_veh_h</code> 和 <code>congested_fraction</code>。E 用它检查预热时长是否足够，并估计涨落和误差范围。一次 1800 秒的运行约 8 KB。</p>
-    <p>环路和城市路网使用相同的定义，所以 E 可以直接比较 highway 和路网的临界密度。</p>`,
+    <p>环路和城市路网使用相同的定义，所以 E 可以直接比较 highway 和路网的临界密度。</p>
+    <h3>在 Python 或 notebook 中读取结果</h3>
+    <p>两种文件都能读成 pandas 表格，在任何文件夹下都能用；数字读出来就是数字，<code>valid</code> 是 <code>True</code>/<code>False</code>：</p>
+<pre><code>from traffic_project.results import load_summary, load_timeseries
+
+df = load_summary("ring", "idm_sweep")                               # 每次运行一行
+ts = load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")   # 单次运行的时间序列
+df = df[df.valid]                                                     # 只保留通过全部检查的运行</code></pre>`,
 
   "guide.checks": `
     <h2>7. 每次运行必须通过的检查</h2>
