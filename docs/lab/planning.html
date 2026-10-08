@@ -30,32 +30,91 @@
       <p class="eyebrow" data-i18n="lab.plan.tag">RQ3 · Planning experiment</p>
       <h1 data-i18n="lab.plan.title">Planning scenarios</h1>
       <p class="lede" data-i18n="lab.plan.lede">Compare how road closures, new links and signal timing shift the network critical density and maximum flow.</p>
-      <p class="status-note"><span class="chip" data-i18n="exp.reserved">Reserved</span><span data-i18n="lab.status">This page is reserved for the experiment environment. The boxes below show what each part will contain.</span></p>
+      <nav class="lab-toc" aria-label="On this page" data-i18n-aria="lab.tocLabel">
+        <a href="#question" data-i18n="lab.q">Question</a>
+        <a href="#method" data-i18n="lab.m">Method</a>
+        <a href="#results" data-i18n="lab.r">Results</a>
+        <a href="#data" data-i18n="lab.data">Data</a>
+      </nav>
     </header>
 
-    <div class="lab-grid">
-      <aside class="card lab-controls">
-        <h2 class="lab-h" data-i18n="lab.controls">Controls</h2>
-        <ul class="planned">
+    <section id="question" class="lab-section">
+      <h2 data-i18n="lab.q">Question</h2>
+      <div class="card">
+        <ol class="questions">
+          <li data-i18n="lab.plan.q0">Do changes to the network, such as closing a road or adding a link, raise or lower the network critical density and the maximum network flow?</li>
+          <li data-i18n="lab.plan.q1">Does adding a road always help, or can it make things worse (Braess's paradox)?</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="method" class="lab-section">
+      <h2 data-i18n="lab.m">Method</h2>
+      <div class="table-wrap">
+        <table class="spec">
+          <tbody>
+            <tr><th scope="row" data-i18n="lab.m.goal">Goal</th><td data-i18n="lab.plan.goal">Test how changes to the network shift its critical density, and judge each planning scenario by its effect on the whole system.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.setting">Setting</th><td data-i18n="lab.plan.setting">The city district from the city-network experiment. Each scenario is first built on the 4×4 grid, then moved to the district.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.models">Models</th><td data-i18n="lab.plan.models"><a href="../models/idm.html">IDM</a>, run in SUMO, as in the city-network experiment.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.scen">Scenarios</th><td data-i18n="lab.plan.scen"><ol><li><strong>Baseline</strong>: the original network from the city-network experiment.</li><li><strong>Road closure</strong>: close a high-betweenness link or remove one of its lanes, as for road works.</li><li><strong>New link</strong>: add a connecting road and test for Braess's paradox.</li><li><strong>Signal timing (optional)</strong>: keep the cycle length and share the green time at the bottleneck intersection by directional flow.</li></ol></td></tr>
+            <tr><th scope="row" data-i18n="lab.m.vary">Control variables</th><td data-i18n="lab.plan.vary">Scenario × network density, using the same density values as the city-network experiment.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.fixed">Held fixed</th><td data-i18n="lab.plan.fixed">Everything except the changed link or intersection: the rest of the network, signals, routing rule, seed set and simulation length.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.measure">Measurements</th><td data-i18n="lab.plan.measure">The same as in the city-network experiment.</td></tr>
+            <tr><th scope="row" data-i18n="lab.m.outputs">Outputs</th><td data-i18n="lab.plan.outputs"><ul class="who-items outputs"><li><span class="who m-D">D Daniel</span><span><strong>1. Macroscopic fundamental diagrams overlaid</strong> (questions 1, 2): network density on the x-axis, network flow on the y-axis, with the baseline and every scenario on the same axes. Compare where the peaks are and how high.</span></li><li><span class="who m-D">D Daniel</span><span><strong>2. Critical density and maximum flow by scenario</strong> (questions 1, 2): scenarios on the x-axis, the critical density or the maximum network flow on the y-axis, with error bars from repeated runs. If either value for the new link falls below the baseline by more than the error bars, that is Braess's paradox.</span></li><li><span class="who m-D">D Daniel</span><span><strong>3. Change in congestion</strong> (question 1): at the same density, the difference in mean speed on every link between a scenario and the baseline, drawn on the network map, showing whether jams disappear, move or grow.</span></li></ul><p class="outputs-note">The tag names who makes each figure: whoever runs an experiment makes its figures; comparisons across experiments or with real data are E's.</p></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="lab-sub" data-i18n="lab.m.judge">How the results are read</h3>
+      <div class="grid two">
+        <div class="card">
+          <h3 data-i18n="lab.m.criteria">Criteria</h3>
+          <ul data-i18n="lab.plan.criteria"><li>Do the peaks of the macroscopic fundamental diagrams differ in position or height between scenarios?</li><li>Are the differences larger than the spread across repeated runs?</li><li>Is the critical density or maximum network flow of the new-link scenario below the baseline?</li><li>After the change, do congestion hot spots disappear, move or grow?</li></ul>
+        </div>
+        <div class="card">
+          <h3 data-i18n="lab.m.interp">Interpretation</h3>
+          <p data-i18n="lab.plan.interp">A scenario is judged by how it changes the critical density and the maximum network flow. A higher critical density means the network can carry more vehicles before congestion sets in. If a new road lowers the critical density or the maximum network flow, Braess's paradox has occurred.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="lab.m.minimum">Minimum convincing experiment</h3>
+          <p data-i18n="lab.plan.minimum">The baseline and every scenario compared at the same density values and seeds.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="lab.m.pitfall">Common pitfall</h3>
+          <p data-i18n="lab.plan.pitfall">Comparing scenarios at a single density; or showing only the scenarios that improve things.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="lab-section">
+      <h2 data-i18n="lab.r">Results</h2>
+      <p class="status-note"><span class="chip" data-i18n="exp.reserved">Reserved</span><span data-i18n="lab.status">Results will be filled in as the SUMO runs are completed. The boxes below show what each part will contain.</span></p>
+      <div class="lab-grid">
+        <aside class="card lab-controls">
+          <h3 class="lab-h" data-i18n="lab.controls">Controls</h3>
+  <ul class="planned">
           <li><strong data-i18n="lab.plan.c0">Scenario</strong><span data-i18n="lab.plan.c0d">Baseline / road closure / new link / signal timing</span></li>
           <li><strong data-i18n="lab.plan.c1">Network density</strong><span data-i18n="lab.plan.c1d">\(k\) in veh/km per lane</span></li>
           <li><strong data-i18n="lab.plan.c2">Random seed</strong><span data-i18n="lab.plan.c2d">Switch between repeated runs</span></li>
         </ul>
-      </aside>
-      <section class="lab-main">
-        <div class="placeholder main"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.plan.main">Side-by-side maps</strong><span data-i18n="lab.plan.maind">The baseline and the modified network at the same density and time.</span></div>
-        <div class="grid two">
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.plan.p0">MFD comparison</strong><span data-i18n="lab.plan.p0d">MFDs of all scenarios overlaid.</span></div>
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.plan.p1">Critical density by scenario</strong><span data-i18n="lab.plan.p1d">\(k_c\) and maximum flow \(q_{\max}\), with error bars from repeated runs.</span></div>
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.plan.p2">Congestion difference</strong><span data-i18n="lab.plan.p2d">Change in link congestion after the modification.</span></div>
-          <div class="placeholder"><span class="chip" data-i18n="lab.planned">Planned</span><strong data-i18n="lab.plan.p3">Braess check</strong><span data-i18n="lab.plan.p3d">Does the new link lower \(k_c\) or \(q_{\max}\)?</span></div>
-        </div>
-      </section>
-    </div>
+        </aside>
+        <section class="lab-main">
+          <div class="placeholder main"><strong data-i18n="lab.plan.main">Side-by-side maps</strong><span data-i18n="lab.plan.maind">The baseline and the modified network at the same density and time.</span></div>
+          <div class="placeholder summary"><strong data-i18n="lab.plan.sumH">Critical density by scenario</strong><div class="table-wrap"><table><thead><tr><th data-i18n="lab.plan.sum0">Scenario</th><th data-i18n="lab.plan.sum1">Critical density \(k_c\) (veh/km per lane)</th><th data-i18n="lab.plan.sum2">Error range</th><th data-i18n="lab.plan.sum3">Maximum network flow (veh/h per lane)</th><th data-i18n="lab.plan.sum4">Change from baseline</th></tr></thead><tbody><tr><th scope="row" data-i18n="lab.plan.row0">Baseline</th><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><th scope="row" data-i18n="lab.plan.row1">Road closure</th><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><th scope="row" data-i18n="lab.plan.row2">New link</th><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><th scope="row" data-i18n="lab.plan.row3">Signal timing (optional)</th><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table></div><span class="q" data-i18n="lab.plan.sumNote">All scenarios use the same density values and seeds. Values are estimated with E's shared function. Answers questions 1 and 2.</span></div>
+          <div class="grid two">
+            <div class="placeholder wide"><strong data-i18n="lab.plan.f1">1. Macroscopic fundamental diagrams overlaid</strong><span data-i18n="lab.plan.f1d">Network flow against network density for the baseline and every scenario on the same axes.</span><span class="q" data-i18n="lab.plan.f1q">Answers questions 1 and 2</span></div>
+            <div class="placeholder"><strong data-i18n="lab.plan.f2">2. Critical density and maximum flow by scenario</strong><span data-i18n="lab.plan.f2d">\(k_c\) and \(q_{\max}\) for each scenario, with error bars from repeated runs; the new-link scenario is the Braess check.</span><span class="q" data-i18n="lab.plan.f2q">Answers questions 1 and 2</span></div>
+            <div class="placeholder"><strong data-i18n="lab.plan.f3">3. Change in congestion</strong><span data-i18n="lab.plan.f3d">Difference in link mean speed between a scenario and the baseline at the same density.</span><span class="q" data-i18n="lab.plan.f3q">Answers question 1</span></div>
+          </div>
+        </section>
+      </div>
+    </section>
 
-    <section class="card lab-data">
-      <h2 class="lab-h" data-i18n="lab.data">Data</h2>
-      <p data-i18n="lab.plan.data">Precomputed SUMO results will be stored in docs/data/planning/, using the same density values and seeds as the city-network experiment.</p>
+    <section id="data" class="lab-section">
+      <h2 data-i18n="lab.data">Data</h2>
+      <div class="card lab-data">
+        <p data-i18n="lab.plan.data">Precomputed SUMO results will be stored in docs/data/planning/, using the same density values and seeds as the city-network experiment.</p>
+      </div>
     </section>
   </main>
 

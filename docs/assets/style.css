@@ -417,6 +417,7 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 .placeholder.summary > span.q { max-width: none; }
 .placeholder.summary .table-wrap { margin: 4px 0; background: var(--surface); }
 .placeholder.summary td { color: var(--muted); }
+.placeholder.summary thead th { word-break: keep-all; }
 .lab > .lab-data { margin-top: 16px; }
 .lab-data p { font-size: 14px; }
 .lab-toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
