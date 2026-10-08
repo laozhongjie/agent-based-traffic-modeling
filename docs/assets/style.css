@@ -12,7 +12,7 @@
   --todo: #9aa3b2;
   --jam: #d9534f;
   --free: #2f9e8f;
-  --time: #7a2e8e;
+  --time: var(--accent);
   --m-A: #2a78d6;
   --m-A-ink: #1c5cab;
   --m-B: #eb6834;
@@ -48,7 +48,7 @@
     --todo: #66707f;
     --jam: #ef6b66;
     --free: #45c0ae;
-    --time: #c48ae8;
+    --time: var(--accent);
   --m-A: #3987e5;
     --m-A-ink: #86b6ef;
     --m-B: #d95926;
@@ -81,7 +81,7 @@
   --todo: #66707f;
   --jam: #ef6b66;
   --free: #45c0ae;
-  --time: #c48ae8;
+  --time: var(--accent);
   --m-A: #3987e5;
   --m-A-ink: #86b6ef;
   --m-B: #d95926;
@@ -264,7 +264,7 @@ tr:last-child td { border-bottom: none; }
 .timeline-bar .track { position: absolute; left: 0; right: 0; top: 26px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
 .timeline-bar .elapsed { position: absolute; left: 0; top: 0; bottom: 0; background: var(--time); opacity: .3; }
 .timeline-bar .marker { position: absolute; top: 18px; width: 2px; height: 24px; transform: translateX(-1px); background: var(--muted); }
-/* The calendar uses one hue (--time) kept apart from the member colours; markers differ by weight and line style. */
+/* The calendar uses one hue (--time, the site accent); markers differ by weight and line style. */
 .timeline-bar .marker { background: color-mix(in srgb, var(--time) 55%, transparent); }
 .timeline-bar .marker.deadline { background: var(--time); }
 .timeline-bar .marker.test { background: none; border-left: 2px dashed var(--time); width: 0; }
