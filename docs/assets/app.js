@@ -70,6 +70,10 @@
   // ---------- timeline ----------
   function renderTimeline() {
     clear("timeline-status").textContent = tr(P.timelineStatus);
+    // The selected member's colour becomes the timeline's theme colour.
+    const section = document.getElementById("timeline");
+    section.classList.remove(...P.workstreams.map((w) => "m-" + w.owner));
+    if (timelineWho !== "all") section.classList.add("m-" + timelineWho);
 
     const start = dayStart(P.timeline[0].start);
     const end = P.deadlines.map((d) => new Date(d.date)).sort((a, b) => b - a)[0];
