@@ -353,6 +353,12 @@ tr:last-child td { border-bottom: none; }
 .status.done { background: color-mix(in srgb, var(--done) 18%, transparent); color: var(--done); }
 .status.doing { background: color-mix(in srgb, var(--doing) 18%, transparent); color: var(--doing); }
 .status.todo { background: var(--surface-2); color: var(--muted); }
+/* Inside a member's card, progress uses that member's colour: done is a filled tint, doing an outline, todo stays grey. */
+.ws[class*="m-"] .status.done { background: color-mix(in srgb, var(--m) 28%, transparent); color: var(--m); }
+.ws[class*="m-"] .status.doing { background: color-mix(in srgb, var(--m) 8%, transparent); color: var(--m); box-shadow: inset 0 0 0 1px var(--m); }
+.ws[class*="m-"] .bar .seg-done { background: var(--m); }
+.ws[class*="m-"] .bar .seg-doing { background: color-mix(in srgb, var(--m) 40%, transparent); }
+.ws[class*="m-"] .tasks li.done .text { text-decoration-color: var(--m); }
 .tasks li.done .text { text-decoration: line-through; text-decoration-color: var(--todo); }
 
 /* Resources */
