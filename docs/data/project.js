@@ -4,7 +4,7 @@
 // fill in owners, bump `updated`, then commit and push.
 
 window.PROJECT = {
-  updated: "2026-10-07",
+  updated: "2026-10-08",
   repo: "https://github.com/laozhongjie/agent-based-traffic-modeling",
 
   // All times are Singapore time (UTC+8).
@@ -57,9 +57,10 @@ window.PROJECT = {
         { who: "A", en: "Build SUMO from source at a pinned commit; publish a runnable ring example and the run rules", zh: "从源码编译 SUMO 并固定 commit；发布可运行的环路示例和运行规则" },
         { who: "A", en: "Start the OVM implementation in C++", zh: "开始用 C++ 实现 OVM" },
         { who: "B", en: "Build the ring road with IDM on release SUMO; trial density sweep; define the ring congestion criterion", zh: "用正式版 SUMO 和 IDM 搭建环路，试跑密度扫描；定义环路拥堵判据" },
-        { who: "C", en: "Choose a district and import it from OSM; define the network congestion criterion", zh: "选定城区并从 OSM 导入 SUMO；定义路网拥堵判据" },
+        { who: "C", en: "Choose a district (preferably in Singapore, with several arterial roads, so it can be compared with LTA data) and import it from OSM; spot-check lane counts and speed limits on main roads; define the network congestion criterion", zh: "选定城区（优先新加坡，并包含若干条主干道，便于和 LTA 数据对照）并从 OSM 导入 SUMO；抽查主要道路的车道数和限速；定义路网拥堵判据" },
         { who: "D", en: "Build the 4×4 test grid and validate the pipeline with C", zh: "搭建 4×4 测试网格，并与 C 一起验证流程" },
-        { who: "E", en: "Apply for PeMS / highD / LTA access; draft critical-point and error-bar scripts on trial data", zh: "提交 PeMS / highD / LTA 数据申请；用试跑数据写临界点估计和误差分析脚本" }
+        { who: "E", en: "Apply for PeMS / highD / LTA access; draft critical-point and error-bar scripts on trial data", zh: "提交 PeMS / highD / LTA 数据申请；用试跑数据写临界点估计和误差分析脚本" },
+        { who: "E", en: "Start recording LTA speed bands on a schedule (DataMall only serves current data), covering weekday morning and evening peaks", zh: "开始定时抓取并保存 LTA 速度带数据（DataMall 只提供实时数据），覆盖工作日早晚高峰" }
       ]
     },
     {
@@ -71,6 +72,7 @@ window.PROJECT = {
         { who: "B", en: "Ring sweeps for NaSch / OVM / IDM: density, system size, randomness, bottleneck", zh: "三种模型的环路扫描：密度、系统尺寸、随机性、瓶颈" },
         { who: "C", en: "TraCI controller for constant density; network density sweeps and MFD", zh: "实现恒定密度的 TraCI 控制器；路网密度扫描与宏观基本图" },
         { who: "C", en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" },
+        { who: ["C", "E"], en: "Build the lookup table between SUMO edges and LTA road stretches (match by start/end coordinates, direction and road name)", zh: "建立 SUMO 边与 LTA 路段的对照表（按起止经纬度、方向和路名匹配）" },
         { who: "D", en: "Prototype baseline, road-closure and new-link scenarios on the grid", zh: "在网格上试做基准、封路和新增连接场景" },
         { who: "D", en: "Review C's network pipeline before reusing it", zh: "复核 C 的路网流程，确认可以直接沿用" },
         { who: "E", en: "Critical-point analysis for the ring; confirm the method with B and C", zh: "环路的临界点分析；与 B、C 确认分析方法" },
@@ -194,7 +196,8 @@ window.PROJECT = {
         zh: "搭建城市路网流程，保持网络密度恒定，并测量局部拥堵的扩展。"
       },
       tasks: [
-        { text: { en: "Choose a district and import it from OSM into SUMO", zh: "选定城区并从 OSM 导入 SUMO" }, status: "todo" },
+        { text: { en: "Choose a district (preferably in Singapore, with several arterial roads) and import it from OSM into SUMO; spot-check lane counts and speed limits", zh: "选定城区（优先新加坡，并包含若干条主干道）并从 OSM 导入 SUMO；抽查车道数和限速" }, status: "todo" },
+        { text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with E", zh: "和 E 一起建立 SUMO 边与 LTA 路段的对照表" }, status: "todo" },
         { text: { en: "Define the network congestion criterion for road segments", zh: "定义路网拥堵判据（判定路段拥堵的标准）" }, status: "todo" },
         { text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" }, status: "todo" },
         { text: { en: "Run network-density sweeps and export representative runs", zh: "运行网络密度扫描并导出代表性运行" }, status: "todo" },
@@ -234,7 +237,9 @@ window.PROJECT = {
         { text: { en: "Define critical-point estimators and error bars; B and C supply the congestion criteria", zh: "制定临界点估计方法和误差范围（拥堵判据由 B、C 分别定义）" }, status: "todo" },
         { text: { en: "Provide shared analysis functions that estimate the critical density and its error range, for B and C to call in their own plots; confirm the method with B and C", zh: "提供临界密度估计和误差范围的共用分析函数，供 B、C 画自己的图时调用，并与 B、C 确认方法" }, status: "todo" },
         { text: { en: "Apply for PeMS / highD / LTA access in week 1 (approval takes time)", zh: "第一周提交 PeMS / highD / LTA 数据申请（审核需要时间）" }, status: "todo" },
+        { text: { en: "Record LTA speed bands on a schedule from week 2 (only current data is served), covering weekday peaks", zh: "第 2 周起定时抓取并保存 LTA 速度带数据（只提供实时数据），覆盖工作日早晚高峰" }, status: "todo" },
         { text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
+        { text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with C", zh: "和 C 一起建立 SUMO 边与 LTA 路段的对照表" }, status: "todo" },
         { text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
         { text: { en: "Check that the results on the site match the analysis", zh: "检查网站上的结果与分析结论一致" }, status: "todo" }
       ]
