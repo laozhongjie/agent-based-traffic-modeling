@@ -12,6 +12,16 @@
   --todo: #9aa3b2;
   --jam: #d9534f;
   --free: #2f9e8f;
+  --m-A: #2a78d6;
+  --m-A-ink: #1c5cab;
+  --m-B: #eb6834;
+  --m-B-ink: #b4441a;
+  --m-C: #1baf7a;
+  --m-C-ink: #0b7350;
+  --m-D: #eda100;
+  --m-D-ink: #8a5a00;
+  --m-E: #e87ba4;
+  --m-E-ink: #b23a6b;
   --warn-bg: #fff4e5;
   --warn-text: #8a4b00;
   --radius: 10px;
@@ -37,6 +47,16 @@
     --todo: #66707f;
     --jam: #ef6b66;
     --free: #45c0ae;
+    --m-A: #3987e5;
+    --m-A-ink: #86b6ef;
+    --m-B: #d95926;
+    --m-B-ink: #f08a5d;
+    --m-C: #199e70;
+    --m-C-ink: #4fd1a1;
+    --m-D: #c98500;
+    --m-D-ink: #f2c14e;
+    --m-E: #d55181;
+    --m-E-ink: #f19bbd;
     --warn-bg: #3a2a12;
     --warn-text: #f3c27a;
     --shadow: none;
@@ -59,6 +79,16 @@
   --todo: #66707f;
   --jam: #ef6b66;
   --free: #45c0ae;
+  --m-A: #3987e5;
+  --m-A-ink: #86b6ef;
+  --m-B: #d95926;
+  --m-B-ink: #f08a5d;
+  --m-C: #199e70;
+  --m-C-ink: #4fd1a1;
+  --m-D: #c98500;
+  --m-D-ink: #f2c14e;
+  --m-E: #d55181;
+  --m-E-ink: #f19bbd;
   --warn-bg: #3a2a12;
   --warn-text: #f3c27a;
   --shadow: none;
@@ -259,8 +289,15 @@ tr:last-child td { border-bottom: none; }
 .who-items li { display: flex; align-items: baseline; gap: 8px; }
 .who-items .chips { display: inline-flex; gap: 3px; flex: none; }
 .who { display: inline-block; min-width: 20px; padding: 0 5px; border-radius: 5px; font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; color: var(--muted); background: var(--surface-2); }
-.who.outer { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
-.who.inner { color: var(--free); background: color-mix(in srgb, var(--free) 14%, transparent); }
+.m-A { --m: var(--m-A); --m-ink: var(--m-A-ink); }
+.m-B { --m: var(--m-B); --m-ink: var(--m-B-ink); }
+.m-C { --m: var(--m-C); --m-ink: var(--m-C-ink); }
+.m-D { --m: var(--m-D); --m-ink: var(--m-D-ink); }
+.m-E { --m: var(--m-E); --m-ink: var(--m-E-ink); }
+.who[class*="m-"] { color: var(--m-ink); background: color-mix(in srgb, var(--m) 16%, transparent); }
+.who-filter button[class*="m-"][aria-pressed="true"] { background: var(--m-ink); border-color: var(--m-ink); color: var(--surface); }
+.ws[class*="m-"] { border-top: 3px solid var(--m); }
+.ws[class*="m-"] .tag { color: var(--m-ink) !important; }
 .phase .phase-note { margin: 0 0 4px; font-size: 13px; color: var(--warn-text); }
 @media (max-width: 640px) { .phase { grid-template-columns: 1fr; gap: 6px; } }
 
@@ -276,22 +313,18 @@ tr:last-child td { border-bottom: none; }
 .review { margin-bottom: 16px; }
 .review-map { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 12px; }
 .review-map svg { width: 100%; max-width: 460px; height: auto; }
-.review-map .outer { --loop: var(--accent); }
-.review-map .inner { --loop: var(--free); }
-.review-map .arc { fill: none; stroke: var(--loop); stroke-width: 2; }
-.review-map marker.outer path { fill: var(--accent); }
-.review-map marker.inner path { fill: var(--free); }
+.review-map .arc { fill: none; stroke: var(--m); stroke-width: 2; }
+.review-map marker path { fill: var(--m); }
 .review-map marker.flow path { fill: var(--muted); }
-.review-map .node circle { fill: var(--surface); stroke: var(--loop); stroke-width: 2; }
+.review-map .node circle { fill: var(--surface); stroke: var(--m); stroke-width: 2.5; }
 .review-map .node text { fill: var(--text); font-size: 18px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
-.review-map .halo { fill: color-mix(in srgb, var(--free) 6%, transparent); stroke: var(--free); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .7; }
-.review-map .role { fill: var(--accent); font-size: 14px; font-weight: 600; text-anchor: middle; dominant-baseline: central; }
+.review-map .halo { fill: color-mix(in srgb, var(--muted) 6%, transparent); stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .7; }
+.review-map .role { fill: var(--m-ink); font-size: 14px; font-weight: 600; text-anchor: middle; dominant-baseline: central; }
 .review-map .flow line { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
 .review-map .flow text { fill: var(--muted); font-size: 14px; dominant-baseline: central; }
 .review .review-legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; font-size: 14px; }
 .review .review-legend li + li { margin-top: 0; }
-.review .review-legend .outer strong { color: var(--accent); }
-.review .review-legend .inner strong { color: var(--free); }
+.review .review-legend strong { color: var(--m-ink); }
 .review .review-legend strong { margin-right: 6px; }
 
 .workstreams { grid-template-columns: 1fr; }

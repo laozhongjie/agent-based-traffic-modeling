@@ -102,13 +102,12 @@
     const filter = clear("timeline-filter");
     filter.append(h("span", { class: "label", text: U().showOnly }));
     ["all"].concat(members).forEach((m) => {
-      const b = h("button", { type: "button", "aria-pressed": String(timelineWho === m), text: m === "all" ? U().everyone : memberLabel(m) });
+      const b = h("button", { type: "button", class: m === "all" ? null : "m-" + m, "aria-pressed": String(timelineWho === m), text: m === "all" ? U().everyone : memberLabel(m) });
       b.addEventListener("click", () => { timelineWho = m; saveWho(m); renderTimeline(); });
       filter.append(b);
     });
 
-    const ring = (m) => (P.review.outer.includes(m) ? "outer" : "inner");
-    const chip = (m) => h("span", { class: "who " + (m === "all" ? "all" : ring(m)), text: m === "all" ? U().group : m });
+    const chip = (m) => h("span", { class: "who " + (m === "all" ? "all" : "m-" + m), text: m === "all" ? U().group : m });
     const list = clear("timeline-list");
     P.timeline.forEach((ph) => {
       const s = dayStart(ph.start), e = dayEnd(ph.end);
@@ -171,7 +170,7 @@
     const grid = clear("workstreams");
     P.workstreams.forEach((w) => {
       const k = counts(w.tasks);
-      grid.append(h("article", { class: "card ws" }, [
+      grid.append(h("article", { class: "card ws" + (w.owner ? " m-" + w.owner : "") }, [
         h("div", { class: "ws-main" }, [
           h("p", { class: "tag", text: tr(w.stage) }),
           h("div", { class: "ws-head" }, [h("h3", { text: tr(w.name) }), h("span", { class: "pct", text: k.pct + "%" })]),
@@ -204,8 +203,8 @@
     const cx = 220, cy = 225;
     const root = svg("svg", { viewBox: "0 0 440 450", role: "img", "aria-label": label });
     const defs = svg("defs");
-    ["outer", "inner", "flow"].forEach((k) => defs.append(svg("marker", {
-      id: "review-arrow-" + k, class: k, viewBox: "0 0 10 10", refX: 9, refY: 5,
+    R.outer.concat(R.inner, ["flow"]).forEach((k) => defs.append(svg("marker", {
+      id: "review-arrow-" + k, class: k === "flow" ? "flow" : "m-" + k, viewBox: "0 0 10 10", refX: 9, refY: 5,
       markerWidth: 9, markerHeight: 9, markerUnits: "userSpaceOnUse", orient: "auto"
     }, svg("path", { d: "M0,0 L10,5 L0,10 z" }))));
     root.append(defs);
@@ -218,11 +217,11 @@
       const g = svg("g", { class: cls });
       members.forEach((m, i) => {
         const [x0, y0] = pt(ang(i) + trim), [x1, y1] = pt(ang(i + 1) - trim);
-        g.append(svg("path", { class: "arc", d: `M${x0},${y0} A${rad},${rad} 0 0 1 ${x1},${y1}`, "marker-end": `url(#review-arrow-${cls})` }));
+        g.append(svg("path", { class: "arc m-" + m, d: `M${x0},${y0} A${rad},${rad} 0 0 1 ${x1},${y1}`, "marker-end": `url(#review-arrow-${m})` }));
       });
       members.forEach((m, i) => {
         const [x, y] = pt(ang(i));
-        g.append(svg("g", { class: "node" }, [svg("circle", { cx: x, cy: y, r }), svg("text", { x, y }, m)]));
+        g.append(svg("g", { class: "node m-" + m }, [svg("circle", { cx: x, cy: y, r }), svg("text", { x, y }, m)]));
       });
       return g;
     }
@@ -238,8 +237,8 @@
     root.append(ring(R.outer, "outer", outerR, 24, -Math.PI / 2));
     root.append(ring(R.inner, "inner", 58, 22, -Math.PI / 2));
     const [top, bottom] = R.outer;
-    root.append(svg("text", { class: "role", x: cx, y: cy - outerR - 34 }, tr(R.roles[top])));
-    root.append(svg("text", { class: "role", x: cx, y: cy + outerR + 36 }, tr(R.roles[bottom])));
+    root.append(svg("text", { class: "role m-" + top, x: cx, y: cy - outerR - 34 }, tr(R.roles[top])));
+    root.append(svg("text", { class: "role m-" + bottom, x: cx, y: cy + outerR + 36 }, tr(R.roles[bottom])));
     const yTop = cy - outerR + 30, yHaloTop = cy - haloR - 4, yHaloBot = cy + haloR + 4, yBot = cy + outerR - 30;
     root.append(flow(cx, yTop, yHaloTop, "tools", "start"));
     root.append(flow(cx - 16, yHaloBot, yBot, "results", "end"));
@@ -252,11 +251,10 @@
     const name = (m) => { const w = P.workstreams.find((x) => x.owner === m); return w ? tr(w.name) : ""; };
     const pairs = (m) => m.map((x, i) => U().reviews(x, m[(i + 1) % m.length]));
     const label = pairs(R.outer).concat(pairs(R.inner)).join(", ");
-    const group = (m) => (R.outer.includes(m) ? "outer" : "inner");
     clear("review-map").append(
       reviewSvg(R, label),
       h("ul", { class: "review-legend" }, R.outer.concat(R.inner).sort().map((x) =>
-        h("li", { class: group(x) }, [h("strong", { text: memberLabel(x) }), name(x)])))
+        h("li", { class: "m-" + x }, [h("strong", { text: memberLabel(x) }), name(x)])))
     );
   }
 
