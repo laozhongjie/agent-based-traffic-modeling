@@ -414,7 +414,10 @@ nav a.member-tab::after { background: var(--m); }
 .ws .tasks.detailed li:hover { background: none !important; }
 .task-body { min-width: 0; }
 .task-body .text { color: var(--text); font-weight: 600; }
-.task-detail { font-size: 13.5px; line-height: 1.6; margin: 4px 0 0 !important; }
+.task-points { margin: 6px 0 0 !important; padding-left: 18px !important; font-size: 13.5px; line-height: 1.6; list-style: disc; }
+.ws .tasks.detailed .task-points li { display: list-item; margin: 0 !important; padding: 0 !important; border: 0; }
+.ws .tasks.detailed .task-points li + li { margin-top: 2px !important; }
+.task-points li::marker { color: var(--m, var(--muted)); }
 .status-btn { font-family: inherit; line-height: inherit; border: 0; cursor: pointer; }
 .status-btn:hover { transform: scale(1.06); }
 .status-btn:focus-visible { outline: 2px solid var(--m, var(--accent)); outline-offset: 2px; }

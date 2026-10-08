@@ -86,7 +86,7 @@
       h("div", { class: "seg-doing", style: "width:" + (k.c.doing / k.total) * 100 + "%" })
     ]);
   }
-  // Each task shows its title and a short explanation. With `onToggle`, the status chip is a button
+  // Each task shows its title and its key points as bullets. With `onToggle`, the status chip is a button
   // that passes the task and its next status.
   function taskList(tasks, onToggle) {
     return h("ul", { class: "tasks detailed" }, tasks.map((t) => {
@@ -103,7 +103,7 @@
         chip,
         h("div", { class: "task-body" }, [
           h("span", { class: "text", text: Site.tr(t.text) }),
-          t.detail ? h("p", { class: "task-detail", text: Site.tr(t.detail) }) : null
+          t.detail ? h("ul", { class: "task-points" }, [].concat(Site.tr(t.detail)).map((x) => h("li", { text: x }))) : null
         ])
       ]);
     }));

@@ -150,8 +150,8 @@ window.PROJECT = {
   // Each task has a fixed id (owner letter + number). The live status is stored under that id in Firebase
   // (see assets/live.js) and is changed by clicking the task on the member's page; `status` here is only the
   // fallback when Firebase cannot be reached. Never change or reuse an id: give a new task the next free number.
-  // status: "todo" | "doing" | "done". `detail` explains the task (what it involves and what it is for);
-  // it is shown on the member page.
+  // status: "todo" | "doing" | "done". `detail` lists the task's key points (what it involves and what it
+  // is for), one short line each, shown as bullets on the member page.
   workstreams: [
     {
       name: { en: "Shared framework & model validation", zh: "共享框架与模型验证" },
@@ -166,42 +166,130 @@ window.PROJECT = {
         {
           id: "A1", status: "doing",
           text: { en: "Define config, run-record and output interfaces", zh: "定义配置、运行记录和输出接口" },
-          detail: { en: "Fix the format of a run's config file (model, density, ring length, seed, simulation and warm-up time), what each run record keeps (config, seed, code version) and the output files and units (veh/km, veh/h). B–E all read and write these files. Fixing them first lets every workstream work in parallel, and makes results comparable and reproducible.", zh: "规定每次运行的配置文件格式（模型、密度、环路长度、随机种子、模拟时长和预热时长）、运行记录要保存的内容（配置、随机种子、代码版本），以及输出文件的格式和单位（veh/km、veh/h）。B–E 的脚本都读写这些文件。格式先定下来，各方向才能并行开发，结果也才能直接合并、比较和复现。" }
+          detail: {
+            en: [
+              "Config file: model, density, ring length, seed, simulation and warm-up time",
+              "Run record: config, seed and code version",
+              "Output files and units: veh/km, veh/h",
+              "B–E all read and write these files, so fixing them first lets everyone work in parallel and keeps results comparable and reproducible"
+            ],
+            zh: [
+              "配置文件：模型、密度、环路长度、随机种子、模拟时长和预热时长",
+              "运行记录：配置、随机种子和代码版本",
+              "输出文件的格式和单位：veh/km、veh/h",
+              "B–E 的脚本都读写这些文件；先定下来，各方向才能并行开发，结果也能直接比较和复现"
+            ]
+          }
         },
         {
           id: "A2", status: "todo",
           text: { en: "Build SUMO from source at a pinned commit", zh: "从源码编译 SUMO，并固定 commit" },
-          detail: { en: "Compile SUMO from source, record the commit used and the build steps, and publish a ring-road example that runs on this build together with the run rules. The built-in NaSch exists only in SUMO's development version, and OVM has to be compiled in. One pinned build, compiled and run by one person, keeps results identical across computers.", zh: "从源码编译 SUMO，记下所用的 commit 和编译步骤；发布一个能在这个版本上运行的环路示例，以及运行规则。NaSch 内置模型只在 SUMO 开发版中，OVM 也要编译进 SUMO。统一一个固定版本、由一人负责编译和批量运行，才能避免不同电脑结果不一致。" }
+          detail: {
+            en: [
+              "Compile SUMO from source; record the commit and the build steps",
+              "Publish a ring-road example that runs on this build, plus the run rules",
+              "Needed because built-in NaSch is only in the development version and OVM must be compiled in; one pinned build keeps results identical across computers"
+            ],
+            zh: [
+              "从源码编译 SUMO，记下所用的 commit 和编译步骤",
+              "发布一个能在这个版本上运行的环路示例，以及运行规则",
+              "NaSch 只在 SUMO 开发版中，OVM 也要编译进去；统一固定版本，避免不同电脑结果不一致"
+            ]
+          }
         },
         {
           id: "A3", status: "todo",
           text: { en: "Implement OVM in SUMO (C++) and go through its validation with B", zh: "用 C++ 在 SUMO 中实现 OVM，并与 B 一起确认验证结果" },
-          detail: { en: "Following the structure of SUMO's built-in IDM, subclass MSCFModel in C++ to implement OVM and register it as carFollowModel=\"OVM\". With B, add a small perturbation at densities on both sides of V′(h) = a/2 and check that it decays on the stable side and grows into stop-and-go waves on the unstable side; also check that vehicles never overlap. SUMO has no built-in OVM. OVM has an analytic instability condition, so it is the model that checks whether the simulated critical density lands where theory says.", zh: "参照 SUMO 内置 IDM 的代码结构，用 C++ 继承 MSCFModel 实现 OVM，注册为 carFollowModel=\"OVM\"。与 B 一起在 V′(h) = a/2 两侧各取若干密度加入微小扰动，确认稳定一侧扰动衰减、失稳一侧放大为走走停停波；同时检查车辆不会重叠。SUMO 没有内置 OVM。OVM 有解析的失稳条件，可以用来检验模拟得到的临界密度是否落在理论范围内。" }
+          detail: {
+            en: [
+              "Implement OVM in C++ by subclassing MSCFModel, following the built-in IDM; register it as carFollowModel=\"OVM\"",
+              "With B, perturb densities on both sides of V′(h) = a/2: the perturbation should decay on the stable side and grow into stop-and-go waves on the unstable side",
+              "Check that vehicles never overlap",
+              "OVM's analytic instability condition is what checks the simulated critical density against theory"
+            ],
+            zh: [
+              "参照内置 IDM，用 C++ 继承 MSCFModel 实现 OVM，注册为 carFollowModel=\"OVM\"",
+              "与 B 一起在 V′(h) = a/2 两侧加入微小扰动：稳定一侧应衰减，失稳一侧应放大为走走停停波",
+              "检查车辆不会重叠",
+              "OVM 有解析的失稳条件，用来检验模拟得到的临界密度"
+            ]
+          }
         },
         {
           id: "A4", status: "todo",
           text: { en: "Add validation checks and a minimal end-to-end run", zh: "加入验证检查并打通最小端到端运行" },
-          detail: { en: "Make every run check automatically that the vehicle count is conserved, speeds are non-negative and vehicles do not overlap. Check that NaSch with p = 0 reproduces the analytic fundamental diagram J = min(ρ·vmax, 1 − ρ). Get the smallest pipeline working: config → SUMO run → output → plot. NaSch is new in SUMO and OVM is our own code, so both must be shown correct before formal runs. Once the minimal pipeline works, the others build on it.", zh: "让每次运行自动检查车辆数守恒、速度非负、车辆不重叠；检查 NaSch 在 p = 0 时的基本图与解析结果 J = min(ρ·vmax, 1 − ρ) 一致。打通最小流程：配置 → SUMO 运行 → 输出 → 画图。NaSch 是新加入 SUMO 的，OVM 是自己写的，正式实验前必须证明实现正确。最小流程跑通后，其他人可以直接在上面扩展。" }
+          detail: {
+            en: [
+              "Every run checks automatically: vehicle count conserved, speeds non-negative, no overlaps",
+              "NaSch with p = 0 must reproduce J = min(ρ·vmax, 1 − ρ)",
+              "Get the smallest pipeline working: config → SUMO run → output → plot, for the others to build on"
+            ],
+            zh: [
+              "每次运行自动检查：车辆数守恒、速度非负、车辆不重叠",
+              "NaSch 在 p = 0 时的基本图须与 J = min(ρ·vmax, 1 − ρ) 一致",
+              "打通最小流程：配置 → SUMO 运行 → 输出 → 画图，供其他人在上面扩展"
+            ]
+          }
         },
         {
           id: "A5", status: "todo",
           text: { en: "Review E's analysis scripts and their use of run data", zh: "复核 E 的分析脚本及其对运行数据的使用" },
-          detail: { en: "Check that E's critical-point and error scripts read run data as agreed: units, seed groups, and the warm-up period left out. Every workstream's critical density is computed with E's functions; reading the data wrongly would affect every conclusion.", zh: "检查 E 的临界点估计和误差分析脚本是否按约定读取运行数据：单位、随机种子分组，以及是否剔除了预热时段。所有方向的临界密度都用 E 的函数计算，数据读错会影响全部结论。" }
+          detail: {
+            en: [
+              "Check that E's scripts read run data as agreed: units, seed groups, warm-up period removed",
+              "Every critical density is computed with these functions, so an error here affects all conclusions"
+            ],
+            zh: [
+              "检查 E 的脚本是否按约定读取运行数据：单位、随机种子分组、是否剔除预热时段",
+              "所有临界密度都用这些函数计算，读错数据会影响全部结论"
+            ]
+          }
         },
         {
           id: "A6", status: "todo",
           text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" },
-          detail: { en: "For every formal result, keep the config, seeds, code version and output data, organised so the report and the site can cite them directly. The report's figures, the site and anyone reproducing the work must use the same records.", zh: "为每个正式结果保存配置、随机种子、代码版本和输出数据，并整理成报告和网站可以直接引用的形式。报告图表、网站显示和他人复现必须使用同一套记录。" }
+          detail: {
+            en: [
+              "For every formal result, keep config, seeds, code version and output data",
+              "Organise them so the report and the site cite the same records"
+            ],
+            zh: [
+              "为每个正式结果保存配置、随机种子、代码版本和输出数据",
+              "整理成报告和网站可以直接引用的形式，保证两者使用同一套记录"
+            ]
+          }
         },
         {
           id: "A7", status: "todo",
           text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" },
-          detail: { en: "Set the outlines of the report and slides and assign sections; edit the group report into one document (at least 10 pages); merge the slides and submit by 5 Nov, 6:00 pm; run the rehearsal. The talk is 15 minutes plus 3 minutes of Q&A, and the report has to tie five workstreams into one line of argument. One person keeps the structure and wording consistent.", zh: "制定报告和幻灯片大纲并分配章节；统稿小组报告（至少 10 页）；合并幻灯片，11月5日 18:00 前提交；组织排练。展示只有 15 分钟加 3 分钟问答，报告要把五个方向串成一条研究链，需要一人统一结构和表述。" }
+          detail: {
+            en: [
+              "Set the report and slide outlines and assign sections",
+              "Edit the group report into one document (at least 10 pages)",
+              "Merge the slides and submit by 5 Nov, 6:00 pm; run the rehearsal (15 min + 3 min Q&A)"
+            ],
+            zh: [
+              "制定报告和幻灯片大纲，分配章节",
+              "统稿小组报告（至少 10 页）",
+              "合并幻灯片，11月5日 18:00 前提交；组织排练（15 分钟 + 3 分钟问答）"
+            ]
+          }
         },
         {
           id: "A8", status: "todo",
           text: { en: "Maintain the site and add the in-browser ring demo to the ring page", zh: "维护网站，并把浏览器内的环路演示加入环路页面" },
-          detail: { en: "Maintain the project site and export SUMO results to it. Add to the ring page an in-browser ring demo that runs live, with controls for the model, number of vehicles and parameters. The site is the project's console and visualisation, used in the presentation. The demo shows how jams emerge from driving rules; it is illustrative only, and all report data come from SUMO.", zh: "维护项目网站，把 SUMO 结果导出到网站；在环路页面加入浏览器内实时运行的环路演示，可以选择模型、车辆数和参数。网站是项目的实验控制台和可视化界面，展示时直接使用。演示帮助观众直观理解拥堵如何从车辆规则中产生；它只作示意，报告中的数据都来自 SUMO。" }
+          detail: {
+            en: [
+              "Maintain the site and export SUMO results to it",
+              "Add a live in-browser ring demo to the ring page, with model, vehicle-count and parameter controls",
+              "The demo is illustrative only; all report data come from SUMO"
+            ],
+            zh: [
+              "维护项目网站，把 SUMO 结果导出到网站",
+              "在环路页面加入浏览器内实时运行的环路演示，可选模型、车辆数和参数",
+              "演示只作示意，报告中的数据都来自 SUMO"
+            ]
+          }
         }
       ]
     },
@@ -218,32 +306,104 @@ window.PROJECT = {
         {
           id: "B1", status: "todo",
           text: { en: "Define ring-road scenarios, density sweeps and the ring congestion criterion", zh: "定义环路场景、密度扫描和环路拥堵判据" },
-          detail: { en: "Build a single-lane closed ring in SUMO with no signals. Choose the densities (denser near the transition), at least three ring lengths, the simulation and warm-up times, and define the ring congestion criterion: the speed threshold below which a vehicle counts as jammed. The criterion defines the order parameter φ, which E's critical-point analysis depends on. A fixed scenario lets all three models be compared under the same conditions.", zh: "在 SUMO 中搭建无信号的单车道闭合环路。确定密度取值（临界附近加密）、至少三种环路长度、模拟时长和预热时长；定义环路拥堵判据，即速度低于什么阈值的车辆算作拥堵车辆。拥堵判据决定序参量 φ 的计算方式，E 的临界点分析依赖它。场景固定下来，三种模型才能在相同条件下比较。" }
+          detail: {
+            en: [
+              "Build a single-lane closed ring in SUMO with no signals",
+              "Choose densities (denser near the transition), at least three ring lengths, simulation and warm-up times",
+              "Define the ring congestion criterion: the speed below which a vehicle counts as jammed",
+              "The criterion defines the order parameter φ used in E's critical-point analysis"
+            ],
+            zh: [
+              "在 SUMO 中搭建无信号的单车道闭合环路",
+              "确定密度取值（临界附近加密）、至少三种环路长度、模拟时长和预热时长",
+              "定义环路拥堵判据：速度低于什么阈值算作拥堵车辆",
+              "这个判据决定序参量 φ 的计算方式，E 的临界点分析依赖它"
+            ]
+          }
         },
         {
           id: "B2", status: "todo",
           text: { en: "Run NaSch / OVM / IDM ring-road experiments", zh: "运行 NaSch / OVM / IDM 环路实验" },
-          detail: { en: "Prepare configs for NaSch, OVM and IDM on the same rings and densities, several seeds each (set NaSch's sigma explicitly; IDM uses speedDev=0). Trial runs use release SUMO; formal batches run on A's pinned build. This set answers RQ1: do all three models show a flow peak, a rising order parameter and a fluctuation peak at some density? The point is how sensitive the phenomena are to model assumptions, not identical numbers.", zh: "为 NaSch、OVM、IDM 准备同一组环路和密度的实验配置，每组多个随机种子（NaSch 显式设置 sigma，IDM 设置 speedDev=0）。试跑用正式版 SUMO，正式批量运行使用 A 编译的固定版本。这组实验回答 RQ1：三种模型是否都在某一密度出现流量峰值、序参量上升和涨落峰值。比较的重点是这些现象对模型假设的敏感性，而不是数值相同。" }
+          detail: {
+            en: [
+              "Prepare configs for NaSch, OVM and IDM on the same rings and densities, several seeds each",
+              "Set NaSch's sigma explicitly; IDM uses speedDev=0",
+              "Trial runs on release SUMO; formal batches on A's pinned build",
+              "Answers RQ1: do all three models show a flow peak, a rising order parameter and a fluctuation peak?"
+            ],
+            zh: [
+              "为 NaSch、OVM、IDM 准备同一组环路和密度的配置，每组多个随机种子",
+              "NaSch 显式设置 sigma，IDM 设置 speedDev=0",
+              "试跑用正式版 SUMO，正式批量运行使用 A 编译的固定版本",
+              "回答 RQ1：三种模型是否都出现流量峰值、序参量上升和涨落峰值"
+            ]
+          }
         },
         {
           id: "B3", status: "todo",
           text: { en: "Compare density, system size, randomness and bottleneck", zh: "比较密度、系统尺寸、随机性和瓶颈条件" },
-          detail: { en: "Change one factor per set: ring length (at least three), randomness (NaSch's slowdown probability), and bottleneck (none vs. a reduced-speed section). With and without the bottleneck, compare peak flow, critical density, and whether jams drift backward or stay upstream of the bottleneck. A transition that sharpens on longer rings has the signature of a phase transition. The bottleneck comparison separates spontaneous jams from bottleneck jams.", zh: "每组实验只改变一个因素：环路长度（至少三种）、随机性（NaSch 的随机减速概率）、瓶颈（无瓶颈 / 限速路段）。在有无瓶颈之间比较最大流量和临界密度，以及拥堵带是向后漂移还是停在瓶颈上游。环路越长转变越陡，说明具有相变特征。有无瓶颈的对照用来区分自发拥堵和瓶颈拥堵。" }
+          detail: {
+            en: [
+              "Change one factor per set: ring length, NaSch's slowdown probability, bottleneck (none / reduced-speed section)",
+              "A transition that sharpens on longer rings has the signature of a phase transition",
+              "With vs. without bottleneck: compare peak flow and critical density, and whether jams drift backward or stay upstream",
+              "This separates spontaneous jams from bottleneck jams"
+            ],
+            zh: [
+              "每组只改变一个因素：环路长度、NaSch 的随机减速概率、瓶颈（无 / 限速路段）",
+              "环路越长转变越陡，说明具有相变特征",
+              "有无瓶颈对照：比较最大流量和临界密度，以及拥堵带是向后漂移还是停在瓶颈上游",
+              "用来区分自发拥堵和瓶颈拥堵"
+            ]
+          }
         },
         {
           id: "B4", status: "todo",
           text: { en: "Produce fundamental and space–time diagrams", zh: "生成基本图和时空图" },
-          detail: { en: "Plot the fundamental diagrams (density vs. mean speed and vs. flow, three models per plot), the order parameter φ and fluctuation χ (one curve per ring length; an extra set for NaSch's slowdown probabilities), and space–time diagrams. These are the main evidence for RQ1 and go straight into the report and the site.", zh: "画基本图（密度–平均速度、密度–流量，每张图三种模型）、序参量 φ 与涨落 χ 图（每种环路长度一条曲线，NaSch 另画一组不同随机减速概率的曲线），以及时空图。这些是 RQ1 的主要证据，直接用于报告和网站。" }
+          detail: {
+            en: [
+              "Fundamental diagrams: density vs. mean speed and vs. flow, three models per plot",
+              "Order parameter φ and fluctuation χ, one curve per ring length; an extra set for NaSch's slowdown probabilities",
+              "Space–time diagrams",
+              "These are the main evidence for RQ1"
+            ],
+            zh: [
+              "基本图：密度–平均速度、密度–流量，每张图三种模型",
+              "序参量 φ 与涨落 χ：每种环路长度一条曲线，NaSch 另画一组不同随机减速概率",
+              "时空图",
+              "这些是 RQ1 的主要证据"
+            ]
+          }
         },
         {
           id: "B5", status: "todo",
           text: { en: "Review D's planning scenarios for consistent demand and routes", zh: "复核 D 的规划场景，确认需求和路线一致" },
-          detail: { en: "Check that D's baseline, road-closure and new-link scenarios use the same densities, route rule and seed groups, so that only the changed road differs. Planning conclusions rest on differences between scenarios; if anything else differs too, the change cannot be attributed to the road edit.", zh: "检查 D 的基准、封路和新增连接方案是否使用相同的密度取值、路线规则和随机种子组，确认只有被改动的路段不同。规划实验靠方案之间的差异下结论。如果其他条件也不同，差异就不能归因于路网改动。" }
+          detail: {
+            en: [
+              "Check that D's scenarios share densities, route rule and seed groups, so only the changed road differs",
+              "Otherwise differences between scenarios cannot be attributed to the road change"
+            ],
+            zh: [
+              "检查 D 的各方案是否使用相同的密度取值、路线规则和随机种子组，只有被改动的路段不同",
+              "否则方案之间的差异不能归因于路网改动"
+            ]
+          }
         },
         {
           id: "B6", status: "todo",
           text: { en: "Prepare ring results for the report and site", zh: "为报告和网站整理环路结果" },
-          detail: { en: "Turn the ring figures and data into the figures the report needs, export them to the site in A's format, and write the conclusions and limitations of the ring experiment. The ring results set the highway critical density that the city network is compared against.", zh: "把环路实验的图表和数据整理成报告所需的图，按 A 规定的格式导出到网站，并写出环路部分的结论和局限。环路结果给出 highway 临界密度，路网实验要以它作为对照。" }
+          detail: {
+            en: [
+              "Turn ring results into report figures and export them to the site in A's format",
+              "Write the ring experiment's conclusions and limitations",
+              "The highway critical density from the ring is the reference for the city network"
+            ],
+            zh: [
+              "把环路结果整理成报告所需的图，按 A 规定的格式导出到网站",
+              "写出环路部分的结论和局限",
+              "环路给出的 highway 临界密度是路网实验的对照"
+            ]
+          }
         }
       ]
     },
@@ -260,37 +420,112 @@ window.PROJECT = {
         {
           id: "C1", status: "todo",
           text: { en: "Choose a district (preferably in Singapore, with several arterial roads) and import it from OSM into SUMO; spot-check lane counts and speed limits", zh: "选定城区（优先新加坡，并包含若干条主干道）并从 OSM 导入 SUMO；抽查车道数和限速" },
-          detail: { en: "Choose a district (preferably in Singapore, with several arterial roads), import it from OpenStreetMap with OSMnx and netconvert, and spot-check that lane counts and speed limits on the main roads match reality. The network and planning experiments both run on this network. Singapore allows comparison with LTA speed data, and OSM errors would carry into every result.", zh: "选定一片城区（优先新加坡，并包含若干条主干道），用 OSMnx 和 netconvert 从 OpenStreetMap 导入 SUMO；抽查主要道路的车道数和限速是否与实际一致。路网实验和规划实验都在这片路网上进行。选在新加坡才能与 LTA 速度数据对照；OSM 数据如有错误，会影响后续所有结果。" }
+          detail: {
+            en: [
+              "Choose a district, preferably in Singapore with several arterial roads, so it can be compared with LTA data",
+              "Import it from OpenStreetMap with OSMnx and netconvert",
+              "Spot-check lane counts and speed limits on main roads; OSM errors would carry into every result"
+            ],
+            zh: [
+              "选定城区，优先新加坡并包含若干条主干道，便于和 LTA 数据对照",
+              "用 OSMnx 和 netconvert 从 OpenStreetMap 导入 SUMO",
+              "抽查主要道路的车道数和限速；OSM 数据如有错误，会影响后续所有结果"
+            ]
+          }
         },
         {
           id: "C2", status: "todo",
           text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with E", zh: "和 E 一起建立 SUMO 边与 LTA 路段的对照表" },
-          detail: { en: "With E, match each SUMO edge to a road stretch in the LTA speed data by start/end coordinates, direction and road name. Only with this table can the most-congested simulated roads and the slowest LTA roads be drawn on the same map and compared.", zh: "和 E 一起，按起止经纬度、方向和路名，把 SUMO 的每条边对应到 LTA 速度数据中的路段。有了这张对照表，才能把模拟中最常拥堵的路段和 LTA 数据中最慢的路段画在同一张地图上比较。" }
+          detail: {
+            en: [
+              "With E, match each SUMO edge to an LTA road stretch by start/end coordinates, direction and road name",
+              "Needed to compare simulated hotspots with the slowest LTA roads on one map"
+            ],
+            zh: [
+              "和 E 一起，按起止经纬度、方向和路名，把 SUMO 的每条边对应到 LTA 路段",
+              "用于把模拟中最常拥堵的路段和 LTA 中最慢的路段画在同一张地图上比较"
+            ]
+          }
         },
         {
           id: "C3", status: "todo",
           text: { en: "Define the network congestion criterion for road segments", zh: "定义路网拥堵判据（判定路段拥堵的标准）" },
-          detail: { en: "Define when a road segment counts as congested (persistent low speed) and how adjacent congested segments join into a congested cluster. The stopped-vehicle share, the largest congested cluster and each segment's congestion onset all depend on this criterion, and D's planning runs reuse it.", zh: "规定路段在什么条件下算作拥堵（持续低速），以及如何把相连的拥堵路段合并成拥堵连通区域。停驶车辆比例、最大拥堵连通区域和路段开始拥堵的时刻都依赖这个判据，D 的规划实验也沿用它。" }
+          detail: {
+            en: [
+              "Define when a road segment counts as congested (persistent low speed)",
+              "Define how adjacent congested segments join into a congested cluster",
+              "Stopped share, largest cluster and congestion onset all depend on it; D reuses it"
+            ],
+            zh: [
+              "规定路段在什么条件下算作拥堵（持续低速）",
+              "规定相连的拥堵路段如何合并成拥堵连通区域",
+              "停驶比例、最大拥堵区域和开始拥堵的时刻都依赖这个判据，D 也沿用它"
+            ]
+          }
         },
         {
           id: "C4", status: "todo",
           text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" },
-          detail: { en: "Use TraCI so that a vehicle reaching its destination gets a new random destination, keeping the number of vehicles in the network constant. Network density is vehicles in the network ÷ total lane length. Controlling only the inflow, not the number of vehicles inside, gives no well-defined density.", zh: "用 TraCI 控制车辆：车辆到达终点后分配新的随机目的地，使路网内车辆数保持不变。网络密度 = 路网内车辆数 ÷ 车道总长度。只控制进入需求而不控制路网内车辆数，就得不到确定的网络密度。" }
+          detail: {
+            en: [
+              "With TraCI, give a vehicle that reaches its destination a new random destination",
+              "This keeps the number of vehicles in the network constant",
+              "Network density = vehicles in the network ÷ total lane length; controlling only the inflow gives no well-defined density"
+            ],
+            zh: [
+              "用 TraCI 给到达终点的车辆分配新的随机目的地",
+              "使路网内车辆数保持不变",
+              "网络密度 = 路网内车辆数 ÷ 车道总长度；只控制进入需求，就得不到确定的网络密度"
+            ]
+          }
         },
         {
           id: "C5", status: "todo",
           text: { en: "Run network-density sweeps and export representative runs", zh: "运行网络密度扫描并导出代表性运行" },
-          detail: { en: "Sweep network density from low to high with several seeds per density (validate first on D's 4×4 grid), and export trajectory clips of a few representative runs for replay on the site. The peak of the macroscopic fundamental diagram gives the network critical density, which answers RQ2.", zh: "由低到高扫描网络密度，每个密度多个随机种子（先在 D 的 4×4 网格上验证）；导出少量代表性运行的车辆轨迹片段，供网站回放。宏观基本图的峰值给出网络临界密度，回答 RQ2。" }
+          detail: {
+            en: [
+              "Validate on D's 4×4 grid first",
+              "Sweep network density from low to high, several seeds per density",
+              "Export trajectory clips of a few representative runs for replay on the site",
+              "The peak of the MFD gives the network critical density (RQ2)"
+            ],
+            zh: [
+              "先在 D 的 4×4 网格上验证",
+              "由低到高扫描网络密度，每个密度多个随机种子",
+              "导出少量代表性运行的车辆轨迹片段，供网站回放",
+              "宏观基本图的峰值给出网络临界密度（RQ2）"
+            ]
+          }
         },
         {
           id: "C6", status: "todo",
           text: { en: "Measure MFD inputs, queues and congested clusters", zh: "测量宏观基本图输入、排队和拥堵连通区域" },
-          detail: { en: "Compute network mean flow and speed, the stopped-vehicle share, queue lengths and spillbacks, and the size of the largest congested cluster; compute edge betweenness with NetworkX and compare it with when each segment becomes congested. These show whether congestion joins up into large areas near the critical density, and whether network structure predicts where jams start.", zh: "计算网络平均流量和平均速度、停驶车辆比例、排队长度和回溢次数、最大拥堵连通区域的规模；用 NetworkX 计算边介数，并与各路段开始拥堵的时刻比较。用这些量判断拥堵是否在临界密度附近从局部连成大片，以及路网结构能否预测拥堵最先出现的位置。" }
+          detail: {
+            en: [
+              "Network mean flow and speed, stopped-vehicle share, queue lengths and spillbacks",
+              "Size of the largest congested cluster: does it grow quickly near the critical density?",
+              "Edge betweenness (NetworkX) vs. when each segment becomes congested: does structure predict where jams start?"
+            ],
+            zh: [
+              "网络平均流量和速度、停驶车辆比例、排队长度和回溢次数",
+              "最大拥堵连通区域的规模：是否在临界密度附近迅速扩大",
+              "边介数（NetworkX）与各路段开始拥堵的时刻：路网结构能否预测拥堵最先出现的位置"
+            ]
+          }
         },
         {
           id: "C7", status: "todo",
           text: { en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" },
-          detail: { en: "Check B's ring protocol: one variable changed per set, enough warm-up time, correct density and unit conversion, and seeds used in groups. The highway critical density from the ring is compared with the network critical density; a flaw in B's protocol would break that comparison.", zh: "检查 B 的环路协议：每组是否只改变一个变量、预热时长是否足够、密度和单位换算是否正确、随机种子是否分组使用。环路的 highway 临界密度要与路网临界密度比较。B 的协议有问题，这个比较就不成立。" }
+          detail: {
+            en: [
+              "Check B's ring protocol: one variable per set, enough warm-up, density and units, seed groups",
+              "The ring's highway critical density is compared with the network's; a flawed protocol breaks that comparison"
+            ],
+            zh: [
+              "检查 B 的环路协议：每组只改一个变量、预热是否足够、密度和单位换算、随机种子分组",
+              "环路临界密度要与路网临界密度比较，协议有问题这个比较就不成立"
+            ]
+          }
         }
       ]
     },
@@ -307,37 +542,110 @@ window.PROJECT = {
         {
           id: "D1", status: "todo",
           text: { en: "Build the 4×4 test grid and validate the pipeline with C", zh: "搭建 4×4 测试网格，并与 C 一起验证流程" },
-          detail: { en: "Build a 4×4 grid network in SUMO and, with C, use it to run the whole network pipeline: constant-density control, density sweep and metrics. A small, regular grid makes problems easy to locate. The programs are checked here before they are used on the real district.", zh: "在 SUMO 中搭建 4×4 网格路网，和 C 一起用它跑通路网流程：恒定密度控制、密度扫描和指标统计。网格小、结构规整，出了问题容易定位。先在网格上验证程序，再用到真实城区。" }
+          detail: {
+            en: [
+              "Build a 4×4 grid network in SUMO",
+              "With C, run the whole network pipeline on it: constant-density control, density sweep, metrics",
+              "A small regular grid makes problems easy to find before moving to the real district"
+            ],
+            zh: [
+              "在 SUMO 中搭建 4×4 网格路网",
+              "和 C 一起在上面跑通路网流程：恒定密度控制、密度扫描、指标统计",
+              "网格小、结构规整，问题容易定位，验证后再用到真实城区"
+            ]
+          }
         },
         {
           id: "D2", status: "todo",
           text: { en: "Prototype baseline, road-closure and new-link scenarios on the grid, then port them to the district", zh: "先在网格上做出基准、封路和新增连接场景，再移植到城区路网" },
-          detail: { en: "On the grid, build the baseline, road closure (close a high-betweenness segment or cut its lanes) and new link; once they work, port them to C's district network. This confirms on a small network that the edits and the comparison work, before the formal runs on the real network.", zh: "在网格上做出基准、道路封闭（封闭一条高介数路段或减少其车道数）和新增连接三个方案；跑通后移植到 C 的城区路网。先在小路网上确认方案改动和对比流程正确，再在真实路网上正式运行。" }
+          detail: {
+            en: [
+              "Build three scenarios on the grid: baseline, road closure (close a high-betweenness segment or cut its lanes), new link",
+              "Once they work, port them to C's district network for the formal runs"
+            ],
+            zh: [
+              "在网格上做出三个方案：基准、道路封闭（封闭高介数路段或减少车道）、新增连接",
+              "跑通后移植到 C 的城区路网正式运行"
+            ]
+          }
         },
         {
           id: "D3", status: "todo",
           text: { en: "Reuse C's density values, routes and seed groups", zh: "沿用 C 的密度取值、路线和随机种子组" },
-          detail: { en: "Use the same density values, route rule and seed groups as the network experiment. Only then can a shift in critical density be attributed to the planning change, and the baseline be checked against C's results.", zh: "规划实验使用与路网实验相同的密度取值、路线规则和随机种子组。只有这样，临界密度的变化才能归因于规划改动，基准结果也能直接与 C 的结果对照。" }
+          detail: {
+            en: [
+              "Use the same density values, route rule and seed groups as the network experiment",
+              "Then a shift in critical density can be attributed to the planning change, and the baseline checked against C's results"
+            ],
+            zh: [
+              "使用与路网实验相同的密度取值、路线规则和随机种子组",
+              "这样临界密度的变化才能归因于规划改动，基准也能与 C 的结果对照"
+            ]
+          }
         },
         {
           id: "D4", status: "todo",
           text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" },
-          detail: { en: "Run every scenario at every density with several seeds; plot baseline and scenarios on one MFD and compare peak position (critical density) and height (maximum network flow) with error bars; map each segment's speed change against the baseline. This answers RQ3: a higher critical density means the network carries more vehicles before it congests.", zh: "每个方案、每个密度运行多个随机种子；把基准和各方案的宏观基本图画在同一张图上，比较峰值位置（临界密度）和高度（最大网络流量），附误差范围；画出各路段相对基准的速度变化地图。回答 RQ3：临界密度提高，说明路网能承载更多车辆而不进入拥堵。" }
+          detail: {
+            en: [
+              "Run every scenario at every density with several seeds",
+              "Overlay the MFDs; compare peak position (critical density) and height (maximum flow) with error bars",
+              "Map each segment's speed change against the baseline",
+              "Answers RQ3: a higher critical density means more vehicles before congestion"
+            ],
+            zh: [
+              "每个方案、每个密度运行多个随机种子",
+              "把各方案的宏观基本图叠在一起，比较峰值位置（临界密度）和高度（最大流量），附误差范围",
+              "画出各路段相对基准的速度变化地图",
+              "回答 RQ3：临界密度提高，说明路网能承载更多车辆而不进入拥堵"
+            ]
+          }
         },
         {
           id: "D5", status: "todo",
           text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" },
-          detail: { en: "Compare the new-link scenario with the baseline: if its critical density or maximum network flow is lower and the gap exceeds the error range, that is a Braess paradox. This tests whether adding a road always improves the system.", zh: "比较新增连接方案与基准：临界密度或最大网络流量任一项低于基准且超出误差范围，就是 Braess 悖论。这一步用来检验增加道路是否一定改善系统。" }
+          detail: {
+            en: [
+              "Compare the new-link scenario with the baseline",
+              "If critical density or maximum flow is lower and outside the error range, that is a Braess paradox",
+              "Tests whether adding a road always improves the system"
+            ],
+            zh: [
+              "比较新增连接方案与基准",
+              "临界密度或最大流量任一项低于基准且超出误差范围，就是 Braess 悖论",
+              "检验增加道路是否一定改善系统"
+            ]
+          }
         },
         {
           id: "D6", status: "todo",
           text: { en: "Review C's network pipeline, units and seeds before reusing them", zh: "复核 C 的路网流程、单位和随机种子，确认可以直接沿用" },
-          detail: { en: "Before reusing C's pipeline, check how network density is computed and its units, that the constant-density control really keeps the vehicle count fixed, and how seeds are used. All of D's scenarios are built on C's pipeline; the earlier a problem is found, the less has to be redone.", zh: "沿用 C 的路网流程之前，检查网络密度的计算方式和单位、恒定密度控制是否真的使车辆数保持不变，以及随机种子的使用方式。D 的所有方案都建立在 C 的流程上，问题发现得越早，返工越少。" }
+          detail: {
+            en: [
+              "Before reusing C's pipeline, check how network density is computed and its units",
+              "Check that constant-density control really keeps the vehicle count fixed, and how seeds are used",
+              "All of D's scenarios build on it; finding problems early saves rework"
+            ],
+            zh: [
+              "沿用 C 的流程前，检查网络密度的计算方式和单位",
+              "检查恒定密度控制是否真的使车辆数不变，以及随机种子的使用方式",
+              "D 的所有方案都建立在这套流程上，越早发现问题，返工越少"
+            ]
+          }
         },
         {
           id: "D7", status: "todo",
           text: { en: "Prepare planning figures for the report and site", zh: "为报告和网站整理规划方案图表" },
-          detail: { en: "Prepare the MFD overlay, the critical density and maximum flow per scenario, and the congestion-change maps for the report, and export them to the site in A's format. These figures are the evidence for the planning conclusions.", zh: "整理宏观基本图叠加图、各方案的临界密度与最大流量图、拥堵变化地图，用于报告，并按 A 规定的格式导出到网站。这些图是规划结论的证据。" }
+          detail: {
+            en: [
+              "MFD overlay; critical density and maximum flow per scenario; congestion-change maps",
+              "For the report, and exported to the site in A's format"
+            ],
+            zh: [
+              "宏观基本图叠加图、各方案的临界密度与最大流量图、拥堵变化地图",
+              "用于报告，并按 A 规定的格式导出到网站"
+            ]
+          }
         }
       ]
     },
@@ -354,42 +662,122 @@ window.PROJECT = {
         {
           id: "E1", status: "todo",
           text: { en: "Define critical-point estimators and error bars; B and C supply the congestion criteria", zh: "制定临界点估计方法和误差范围（拥堵判据由 B、C 分别定义）" },
-          detail: { en: "Define how to estimate the critical density from a sweep (flow peak, rise of the order parameter, fluctuation peak) and how to give an error range from repeated runs. B and C define the congestion criteria for the ring and the network. With one method for all experiments, the critical densities can be placed on the same density axis and compared.", zh: "规定如何从扫描结果估计临界密度（流量峰值、序参量上升、涨落峰值），以及如何用重复实验给出误差范围。拥堵判据由 B（环路）和 C（路网）分别定义。所有实验用同一套方法，临界密度才能放在同一根密度轴上比较。" }
+          detail: {
+            en: [
+              "Estimate the critical density from a sweep: flow peak, rise of the order parameter, fluctuation peak",
+              "Give an error range from repeated runs",
+              "B and C define the congestion criteria; one method for all experiments puts every critical density on the same axis"
+            ],
+            zh: [
+              "从扫描结果估计临界密度：流量峰值、序参量上升、涨落峰值",
+              "用重复实验给出误差范围",
+              "拥堵判据由 B、C 分别定义；所有实验用同一套方法，临界密度才能放在同一根轴上比较"
+            ]
+          }
         },
         {
           id: "E2", status: "todo",
           text: { en: "Provide shared analysis functions that estimate the critical density and its error range, for B and C to call in their own plots; confirm the method with B and C", zh: "提供临界密度估计和误差范围的共用分析函数，供 B、C 画自己的图时调用，并与 B、C 确认方法" },
-          detail: { en: "Write shared functions that take sweep data and return the critical density with its error range, for B and C to call in their own plots; confirm the method with B and C. This avoids each person writing their own method and getting results that cannot be compared.", zh: "写成共用函数：输入扫描数据，输出临界密度和误差范围，供 B、C 画图时直接调用；并与 B、C 确认方法。避免每人各写一套计算方法，导致结果无法比较。" }
+          detail: {
+            en: [
+              "Shared functions: sweep data in, critical density and error range out",
+              "B and C call them in their own plots; confirm the method with them",
+              "Avoids each person computing it differently"
+            ],
+            zh: [
+              "共用函数：输入扫描数据，输出临界密度和误差范围",
+              "B、C 画图时直接调用，并与他们确认方法",
+              "避免每人各写一套方法，导致结果无法比较"
+            ]
+          }
         },
         {
           id: "E3", status: "todo",
           text: { en: "Apply for PeMS / highD / LTA access in week 1 (approval takes time)", zh: "第一周提交 PeMS / highD / LTA 数据申请（审核需要时间）" },
-          detail: { en: "In week 1, register or apply for PeMS and highD, and apply for LTA DataMall access. Approval takes time; applying late would delay the comparison with real data.", zh: "第一周完成 PeMS 和 highD 的注册或申请，以及 LTA DataMall 的访问申请。审核需要时间，申请晚了会拖慢与真实数据的对照。" }
+          detail: {
+            en: [
+              "In week 1, register or apply for PeMS and highD, and apply for LTA DataMall access",
+              "Approval takes time; applying late delays the comparison with real data"
+            ],
+            zh: [
+              "第一周完成 PeMS、highD 的注册或申请，以及 LTA DataMall 的访问申请",
+              "审核需要时间，申请晚了会拖慢与真实数据的对照"
+            ]
+          }
         },
         {
           id: "E4", status: "todo",
           text: { en: "Record LTA speed bands on a schedule from week 2 (only current data is served), covering weekday peaks", zh: "第 2 周起定时抓取并保存 LTA 速度带数据（只提供实时数据），覆盖工作日早晚高峰" },
-          detail: { en: "From week 2, run a scheduled script that fetches and saves LTA speed bands, covering weekday morning and evening peaks. DataMall only serves current data, so history cannot be downloaded later. Without recording now, there is nothing to compare the network results with.", zh: "第 2 周起用定时脚本抓取并保存 LTA 速度带数据，覆盖工作日早晚高峰。DataMall 只提供实时数据，事后无法下载历史数据。现在不保存，之后就没有数据和路网结果对照。" }
+          detail: {
+            en: [
+              "From week 2, a scheduled script fetches and saves LTA speed bands",
+              "Cover weekday morning and evening peaks",
+              "DataMall serves only current data, so history cannot be downloaded later"
+            ],
+            zh: [
+              "第 2 周起用定时脚本抓取并保存 LTA 速度带数据",
+              "覆盖工作日早晚高峰",
+              "DataMall 只提供实时数据，事后无法下载历史数据"
+            ]
+          }
         },
         {
           id: "E5", status: "todo",
           text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" },
-          detail: { en: "Obtain PeMS, highD and LTA data, unify units, handle missing and abnormal values, and convert PeMS to a per-lane basis. The data are used to compare the shape of fundamental diagrams, the size of critical densities and congestion locations; not to calibrate individual vehicles.", zh: "获取 PeMS、highD 和 LTA 数据，统一单位，处理缺失值和异常值；PeMS 数据按单车道换算。这些数据用于对照基本图形状、临界密度的量级和拥堵位置，不用于逐车校准。" }
+          detail: {
+            en: [
+              "Obtain PeMS, highD and LTA data; unify units; handle missing and abnormal values",
+              "Convert PeMS to a per-lane basis",
+              "Used to compare diagram shape, critical-density size and congestion locations; not for per-vehicle calibration"
+            ],
+            zh: [
+              "获取 PeMS、highD 和 LTA 数据，统一单位，处理缺失值和异常值",
+              "PeMS 数据按单车道换算",
+              "用于对照基本图形状、临界密度量级和拥堵位置，不用于逐车校准"
+            ]
+          }
         },
         {
           id: "E6", status: "todo",
           text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with C", zh: "和 C 一起建立 SUMO 边与 LTA 路段的对照表" },
-          detail: { en: "With C, match each SUMO edge to an LTA road stretch by start/end coordinates, direction and road name. The table is needed to put simulated hotspots and the slowest LTA roads on the same map.", zh: "和 C 一起，按起止经纬度、方向和路名，把 SUMO 的每条边对应到 LTA 路段。有了这张表，才能把模拟中的拥堵热点和 LTA 中最慢的路段放在同一张地图上比较。" }
+          detail: {
+            en: [
+              "With C, match each SUMO edge to an LTA road stretch by start/end coordinates, direction and road name",
+              "Needed to put simulated hotspots and the slowest LTA roads on the same map"
+            ],
+            zh: [
+              "和 C 一起，按起止经纬度、方向和路名，把 SUMO 的每条边对应到 LTA 路段",
+              "用于把模拟中的拥堵热点和 LTA 中最慢的路段放在同一张地图上比较"
+            ]
+          }
         },
         {
           id: "E7", status: "todo",
           text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" },
-          detail: { en: "Check that A's run records are complete (config, seeds, code version, output) and spot-check that a few runs reproduce from the records. All formal results come from A's batches; incomplete records would make the report's conclusions irreproducible.", zh: "检查 A 的运行记录是否完整（配置、随机种子、代码版本、输出），并抽查几次运行能否按记录复现。正式结果都来自 A 的批量运行，记录不完整，报告结论就无法复现。" }
+          detail: {
+            en: [
+              "Check that A's run records are complete: config, seeds, code version, output",
+              "Spot-check that a few runs reproduce from the records"
+            ],
+            zh: [
+              "检查 A 的运行记录是否完整：配置、随机种子、代码版本、输出",
+              "抽查几次运行能否按记录复现"
+            ]
+          }
         },
         {
           id: "E8", status: "todo",
           text: { en: "Check that the results on the site match the analysis", zh: "检查网站上的结果与分析结论一致" },
-          detail: { en: "Compare the numbers, units, parameters and run IDs shown on the site with the analysis and the report. Values on the site must match the formal run records exactly.", zh: "对照分析结果和报告，检查网站上显示的数值、单位、参数和实验编号是否一致。网页中的数值必须与正式实验记录一致。" }
+          detail: {
+            en: [
+              "Compare numbers, units, parameters and run IDs on the site with the analysis and the report",
+              "Values on the site must match the formal run records"
+            ],
+            zh: [
+              "对照分析结果和报告，检查网站上的数值、单位、参数和实验编号",
+              "网页中的数值必须与正式实验记录一致"
+            ]
+          }
         }
       ]
     }
