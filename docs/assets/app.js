@@ -44,6 +44,7 @@
 
   function renderPhase() {
     const box = clear("next-deadline");
+    box.classList.remove("phase-mode");
     const next = P.deadlines
       .map((d) => Object.assign({}, d, { at: new Date(d.date) }))
       .sort((a, b) => a.at - b.at)
@@ -52,19 +53,28 @@
     const i = P.timeline.findIndex((ph) => dayEnd(ph.end) >= now);
     const ph = P.timeline[i];
     if (ph) {
-      const current = dayStart(ph.start) <= now;
+      // Layout: kicker + title on the left, days count on the right; a bar for time elapsed in the
+      // phase; each member's items; the nearest deadline as a footer.
+      const start = dayStart(ph.start), end = dayEnd(ph.end);
+      const current = start <= now;
       const days = current
         ? Math.round((dayStart(ph.end) - today) / DAY) + 1
-        : Math.round((dayStart(ph.start) - today) / DAY);
-      const range = fmtDay(dayStart(ph.start)) + " – " + fmtDay(dayStart(ph.end));
+        : Math.round((start - today) / DAY);
+      const elapsed = current ? Math.min(100, ((now - start) / (end - start)) * 100) : 0;
+      const [pre, post] = current ? U().phaseLeft(days) : U().phaseIn(days);
+      box.classList.add("phase-mode");
       box.append(
-        h("div", { class: "days" }, [String(days), h("small", { text: current ? (days === 1 ? U().dayLeft : U().daysLeft) : U().daysToGo })]),
-        h("div", { class: "what" }, [
-          h("strong", { text: (current ? U().phaseNow : U().phaseNext) + tr(ph.title) }),
-          h("span", { text: range + " · " + U().phaseOf(i + 1, P.timeline.length) }),
-          phaseGoals(ph),
-          next ? h("span", { class: "minor", text: U().nextDue + tr(next.label) + " · " + fmtDay(next.at, { weekday: "short" }) + " " + fmtTime(next.at) }) : null
-        ])
+        h("div", { class: "phase-head" }, [
+          h("div", {}, [
+            h("p", { class: "phase-kicker", text: (current ? U().phaseNow : U().phaseNext) + " · " + U().phaseOf(i + 1, P.timeline.length) }),
+            h("h2", { class: "phase-title", text: tr(ph.title) }),
+            h("p", { class: "phase-range", text: fmtDay(start) + " – " + fmtDay(dayStart(ph.end)) })
+          ]),
+          h("p", { class: "phase-count" }, [pre, h("strong", { text: String(days) }), post])
+        ]),
+        h("div", { class: "phase-bar", "aria-hidden": "true" }, h("div", { style: "width:" + elapsed + "%" })),
+        phaseGoals(ph),
+        next ? h("p", { class: "phase-due", text: U().nextDue + tr(next.label) + " · " + fmtDay(next.at, { weekday: "short" }) + " " + fmtTime(next.at) }) : null
       );
       return;
     }
