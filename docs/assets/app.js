@@ -175,8 +175,8 @@
   // Outer ring: A (top) and E (bottom) review each other. Inner ring: the experiment loop.
   // Review arcs run clockwise from reviewer to reviewee; dashed arrows are hand-offs between the rings.
   function reviewSvg(R, label) {
-    const cx = 220, cy = 225;
-    const root = svg("svg", { viewBox: "0 0 440 450", role: "img", "aria-label": label });
+    const cx = 220, cy = 237;
+    const root = svg("svg", { viewBox: "0 0 440 474", role: "img", "aria-label": label });
     const defs = svg("defs");
     R.outer.concat(R.inner, ["flow"]).forEach((k) => defs.append(svg("marker", {
       id: "review-arrow-" + k, class: k === "flow" ? "flow" : "m-" + k, viewBox: "0 0 10 10", refX: 9, refY: 5,
@@ -212,8 +212,8 @@
     root.append(ring(R.outer, "outer", outerR, 24, -Math.PI / 2));
     root.append(ring(R.inner, "inner", 58, 22, -Math.PI / 2));
     const [top, bottom] = R.outer;
-    root.append(svg("text", { class: "role m-" + top, x: cx, y: cy - outerR - 34 }, tr(R.roles[top])));
-    root.append(svg("text", { class: "role m-" + bottom, x: cx, y: cy + outerR + 36 }, tr(R.roles[bottom])));
+    root.append(svg("text", { class: "role m-" + top, x: cx, y: cy - outerR - 46 }, tr(R.roles[top])));
+    root.append(svg("text", { class: "role m-" + bottom, x: cx, y: cy + outerR + 48 }, tr(R.roles[bottom])));
     const yTop = cy - outerR + 30, yHaloTop = cy - haloR - 4, yHaloBot = cy + haloR + 4, yBot = cy + outerR - 30;
     root.append(flow(cx, yTop, yHaloTop, "tools", "start"));
     root.append(flow(cx - 16, yHaloBot, yBot, "results", "end"));
