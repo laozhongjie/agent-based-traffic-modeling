@@ -398,6 +398,7 @@
     }
     document.addEventListener("visibilitychange", () => { visible = !document.hidden; });
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => draw(1));
+    document.addEventListener("themechange", () => draw(1));
 
     init();
     for (let i = 0; i < 40; i++) step(); // warm up so the first frame already shows structure

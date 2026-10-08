@@ -195,6 +195,21 @@ nav.nav-groups { overflow: visible; gap: 2px; }
   background: var(--surface); color: var(--text);
 }
 .lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.topbar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+/* Day/night switch: shows a moon in day mode and a sun in night mode, i.e. the mode it switches to. */
+.theme-toggle {
+  flex: 0 0 auto; display: grid; place-items: center; width: 33px; height: 33px; padding: 0; cursor: pointer;
+  border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text);
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: block; }
+}
 @media (max-width: 720px) { .brand { display: none; } nav { flex: 1; margin-left: 0; } }
 
 /* Hero */
@@ -694,7 +709,7 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
    all movement off.
    ========================================================================== */
 
-a, button, .card, .metric, .phase, .placeholder, .btn, .lang-toggle, .flow li, .flow li::before,
+a, button, .card, .metric, .phase, .placeholder, .btn, .lang-toggle, .theme-toggle, .flow li, .flow li::before,
 nav a, .tasks li, .status, tbody tr, .res-list a, .exp-open, .timeline-bar .marker, .next-deadline, .demo, .brand {
   transition:
     color var(--dur) var(--ease), background-color var(--dur) var(--ease), border-color var(--dur) var(--ease),
@@ -719,8 +734,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   nav a:hover::after { transform: scaleX(1); }
 
   /* Buttons */
-  .btn:hover, .lang-toggle:hover, .demo-row button:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
-  .btn:active, .lang-toggle:active, .demo-row button:active { transform: translateY(0); box-shadow: none; }
+  .btn:hover, .lang-toggle:hover, .theme-toggle:hover, .demo-row button:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+  .btn:active, .lang-toggle:active, .theme-toggle:active, .demo-row button:active { transform: translateY(0); box-shadow: none; }
 
   /* Clickable cards */
   .exp-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--shadow-hover); }
@@ -766,6 +781,6 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
-  .exp-card:hover, .btn:hover, .lang-toggle:hover, .demo-row button:hover,
+  .exp-card:hover, .btn:hover, .lang-toggle:hover, .theme-toggle:hover, .demo-row button:hover,
   .exp-card:hover .exp-open, .timeline-bar .marker:hover, .flow li:hover::before, .tasks li:hover .status, .status-btn:hover { transform: none !important; }
 }
