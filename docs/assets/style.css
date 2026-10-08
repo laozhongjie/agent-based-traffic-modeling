@@ -168,6 +168,27 @@ nav.nav-groups { overflow: visible; gap: 2px; }
 .nav-group:hover .nav-menu, .nav-group:focus-within .nav-menu, .nav-group.open .nav-menu { display: block; }
 .nav-group:hover .nav-top, .nav-group:focus-within .nav-top, .nav-group.open .nav-top { color: var(--text); background: var(--surface-2); }
 .nav-group:hover .nav-top::after, .nav-group:focus-within .nav-top::after, .nav-group.open .nav-top::after { transform: translateY(1px) rotate(-135deg); }
+
+/* Second-level menus. The nav sits at the right edge, so they open to the left of the menu. */
+.nav-item { position: relative; }
+.nav-menu .nav-item.has-sub > a { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.nav-menu .nav-item.has-sub > a::after {
+  content: ""; display: inline-block; position: static; width: 5px; height: 5px; background: none;
+  border-top: 1.5px solid currentColor; border-left: 1.5px solid currentColor; transform: rotate(-45deg);
+}
+.nav-sub { position: absolute; top: -7px; right: 100%; padding-right: 6px; display: none; }
+.nav-sub .nav-menu-inner { min-width: 150px; }
+.nav-item:hover > .nav-sub, .nav-item:focus-within > .nav-sub { display: block; }
+.nav-item:hover > a, .nav-item:focus-within > a { color: var(--text); background: var(--surface-2); }
+.nav-tag { display: inline-block; min-width: 2.6em; margin-right: 6px; font-size: 11px; font-weight: 700; color: var(--accent); }
+.nav-sub .who { margin-right: 2px; }
+/* Touch screens: no hover, so second-level items are listed inline under their parent. */
+@media (hover: none) {
+  .nav-sub { position: static; display: block; padding: 0 0 4px 12px; }
+  .nav-sub .nav-menu-inner { min-width: 0; padding: 0; border: 0; box-shadow: none; background: none; }
+  .nav-sub a { font-size: 13px; padding: 4px 10px; }
+  .nav-menu .nav-item.has-sub > a::after { display: none; }
+}
 .lang-toggle {
   flex: 0 0 auto; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
   padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);

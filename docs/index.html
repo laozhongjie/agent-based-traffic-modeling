@@ -15,21 +15,40 @@
   <header class="topbar">
     <div class="wrap topbar-inner">
       <a class="brand" href="#top">Agent-Based Traffic Modeling</a>
-      <!-- Links are grouped; a group's menu opens on hover, keyboard focus, or a tap (app.js). -->
+      <!-- Links are grouped; a group's menu opens on hover, keyboard focus, or a tap (app.js).
+           Items with .has-sub open a second-level menu to the side on hover; on touch screens it is shown inline.
+           The member list under Tasks is filled from data/project.js by app.js. -->
       <nav class="nav-groups" aria-label="Sections" data-i18n-aria="nav.label">
         <div class="nav-group">
           <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.project">Project</button>
           <div class="nav-menu"><div class="nav-menu-inner">
             <a href="#overview" data-i18n="nav.overview">Overview</a>
-            <a href="#research" data-i18n="nav.research">Research</a>
+            <div class="nav-item has-sub">
+              <a href="#research" data-i18n="nav.research">Research</a>
+              <div class="nav-sub"><div class="nav-menu-inner">
+                <a href="lab/ring.html"><span class="nav-tag">RQ1</span><span data-i18n="lab.nav.ring">Ring road</span></a>
+                <a href="lab/network.html"><span class="nav-tag">RQ2</span><span data-i18n="lab.nav.net">City network</span></a>
+                <a href="lab/planning.html"><span class="nav-tag">RQ3</span><span data-i18n="lab.nav.plan">Planning</span></a>
+              </div></div>
+            </div>
             <a href="#experiments" data-i18n="nav.experiments">Methods</a>
-            <a href="#models" data-i18n="nav.models">Models</a>
+            <div class="nav-item has-sub">
+              <a href="#models" data-i18n="nav.models">Models</a>
+              <div class="nav-sub"><div class="nav-menu-inner">
+                <a href="models/nasch.html">NaSch</a>
+                <a href="models/ovm.html">OVM</a>
+                <a href="models/idm.html">IDM</a>
+              </div></div>
+            </div>
           </div></div>
         </div>
         <div class="nav-group">
           <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.plan">Schedule</button>
           <div class="nav-menu"><div class="nav-menu-inner">
-            <a href="#tasks" data-i18n="nav.tasks">Tasks</a>
+            <div class="nav-item has-sub">
+              <a href="#tasks" data-i18n="nav.tasks">Tasks</a>
+              <div class="nav-sub"><div class="nav-menu-inner" id="nav-members"></div></div>
+            </div>
             <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
             <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
           </div></div>

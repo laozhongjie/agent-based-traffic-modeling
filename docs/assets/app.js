@@ -373,6 +373,8 @@
   // ---------- nav menus ----------
   // Hover and keyboard focus open a group's menu in CSS; a tap toggles it here, for touch screens.
   function navMenus() {
+    document.getElementById("nav-members").append(...P.workstreams.filter((w) => w.owner).map((w) =>
+      h("a", { href: memberHref(w.owner) }, [h("span", { class: "who m-" + w.owner, text: w.owner }), " " + tr(w.ownerName || "")])));
     const groups = [...document.querySelectorAll(".nav-group")];
     const close = (g) => {
       g.classList.remove("open");
