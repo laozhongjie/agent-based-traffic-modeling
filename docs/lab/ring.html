@@ -66,6 +66,12 @@
         </table>
       </div>
 
+      <h3 class="lab-sub" data-i18n="lab.ring.whyH">Why only a ring road?</h3>
+      <div class="card why">
+        <ol data-i18n="lab.ring.why"><li><strong>Density can be set exactly.</strong> The ring is closed: no vehicle enters or leaves, so the density stays at \(N/L\) and can be stepped like a temperature. On an open road the density follows the inflow and outflow and drifts over time.</li><li><strong>There is no built-in bottleneck.</strong> Every point on the ring is alike, so any jam must grow from small disturbances between vehicles, which is spontaneous congestion. On an open road the entrance and exit disturb the flow themselves, so the source of a jam is unclear.</li><li><strong>Results can be checked against theory.</strong> The exact NaSch fundamental diagram at \(p = 0\) and the OVM instability condition \(V'(h) > a/2\) are both derived for a road closed on itself, so only a ring compares with them directly.</li><li><strong>The bottleneck goes on the same ring.</strong> Adding one reduced-speed section and changing nothing else lets the two kinds of congestion be compared directly.</li></ol>
+        <p class="note" data-i18n="lab.ring.whyNote">“Only a ring road” does not mean a single ring: the system-size sweep uses at least three ring lengths. The cost is that the ring has one lane, no ramps and no lane changes, unlike a real highway. Comparisons with real data therefore use only per-lane fundamental diagrams, which describe local flow and density, not the whole road.</p>
+      </div>
+
       <h3 class="lab-sub" data-i18n="lab.ring.mechH">Telling the two kinds of congestion apart: what to expect</h3>
       <p data-i18n="lab.ring.mechLead">The table lists what earlier studies and theory lead us to expect. It is the standard we test against, not a result of this project. If the simulations do not show a feature, we report that.</p>
       <div class="table-wrap">
