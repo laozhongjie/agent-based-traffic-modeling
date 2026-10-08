@@ -259,14 +259,15 @@ tr:last-child td { border-bottom: none; }
 /* Timeline */
 .timeline-bar { position: relative; height: 64px; margin: 8px 0 28px; }
 .timeline-bar .track { position: absolute; left: 0; right: 0; top: 26px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
-.timeline-bar .elapsed { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); opacity: .35; }
+.timeline-bar .elapsed { position: absolute; left: 0; top: 0; bottom: 0; background: var(--muted); opacity: .3; }
 .timeline-bar .marker { position: absolute; top: 18px; width: 2px; height: 24px; transform: translateX(-1px); background: var(--muted); }
-.timeline-bar .marker.deadline { background: var(--jam); }
-.timeline-bar .marker.target { background: var(--done); }
-.timeline-bar .marker.test { background: var(--doing); }
-.timeline-bar .marker.today { background: var(--accent); width: 3px; height: 34px; top: 13px; }
+/* Member colours own the hues here: markers differ by ink and shape, and their labels say what they are. */
+.timeline-bar .marker.deadline { background: var(--text); }
+.timeline-bar .marker.test { background: none; border-left: 2px dashed var(--muted); width: 0; }
+.timeline-bar .marker.today { background: var(--text); width: 3px; height: 34px; top: 13px; }
 .timeline-bar .marker-label { position: absolute; top: 46px; transform: translateX(-50%); font-size: 11px; color: var(--muted); white-space: nowrap; }
-.timeline-bar .marker-label.today { top: -4px; color: var(--accent); font-weight: 600; }
+.timeline-bar .marker-label.today { top: -4px; color: var(--text); font-weight: 600; }
+.timeline-bar .marker-label.deadline { color: var(--text); font-weight: 600; }
 @media (max-width: 640px) { .timeline-bar .marker-label:not(.today):not(.start) { display: none; } }
 
 .phases { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
@@ -275,16 +276,16 @@ tr:last-child td { border-bottom: none; }
   background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
   border-radius: var(--radius); padding: 14px 18px;
 }
-.phase.past { opacity: .6; border-left-color: var(--done); }
-.phase.current { border-left-color: var(--accent); box-shadow: var(--shadow); }
+.phase.past { opacity: .6; }
+.phase.current { border-left-color: var(--text); box-shadow: var(--shadow); }
 .phase .when { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.phase .when .badge { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); }
+.phase .when .badge { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text); }
 .phase h3 { margin: 0 0 4px; font-size: 16px; }
 .phase ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
 .who-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 14px; }
 .who-filter .label { font-size: 14px; color: var(--muted); margin-right: 2px; }
 .who-filter button { font: inherit; font-size: 13px; font-weight: 600; min-width: 34px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
-.who-filter button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.who-filter button[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--surface); }
 .phase ul.who-items { list-style: none; padding-left: 0; display: grid; gap: 6px; }
 .who-items li { display: flex; align-items: baseline; gap: 8px; }
 .who-items .chips { display: inline-flex; gap: 3px; flex: none; }
@@ -298,7 +299,7 @@ tr:last-child td { border-bottom: none; }
 .who-filter button[class*="m-"][aria-pressed="true"] { background: var(--m-ink); border-color: var(--m-ink); color: var(--surface); }
 .ws[class*="m-"] { border-top: 3px solid var(--m); }
 .ws[class*="m-"] .tag { color: var(--m-ink) !important; }
-.phase .phase-note { margin: 0 0 4px; font-size: 13px; color: var(--warn-text); }
+.phase .phase-note { margin: 0 0 4px; font-size: 13px; color: var(--muted); font-style: italic; }
 @media (max-width: 640px) { .phase { grid-template-columns: 1fr; gap: 6px; } }
 
 /* Progress */

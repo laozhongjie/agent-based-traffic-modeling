@@ -86,7 +86,7 @@
       const left = pct(at);
       bar.append(h("div", { class: "marker " + ev.kind, style: "left:" + left + "%", title: tr(ev.label) }));
       bar.append(h("span", {
-        class: "marker-label",
+        class: "marker-label " + ev.kind,
         style: "left:" + left + "%;top:" + (i % 2 ? 62 : 46) + "px;transform:" + anchor(left),
         text: fmtDay(at) + " · " + tr(ev.label)
       }));
