@@ -1,11 +1,11 @@
 Object.assign(window.I18N.static.zh, {
   "model.nav": "模型介绍页面",
   "model.purpose": "本页介绍模型及其假设。示例仅用于说明原理，不是本项目正式 SUMO 实验的结果。",
-  "model.ring": "打开环路实验页面 →",
-  "model.network": "打开城市路网实验页面 →",
-  "model.toOvm": "下一模型：OVM →",
-  "model.toIdm": "下一模型：IDM →",
-  "model.toNasch": "与 NaSch 对比 →",
+  "model.ring": "打开环路实验页面 >",
+  "model.network": "打开城市路网实验页面 >",
+  "model.toOvm": "下一模型：OVM >",
+  "model.toIdm": "下一模型：IDM >",
+  "model.toNasch": "与 NaSch 对比 >",
 
   "model.nasch.meta": "NaSch 模型 · 交通建模",
   "model.nasch.tag": "离散 · 随机 · 元胞自动机",
@@ -64,7 +64,7 @@ Object.assign(window.I18N.static.zh, {
     <p>首页动画在浏览器中演示这些规则。正式结果将来自固定版本的 SUMO；NaSch 的实现取决于所选开发版本，应检查实现是否符合上述规则。</p>`,
   "model.nasch.reference": `
     <h2>8. 原始论文</h2>
-    <p>K. Nagel 和 M. Schreckenberg（1992），<em>A cellular automaton model for freeway traffic</em>，Journal de Physique I，2，2221–2229。<a href='https://doi.org/10.1051/jp1:1992277'>阅读原始论文 →</a></p>`,
+    <p>K. Nagel 和 M. Schreckenberg（1992），<em>A cellular automaton model for freeway traffic</em>，Journal de Physique I，2，2221–2229。<a href='https://doi.org/10.1051/jp1:1992277'>阅读原始论文 ></a></p>`,
 
   "model.ovm.meta": "OVM 最优速度模型 · 交通建模",
   "model.ovm.tag": "连续 · 确定性 · 跟车模型",
@@ -117,7 +117,7 @@ Object.assign(window.I18N.static.zh, {
     <p>项目计划在固定版本的 SUMO 中用 C++ 实现 OVM。与理论模型比较前，应确认具体的 \\(V(h)\\)、车头间距定义、积分方法和安全干预规则。</p>`,
   "model.ovm.reference": `
     <h2>8. 原始论文</h2>
-    <p>M. Bando、K. Hasebe、A. Nakayama、A. Shibata 和 Y. Sugiyama（1995），<em>Dynamical model of traffic congestion and numerical simulation</em>，Physical Review E，51，1035–1042。<a href='https://doi.org/10.1103/PhysRevE.51.1035'>阅读原始论文 →</a></p>`,
+    <p>M. Bando、K. Hasebe、A. Nakayama、A. Shibata 和 Y. Sugiyama（1995），<em>Dynamical model of traffic congestion and numerical simulation</em>，Physical Review E，51，1035–1042。<a href='https://doi.org/10.1103/PhysRevE.51.1035'>阅读原始论文 ></a></p>`,
 
   "model.idm.meta": "IDM 智能驾驶员模型 · 交通建模",
   "model.idm.tag": "连续 · 确定性 · 跟车模型",
@@ -171,5 +171,5 @@ Object.assign(window.I18N.static.zh, {
     <p>SUMO 内置 IDM 实现。应记录版本、参数映射、内部积分步长和安全设置，并区分跟车规则与信号灯、交叉口优先权及换道逻辑。</p>`,
   "model.idm.reference": `
     <h2>8. 原始论文</h2>
-    <p>M. Treiber、A. Hennecke 和 D. Helbing（2000），<em>Congested traffic states in empirical observations and microscopic simulations</em>，Physical Review E，62，1805–1824。<a href='https://doi.org/10.1103/PhysRevE.62.1805'>阅读原始论文 →</a></p>`
+    <p>M. Treiber、A. Hennecke 和 D. Helbing（2000），<em>Congested traffic states in empirical observations and microscopic simulations</em>，Physical Review E，62，1805–1824。<a href='https://doi.org/10.1103/PhysRevE.62.1805'>阅读原始论文 ></a></p>`
 });

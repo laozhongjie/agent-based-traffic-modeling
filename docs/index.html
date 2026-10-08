@@ -93,7 +93,7 @@
         <li data-i18n="overview.step3">City-network critical density</li>
         <li data-i18n="overview.step4">How planning shifts the critical point</li>
       </ol>
-      <p class="note" data-i18n="overview.note">Each step adds exactly one new factor, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview →</a></p>
+      <p class="note" data-i18n="overview.note">Each step adds exactly one new factor, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview ></a></p>
     </section>
 
     <section id="research" class="wrap section">
@@ -104,19 +104,19 @@
           <p class="tag" data-i18n="rq1.tag">RQ1 · Ring-road experiment</p>
           <h3 data-i18n="rq1.title">Phase transition on a highway</h3>
           <p data-i18n="rq1.text">What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?</p>
-          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results →</span></span>
+          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results ></span></span>
         </a>
         <a class="card rq exp-card" href="lab/network.html">
           <p class="tag" data-i18n="rq2.tag">RQ2 · City-network experiment</p>
           <h3 data-i18n="rq2.title">Network-level critical point</h3>
           <p data-i18n="rq2.text">Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?</p>
-          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results →</span></span>
+          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results ></span></span>
         </a>
         <a class="card rq exp-card" href="lab/planning.html">
           <p class="tag" data-i18n="rq3.tag">RQ3 · Planning experiment</p>
           <h3 data-i18n="rq3.title">Planning shifts the critical point</h3>
           <p data-i18n="rq3.text">Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?</p>
-          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results →</span></span>
+          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results ></span></span>
         </a>
       </div>
     </section>
@@ -168,19 +168,19 @@
           <h3>NaSch</h3>
           <div class="eq-math">\[\begin{aligned} v_i &\leftarrow \min(v_i+1,\ v_{\max}) \\ v_i &\leftarrow \min(v_i,\ g_i) \\ v_i &\leftarrow \max(v_i-1,\ 0) \\ x_i &\leftarrow x_i+v_i \end{aligned}\]</div>
           <p data-i18n="eq.nasch">Accelerate, keep a safe gap, slow down at random with probability \(p\) (third line), then move. \(g_i\): empty cells ahead. All vehicles update in parallel.</p>
-          <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model →</span></span>
+          <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model ></span></span>
         </a>
         <a class="card eq exp-card" href="models/ovm.html">
           <h3>OVM</h3>
           <div class="eq-math">\[\frac{dv_i}{dt}=a\left[V(\Delta x_i)-v_i\right]\]\[V(h)=\frac{v_{\max}}{2}\left[\tanh(h-h_c)+\tanh h_c\right]\]</div>
           <p data-i18n="eq.ovm">\(\Delta x_i\): headway to the car ahead; \(a\): sensitivity; \(h_c\): safety distance. Uniform flow becomes unstable when \(V'(h) > a/2\).</p>
-          <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model →</span></span>
+          <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model ></span></span>
         </a>
         <a class="card eq exp-card" href="models/idm.html">
           <h3>IDM</h3>
           <div class="eq-math">\[\frac{dv_i}{dt}=a\left[1-\left(\frac{v_i}{v_0}\right)^{\delta}-\left(\frac{s^*(v_i,\Delta v_i)}{s_i}\right)^{2}\right]\]\[s^*(v,\Delta v)=s_0+\max\!\left(0,\ vT+\frac{v\,\Delta v}{2\sqrt{ab}}\right)\]</div>
           <p data-i18n="eq.idm">\(s_i\): gap to the car ahead; \(\Delta v_i\): approach rate; \(v_0,\ T,\ s_0,\ a,\ b,\ \delta\): desired speed, time gap, minimum gap, maximum acceleration, comfortable deceleration and exponent.</p>
-          <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model →</span></span>
+          <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model ></span></span>
         </a>
       </div>
     </section>

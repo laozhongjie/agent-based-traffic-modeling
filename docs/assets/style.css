@@ -681,7 +681,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   .tasks li:hover .status { transform: scale(1.06); }
 
   /* Resource links: arrow appears */
-  .res-list a::after { content: " →"; display: inline-block; opacity: 0; transform: translateX(-4px); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+  .res-list a::after { content: " >"; display: inline-block; opacity: 0; transform: translateX(-4px); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
   .res-list a:hover { text-decoration: none; }
   .res-list a:hover::after { opacity: 1; transform: translateX(0); }
 
