@@ -476,6 +476,20 @@ nav a.member-tab::after { background: var(--m); }
 .exp-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; }
 .exp-open { font-size: 14px; font-weight: 600; color: var(--accent); }
 
+/* Link chevron (›), drawn with borders so it looks the same in every font and takes the link's colour.
+   Used after card links (.exp-open), "read more" links and buttons (.more) and resource links. */
+.exp-open::after, .more::after, .res-list a::after {
+  content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .38em;
+  border-top: .12em solid currentColor; border-right: .12em solid currentColor;
+  vertical-align: .08em; transform: rotate(45deg);
+}
+.btn.more::after { vertical-align: 0; }
+.back::before {
+  content: ""; display: inline-block; width: .42em; height: .42em; margin-right: .38em;
+  border-bottom: .12em solid currentColor; border-left: .12em solid currentColor;
+  vertical-align: .08em; transform: rotate(45deg);
+}
+
 /* Current page in the top bar */
 nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); font-weight: 600; }
 
@@ -681,9 +695,9 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   .tasks li:hover .status { transform: scale(1.06); }
 
   /* Resource links: arrow appears */
-  .res-list a::after { content: " >"; display: inline-block; opacity: 0; transform: translateX(-4px); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+  .res-list a::after { opacity: 0; transform: translateX(-4px) rotate(45deg); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
   .res-list a:hover { text-decoration: none; }
-  .res-list a:hover::after { opacity: 1; transform: translateX(0); }
+  .res-list a:hover::after { opacity: 1; transform: rotate(45deg); }
 
   /* Timeline markers grow */
   .timeline-bar .marker:not(.today):hover { transform: translateX(-1px) scaleY(1.35); }
@@ -698,5 +712,5 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
   .exp-card:hover, .btn:hover, .lang-toggle:hover, .demo-row button:hover,
-  .exp-card:hover .exp-open, .res-list a:hover::after, .timeline-bar .marker:hover, .flow li:hover::before, .tasks li:hover .status, .status-btn:hover { transform: none !important; }
+  .exp-card:hover .exp-open, .timeline-bar .marker:hover, .flow li:hover::before, .tasks li:hover .status, .status-btn:hover { transform: none !important; }
 }
