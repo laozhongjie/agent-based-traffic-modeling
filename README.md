@@ -34,6 +34,7 @@ The tree below is the intended layout. The repository currently contains the ove
 ```text
 .
 ├── README.md / README_zh.md
+├── GUIDE.md                    # Guide as Markdown (Chinese), same content as docs/guide.html
 ├── Project_Overview.md / Project_Overview_EN.md
 ├── environment.yml             # Reproducible Python environment
 ├── pyproject.toml              # Makes src/traffic_project importable (pip install -e .)
@@ -87,7 +88,7 @@ The tree below is the intended layout. The repository currently contains the ove
 - `runs/<run-id>/` preserves the resolved configuration, random seed, project and SUMO versions, scenario identity, validation outcome, logs and outputs. `results/` aggregates these runs; every published point should retain its source run identifiers.
 - Git tracks code, scenarios, configs, `results/` and `docs/`. It ignores `runs/` and `data/raw/` (see `.gitignore`); share large files through external storage and record how to retrieve them.
 - `docs/data/` contains compact exports generated from validated results. GitHub Pages publishes all of `docs/`, so keep full trajectories, private data and experiment inputs outside it.
-- `docs/guide.html` is the single reference for the shared conventions (units, run IDs, directories, checks). `research/` records how those decisions were reached and the validation results.
+- `docs/guide.html` is the single reference for the shared conventions (units, run IDs, directories, checks); `GUIDE.md` has the same content in Chinese Markdown. `research/` records how those decisions were reached and the validation results.
 - Keep the upstream SUMO checkout and build outside this repository; record its version in `sumo/version.txt`, the new OVM files in `sumo/ovm/` and the edits to existing SUMO files in `sumo/patches/`.
 
 ## Experiment workflow

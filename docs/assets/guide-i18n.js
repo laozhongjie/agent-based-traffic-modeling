@@ -4,7 +4,7 @@ Object.assign(window.I18N.static.zh, {
   "guide.tag": "全组共用 · 第一次运行前请读",
   "guide.title": "实验手册",
   "guide.lede": "本手册是全组做实验的唯一依据：怎样安装 SUMO、代码和文件放在哪里、怎样搭建一个新实验、运行怎样命名和检查，以及代码怎样合并到主分支。仓库里的环路示例遵守本页的每一条规定，可以直接作为模板。",
-  "guide.status": "标有 <span class='chip decide'>待确定</span> 的事项仍需全组商定。本手册由 A 维护；要修改某项做法，先在组会上提出，再按新做法执行。",
+  "guide.status": "标有 <span class='chip decide'>待确定</span> 的事项仍需全组商定。本手册由 A 维护；要修改某项做法，先在组会上提出，再按新做法执行。同样的内容另有 Markdown 版 <a href='https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/GUIDE.md'><code>GUIDE.md</code></a>，可以离线阅读，也可以直接发给 AI。",
 
   "guide.toc": `
     <h2 id='guide-toc-title'>本页内容</h2>
@@ -291,6 +291,6 @@ git pull</code></pre>
       <li>确认 <code>git status</code> 中没有 <code>runs/</code>、<code>data/raw/</code> 或 <code>sandbox/</code> 下的文件。</li>
       <li>把配置文件、代码和 <code>results/</code> 一起提交，保证结果始终对应产生它的代码。</li>
       <li>结果写进报告或放上网站前，先从干净的 commit 重新运行一次。</li>
-      <li>如果修改了本手册中的某项规定，在同一个 PR 中更新本手册。</li>
+      <li>如果修改了本手册中的某项规定，在同一个 PR 中同时更新本页和 <code>GUIDE.md</code>。</li>
     </ol>`
 });

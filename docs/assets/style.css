@@ -626,6 +626,8 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
   .model-table td, .model-table th { padding: 10px 8px; }
 }
 /* Guide page */
+/* The guide is mostly tables and code, so it uses the full site width (.wrap). */
+.model-page.guide { max-width: 1100px; }
 .guide-toc { margin-bottom: 20px; }
 .guide-toc h2 { margin: 0 0 10px !important; font-size: 16px !important; }
 .guide-toc ol { columns: 2; column-gap: 32px; margin: 0; padding-left: 20px; }

@@ -34,6 +34,7 @@
 ```text
 .
 ├── README.md / README_zh.md
+├── GUIDE.md                    # 实验手册 Markdown 版，内容与 docs/guide.html 一致
 ├── Project_Overview.md / Project_Overview_EN.md
 ├── environment.yml             # 可复现的 Python 环境
 ├── pyproject.toml              # 让 src/traffic_project 可以导入（pip install -e .）
@@ -87,7 +88,7 @@
 - `runs/<run-id>/` 保存本次运行的完整配置、随机种子、项目与 SUMO 版本、场景标识、验证结果、日志和输出。`results/` 汇总这些运行；每个发布的数据点应保留来源运行编号。
 - git 跟踪代码、场景、配置、`results/` 和 `docs/`，不跟踪 `runs/` 和 `data/raw/`（见 `.gitignore`）。大文件通过外部存储共享，并记录获取方式。
 - `docs/data/` 存放由有效实验结果生成的精简数据。GitHub Pages 会发布整个 `docs/`，完整轨迹、私有数据和实验输入应保存在该目录之外。
-- 实验手册 `docs/guide.html` 是全组做实验的唯一依据（单位、运行编号、目录、检查项）。`research/` 记录这些决定的由来和验证结果。
+- 实验手册 `docs/guide.html` 是全组做实验的唯一依据（单位、运行编号、目录、检查项）；`GUIDE.md` 是内容相同的 Markdown 版。`research/` 记录这些决定的由来和验证结果。
 - 上游 SUMO 源码和编译目录放在仓库之外。`sumo/version.txt` 记录版本，`sumo/ovm/` 保存 OVM 新增的源文件，`sumo/patches/` 保存对 SUMO 原有文件的改动。
 
 ## 实验工作流程
