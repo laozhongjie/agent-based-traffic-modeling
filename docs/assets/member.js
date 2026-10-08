@@ -41,6 +41,7 @@
         ])
       ]),
       h("p", { class: "lede", text: tr(w.summary) }),
+      reviewLine(),
       h("div", { class: "progress-summary" }, [
         h("span", { class: "big", text: k.pct + "%" }),
         barEl(k),
@@ -75,17 +76,15 @@
     }
   }
 
-  function renderReview() {
+  // One line above the progress bar: who this member reviews and who reviews them.
+  function reviewLine() {
     const out = reviewee(m), inn = reviewer(m);
-    const role = P.review.roles[m];
-    fill("member-review-h").textContent = U().reviewH;
-    fill("member-review",
-      role ? h("p", { class: "member-role", text: tr(role) }) : null,
-      h("ul", { class: "member-review-list" }, [
-        out ? h("li", {}, U().reviewing(personLink(out))) : null,
-        inn ? h("li", {}, U().reviewedBy(personLink(inn))) : null
-      ])
-    );
+    if (!out && !inn) return null;
+    return h("p", { class: "member-review-line" }, [
+      h("strong", { text: U().reviewH }),
+      out ? h("span", {}, U().reviewing(personLink(out))) : null,
+      inn ? h("span", {}, U().reviewedBy(personLink(inn))) : null
+    ]);
   }
 
   // Timeline phases with this member's items and whole-group items.
@@ -111,12 +110,11 @@
 
   function renderAll() {
     document.getElementById("member").className = "wrap member-page m-" + m;
-    ["member-tasks-card", "member-review-card"].forEach((id) => { document.getElementById(id).classList.add("m-" + m); });
+    document.getElementById("member-tasks-card").classList.add("m-" + m);
     document.title = memberLabel(m) + " · " + tr(w.name) + " · Agent-Based Traffic Modeling";
     renderNav();
     renderHead();
     renderTasks();
-    renderReview();
     renderSchedule();
   }
 
