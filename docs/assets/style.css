@@ -311,6 +311,7 @@ h3 { font-size: 18px; margin: 0 0 8px; }
 table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 560px; }
 th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
 th { font-size: 13px; color: var(--muted); font-weight: 600; background: var(--surface-2); }
+tbody th[scope="row"] { white-space: nowrap; }
 tr:last-child td { border-bottom: none; }
 
 .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }

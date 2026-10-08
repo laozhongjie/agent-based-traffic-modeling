@@ -142,16 +142,18 @@
 
     <section id="experiments" class="wrap section">
       <h2 data-i18n="method.h">Methods</h2>
-      <p class="section-intro" data-i18n="method.intro">All three experiments share one approach: sweep the density from low to high, change one factor at a time, and locate the critical point with the same measures. The settings of each experiment are on its question page.</p>
+      <p class="section-intro" data-i18n="method.intro">All three experiments share one approach: sweep the density from low to high, change one factor at a time, and locate the critical point the same way, from the peak in flow and the sharp rise in congestion, with error bars. The measures differ between the ring and the city network (below). The settings of each experiment are on its question page.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th></th><th data-i18n="method.colRing">Ring road · RQ1</th><th data-i18n="method.colCity">City network · RQ2, RQ3</th></tr></thead>
           <tbody>
             <tr><th scope="row" data-i18n="method.flow">Flow type</th><td data-i18n="method.flowRing">Uninterrupted flow</td><td data-i18n="method.flowCity">Interrupted flow</td></tr>
-            <tr><th scope="row" data-i18n="method.setting">Setting</th><td data-i18n="method.settingRing">Single-lane ring road: an idealized stretch of highway without traffic lights</td><td data-i18n="method.settingCity">Urban district from OpenStreetMap with intersections, traffic lights and varying speed limits</td></tr>
-            <tr><th scope="row" data-i18n="method.cause">Main cause of congestion</th><td data-i18n="method.causeRing">Spontaneous jams from vehicle interactions</td><td data-i18n="method.causeCity">Queues, spillback and gridlock at intersections with limited capacity</td></tr>
-            <tr><th scope="row" data-i18n="method.sweep">Density swept</th><td data-i18n="method.sweepRing">Vehicles per km of ring</td><td data-i18n="method.sweepCity">Vehicles in the network ÷ total lane length, held constant within a run</td></tr>
-            <tr><th scope="row" data-i18n="method.meaning">Critical point</th><td data-i18n="method.meaningRing">Critical density of a single road</td><td data-i18n="method.meaningCity">Critical density of the whole network</td></tr>
+            <tr><th scope="row" data-i18n="method.setting">Setting</th><td data-i18n="method.settingRing">Single-lane closed ring with no traffic lights, an idealized stretch of highway; vehicles never enter or leave</td><td data-i18n="method.settingCity">Real street layout of an urban district from OpenStreetMap (intersections, traffic lights, varying speed limits) with synthetic demand: vehicle numbers and random destinations are set by us, and signals use fixed timings from one rule, not real signal plans</td></tr>
+            <tr><th scope="row" data-i18n="method.model">Vehicle model</th><td data-i18n="method.modelRing">NaSch, OVM and IDM, compared</td><td data-i18n="method.modelCity">IDM (NaSch and OVM only as optional robustness checks)</td></tr>
+            <tr><th scope="row" data-i18n="method.vary">What is varied</th><td data-i18n="method.varyRing">Density; also ring length, NaSch's random-slowdown probability, and bottleneck (none / reduced-speed section), one at a time</td><td data-i18n="method.varyCity">Density (RQ2); RQ3 also compares the baseline with a road closure and a new link at the same densities and seeds</td></tr>
+            <tr><th scope="row" data-i18n="method.cause">Expected cause of congestion</th><td data-i18n="method.causeRing">Spontaneous jams from vehicle interactions; a reduced-speed section is the control that tells them apart from bottleneck jams</td><td data-i18n="method.causeCity">Queues, spillback and gridlock at intersections with limited capacity</td></tr>
+            <tr><th scope="row" data-i18n="method.sweep">Density swept</th><td data-i18n="method.sweepRing">Vehicles per km on the single lane</td><td data-i18n="method.sweepCity">Vehicles in the network ÷ total lane length, held constant within a run</td></tr>
+            <tr><th scope="row" data-i18n="method.meaning">Critical point</th><td data-i18n="method.meaningRing">Critical density of a single road</td><td data-i18n="method.meaningCity">Critical density and maximum flow of the whole network</td></tr>
           </tbody>
         </table>
       </div>
@@ -163,7 +165,7 @@
         <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat on longer roads; a true transition gets sharper.</span><div class="metric-eq">\(L_1 < L_2 < L_3\)</div></div>
         <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">In the city network, the density at which total flow stops increasing.</span><div class="metric-eq">\(k_c = \arg\max_k\, q(k)\)</div></div>
       </div>
-      <p class="note" data-i18n="method.note">The critical density is reported as an estimate with error bars. A coarse density grid locates the candidate range first; extra points and repeated runs are then added near it.</p>
+      <p class="note" data-i18n="method.note">The critical density is reported as an estimate with error bars. A coarse density grid locates the candidate range first; extra points and repeated runs are then added near it. The expected causes of congestion come from earlier studies: they are what the results are checked against, not results of this project.</p>
     </section>
 
     <section id="models" class="wrap section">
