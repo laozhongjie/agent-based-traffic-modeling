@@ -232,7 +232,7 @@ window.PROJECT = {
       },
       tasks: [
         { text: { en: "Define critical-point estimators and error bars; B and C supply the congestion criteria", zh: "制定临界点估计方法和误差范围（拥堵判据由 B、C 分别定义）" }, status: "todo" },
-        { text: { en: "Build shared analysis scripts for diagrams, fluctuations and uncertainty; confirm the method with B and C", zh: "建立基本图、涨落和不确定性的统一分析脚本，并与 B、C 确认方法" }, status: "todo" },
+        { text: { en: "Provide shared analysis functions that estimate the critical density and its error range, for B and C to call in their own plots; confirm the method with B and C", zh: "提供临界密度估计和误差范围的共用分析函数，供 B、C 画自己的图时调用，并与 B、C 确认方法" }, status: "todo" },
         { text: { en: "Apply for PeMS / highD / LTA access in week 1 (approval takes time)", zh: "第一周提交 PeMS / highD / LTA 数据申请（审核需要时间）" }, status: "todo" },
         { text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
         { text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
