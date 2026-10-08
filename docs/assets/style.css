@@ -335,18 +335,27 @@ tr:last-child td { border-bottom: none; }
 .review .review-legend strong { color: var(--m); }
 .review .review-legend strong { margin-right: 6px; }
 
-/* Progress: one row per member — workstream, bar with counts, percentage. */
-.workstreams { display: grid; gap: 12px; }
-.ws-row { display: grid; grid-template-columns: minmax(0, 300px) 1fr auto; gap: 24px; align-items: center; }
-.ws-row h3 { font-size: 16px; margin: 0; }
-.ws-row .ws-owner { margin-bottom: 0 !important; }
-.ws-row .pct { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 3.2em; text-align: right; }
-.ws-counts { display: flex; flex-wrap: wrap; gap: 0 14px; font-size: 12px; margin-top: 8px !important; font-variant-numeric: tabular-nums; }
-.ws-counts span { white-space: nowrap; }
-@media (max-width: 640px) {
-  .ws-row { grid-template-columns: 1fr auto; gap: 10px 16px; }
-  .ws-row .ws-row-bar { grid-column: 1 / -1; grid-row: 2; }
+/* Cross-review card: diagram on the left, progress on the right (stacked on narrow screens). */
+.review-progress { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+.progress-col { padding-left: 32px; border-left: 1px solid var(--border); }
+.progress-col .progress-summary { margin: 10px 0 4px; }
+.progress-col .progress-summary .big { font-size: 30px; }
+@media (max-width: 860px) {
+  .review-progress { grid-template-columns: 1fr; }
+  .progress-col { padding-left: 0; border-left: 0; padding-top: 20px; border-top: 1px solid var(--border); }
 }
+
+/* Progress: one row per member — badge, workstream and owner, percentage; bar and counts below. */
+.ws.ws-row { border-top: 1px solid var(--border); padding: 12px 0; }
+.ws.ws-row:last-child { padding-bottom: 0; }
+.ws-row-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.ws-row .assign-badge { width: 28px; height: 28px; font-size: 13px; }
+.ws-row-title { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.ws-row-title strong { font-size: 14px; color: var(--text); }
+.ws-row .ws-owner { font-size: 12px; margin: 0 !important; }
+.ws-row .pct { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--m, var(--text)); }
+.ws-counts { display: flex; flex-wrap: wrap; gap: 0 14px; font-size: 12px; margin-top: 6px !important; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ws-counts span { white-space: nowrap; }
 
 /* Task assignment: one card per member in a single row; each opens the member's page. */
 .assignments { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -643,7 +652,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   .card:not(.exp-card):hover, .metric:hover, .next-deadline:hover, .demo:hover {
     border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); box-shadow: var(--shadow-hover);
   }
-  .ws[class*="m-"]:hover { border-color: color-mix(in srgb, var(--m) 45%, var(--border)); border-top-color: var(--m); }
+  .ws[class*="m-"]:not(.ws-row):hover { border-color: color-mix(in srgb, var(--m) 45%, var(--border)); border-top-color: var(--m); }
   .phase:hover { box-shadow: var(--shadow-hover); border-color: color-mix(in srgb, var(--time) 30%, var(--border)); }
   .phase.upcoming:hover { border-left-color: color-mix(in srgb, var(--time) 55%, var(--border)); }
   .phase.past:hover { opacity: .85; }

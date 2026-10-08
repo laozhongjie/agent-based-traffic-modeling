@@ -114,7 +114,7 @@
   function saveWho(m) { try { localStorage.setItem("timeline-who", m); } catch (e) { /* storage unavailable */ } }
   let timelineWho = loadWho();
 
-  // ---------- progress: one row per member ----------
+  // ---------- progress: one row per member, beside the cross-review diagram ----------
   function renderProgress() {
     const all = counts(P.workstreams.flatMap((w) => w.tasks));
     clear("progress-summary").append(
@@ -126,14 +126,17 @@
     const list = clear("workstreams");
     P.workstreams.forEach((w) => {
       const k = counts(w.tasks);
-      list.append(h("article", { class: "card ws ws-row" + (w.owner ? " m-" + w.owner : "") }, [
-        h("div", { class: "ws-row-info" }, [
-          h("p", { class: "tag", text: tr(w.stage) }),
-          h("h3", { text: tr(w.name) }),
-          h("p", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.ownerName || w.owner) : U().unclaimed })
+      list.append(h("div", { class: "ws ws-row" + (w.owner ? " m-" + w.owner : "") }, [
+        h("div", { class: "ws-row-head" }, [
+          h("span", { class: "assign-badge", text: w.owner || "?" }),
+          h("div", { class: "ws-row-title" }, [
+            h("strong", { text: tr(w.name) }),
+            h("span", { class: "ws-owner" + (w.owner ? "" : " open"), text: w.owner ? U().owner + tr(w.ownerName || w.owner) : U().unclaimed })
+          ]),
+          h("span", { class: "pct", text: k.pct + "%" })
         ]),
-        h("div", { class: "ws-row-bar" }, [barEl(k), h("p", { class: "ws-counts" }, countSpans(k))]),
-        h("span", { class: "pct", text: k.pct + "%" })
+        barEl(k),
+        h("p", { class: "ws-counts" }, countSpans(k))
       ]));
     });
   }

@@ -22,7 +22,6 @@
         <a href="#models" data-i18n="nav.models">Models</a>
         <a href="#tasks" data-i18n="nav.tasks">Tasks</a>
         <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
-        <a href="#progress" data-i18n="nav.progress">Progress</a>
         <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
         <a href="#resources" data-i18n="nav.resources">Resources</a>
         <a href="guide.html" data-i18n="nav.guide">Guide</a>
@@ -174,10 +173,18 @@
       <h2 data-i18n="tasks.h">Task assignment</h2>
       <p class="section-intro" data-i18n="tasks.intro">Five primary owners work in parallel through shared interfaces. Every member contributes to design, implementation, validation, analysis and delivery, with cross-review between workstreams. Click a member to see their tasks and cross-review.</p>
       <div class="assignments" id="assignments"></div>
-      <div class="card review">
-        <h3 data-i18n="tasks.reviewH">Cross-review</h3>
-        <p data-i18n="tasks.reviewNote">A coordinates the project and supplies the tools; E sets the analysis methods and pulls the results together. A and E review each other, and B, C and D review in a loop. Coloured arrows point from reviewer to reviewee; grey dashed arrows show hand-offs.</p>
-        <div class="review-map" id="review-map"></div>
+      <!-- Cross-review on the left, live progress on the right. -->
+      <div class="card review review-progress">
+        <div class="review-col">
+          <h3 data-i18n="tasks.reviewH">Cross-review</h3>
+          <p data-i18n="tasks.reviewNote">A coordinates the project and supplies the tools; E sets the analysis methods and pulls the results together. A and E review each other, and B, C and D review in a loop. Coloured arrows point from reviewer to reviewee; grey dashed arrows show hand-offs.</p>
+          <div class="review-map" id="review-map"></div>
+        </div>
+        <div class="progress-col" id="progress">
+          <h3 data-i18n="progress.h">Progress</h3>
+          <div class="progress-summary" id="progress-summary"></div>
+          <div class="workstreams" id="workstreams"></div>
+        </div>
       </div>
     </section>
 
@@ -187,12 +194,6 @@
       <div class="timeline-bar" id="timeline-bar" aria-hidden="true"></div>
       <div class="who-filter" id="timeline-filter" role="group"></div>
       <ol class="phases" id="timeline-list"></ol>
-    </section>
-
-    <section id="progress" class="wrap section">
-      <h2 data-i18n="progress.h">Progress</h2>
-      <div class="progress-summary" id="progress-summary"></div>
-      <div class="workstreams" id="workstreams"></div>
     </section>
 
     <section id="requirements" class="wrap section">

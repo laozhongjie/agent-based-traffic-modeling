@@ -11,7 +11,6 @@ window.I18N = {
       "nav.research": "研究",
       "nav.tasks": "任务分配",
       "nav.timeline": "时间线",
-      "nav.progress": "进展",
       "nav.requirements": "提交要求",
       "nav.resources": "资料",
 
