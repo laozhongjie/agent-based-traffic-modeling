@@ -15,16 +15,32 @@
   <header class="topbar">
     <div class="wrap topbar-inner">
       <a class="brand" href="#top">Agent-Based Traffic Modeling</a>
-      <nav aria-label="Sections" data-i18n-aria="nav.label">
-        <a href="#overview" data-i18n="nav.overview">Overview</a>
-        <a href="#research" data-i18n="nav.research">Research</a>
-        <a href="#experiments" data-i18n="nav.experiments">Methods</a>
-        <a href="#models" data-i18n="nav.models">Models</a>
-        <a href="#tasks" data-i18n="nav.tasks">Tasks</a>
-        <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
-        <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
-        <a href="#resources" data-i18n="nav.resources">Resources</a>
-        <a href="guide.html" data-i18n="nav.guide">Guide</a>
+      <!-- Links are grouped; a group's menu opens on hover, keyboard focus, or a tap (app.js). -->
+      <nav class="nav-groups" aria-label="Sections" data-i18n-aria="nav.label">
+        <div class="nav-group">
+          <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.project">Project</button>
+          <div class="nav-menu"><div class="nav-menu-inner">
+            <a href="#overview" data-i18n="nav.overview">Overview</a>
+            <a href="#research" data-i18n="nav.research">Research</a>
+            <a href="#experiments" data-i18n="nav.experiments">Methods</a>
+            <a href="#models" data-i18n="nav.models">Models</a>
+          </div></div>
+        </div>
+        <div class="nav-group">
+          <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.plan">Schedule</button>
+          <div class="nav-menu"><div class="nav-menu-inner">
+            <a href="#tasks" data-i18n="nav.tasks">Tasks</a>
+            <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
+            <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
+          </div></div>
+        </div>
+        <div class="nav-group">
+          <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.resources">Resources</button>
+          <div class="nav-menu"><div class="nav-menu-inner">
+            <a href="#resources" data-i18n="nav.references">References</a>
+            <a href="guide.html" data-i18n="nav.guide">Guide</a>
+          </div></div>
+        </div>
       </nav>
       <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language / 切换语言">中文</button>
     </div>

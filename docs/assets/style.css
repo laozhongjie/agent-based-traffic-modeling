@@ -154,6 +154,20 @@ nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin-l
 nav::-webkit-scrollbar { display: none; }
 nav a { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
 nav a:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
+
+/* Hub nav: three groups, each opening a menu on hover, focus or tap (.open, set in app.js). */
+nav.nav-groups { overflow: visible; gap: 2px; }
+.nav-group { position: relative; }
+.nav-top { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; color: var(--muted); background: none; border: 0; padding: 6px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+.nav-top::after { content: ""; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform var(--dur) var(--ease); }
+.nav-menu { position: absolute; top: 100%; left: 0; padding-top: 6px; display: none; z-index: 50; }
+.nav-group:last-child .nav-menu { left: auto; right: 0; }
+.nav-menu-inner { display: flex; flex-direction: column; min-width: 140px; padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-hover); }
+.nav-menu a { display: block; }
+.nav-menu a::after { display: none; }
+.nav-group:hover .nav-menu, .nav-group:focus-within .nav-menu, .nav-group.open .nav-menu { display: block; }
+.nav-group:hover .nav-top, .nav-group:focus-within .nav-top, .nav-group.open .nav-top { color: var(--text); background: var(--surface-2); }
+.nav-group:hover .nav-top::after, .nav-group:focus-within .nav-top::after, .nav-group.open .nav-top::after { transform: translateY(1px) rotate(-135deg); }
 .lang-toggle {
   flex: 0 0 auto; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
   padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);

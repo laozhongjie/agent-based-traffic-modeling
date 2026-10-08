@@ -12,7 +12,10 @@ window.I18N = {
       "nav.tasks": "任务分配",
       "nav.timeline": "时间线",
       "nav.requirements": "提交要求",
-      "nav.resources": "资料",
+      "nav.g.project": "项目",
+      "nav.g.plan": "安排",
+      "nav.g.resources": "资料",
+      "nav.references": "参考资料",
 
       "hero.eyebrow": "小组项目主页",
       "hero.title": "<span class=\"line\">道路网络中的车流拥堵</span><span class=\"line\">Agent-Based Modeling 研究</span>",

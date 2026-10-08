@@ -370,6 +370,31 @@
     return { relabel };
   }
 
+  // ---------- nav menus ----------
+  // Hover and keyboard focus open a group's menu in CSS; a tap toggles it here, for touch screens.
+  function navMenus() {
+    const groups = [...document.querySelectorAll(".nav-group")];
+    const close = (g) => {
+      g.classList.remove("open");
+      g.querySelector(".nav-top").setAttribute("aria-expanded", "false");
+    };
+    groups.forEach((g) => {
+      const top = g.querySelector(".nav-top");
+      top.addEventListener("click", () => {
+        const open = !g.classList.contains("open");
+        groups.forEach(close);
+        if (open) { g.classList.add("open"); top.setAttribute("aria-expanded", "true"); } else top.blur();
+      });
+      g.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => { close(g); a.blur(); }));
+    });
+    document.addEventListener("click", (e) => { if (!e.target.closest(".nav-group")) groups.forEach(close); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      groups.forEach(close);
+      if (document.activeElement && document.activeElement.closest(".nav-group")) document.activeElement.blur();
+    });
+  }
+
   // ---------- boot ----------
   function renderAll() {
     renderNextDeadline();
@@ -381,6 +406,7 @@
   }
 
   Site.init();
+  navMenus();
   renderAll();
   const demo = ringDemo();
   Site.onChange(() => { renderAll(); demo.relabel(); });
