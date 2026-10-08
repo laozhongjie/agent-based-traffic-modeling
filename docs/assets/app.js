@@ -34,11 +34,13 @@
 
   function renderPhase() {
     const box = clear("next-deadline");
+    box.classList.remove("phase-card");
     const i = P.timeline.findIndex((ph) => dayEnd(ph.end) >= now);
     const ph = P.timeline[i];
     if (ph) {
       const { current, days } = phaseCountdown(ph);
       box.setAttribute("href", "#" + phaseId(ph));
+      box.classList.add("phase-card");
       box.append(
         h("div", { class: "days" }, [String(days), h("small", { text: current ? (days === 1 ? U().dayLeft : U().daysLeft) : U().daysToGo })]),
         h("div", { class: "what" }, [
