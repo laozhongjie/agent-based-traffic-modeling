@@ -1,7 +1,7 @@
 // Project data for the hub page.
 // Text fields are { en, zh }. A plain string is shown in both languages.
-// To update progress: change a task's status to "todo", "doing" or "done",
-// fill in owners, bump `updated`, then commit and push.
+// Task progress is updated by clicking tasks on member.html (stored in Firebase);
+// edit this file to change tasks, owners or the timeline, bump `updated`, then commit and push.
 
 window.PROJECT = {
   updated: "2026-10-08",
@@ -146,7 +146,11 @@ window.PROJECT = {
     }
   },
 
-  // status: "todo" | "doing" | "done"; owner is the primary owner's letter, ownerName (optional) is shown in its place.
+  // owner is the primary owner's letter, ownerName (optional) is shown in its place.
+  // Each task has a fixed id (owner letter + number). The live status is stored under that id in Firebase
+  // (see assets/live.js) and is changed by clicking the task on the member's page; `status` here is only the
+  // fallback when Firebase cannot be reached. Never change or reuse an id: give a new task the next free number.
+  // status: "todo" | "doing" | "done".
   workstreams: [
     {
       name: { en: "Shared framework & model validation", zh: "共享框架与模型验证" },
@@ -158,14 +162,14 @@ window.PROJECT = {
         zh: "统筹全局安排，定义共享运行协议，编译 SUMO，实现 OVM，并打通最小端到端实验。"
       },
       tasks: [
-        { text: { en: "Define config, run-record and output interfaces", zh: "定义配置、运行记录和输出接口" }, status: "doing" },
-        { text: { en: "Build SUMO from source at a pinned commit", zh: "从源码编译 SUMO，并固定 commit" }, status: "todo" },
-        { text: { en: "Implement OVM in SUMO (C++) and go through its validation with B", zh: "用 C++ 在 SUMO 中实现 OVM，并与 B 一起确认验证结果" }, status: "todo" },
-        { text: { en: "Add validation checks and a minimal end-to-end run", zh: "加入验证检查并打通最小端到端运行" }, status: "todo" },
-        { text: { en: "Review E's analysis scripts and their use of run data", zh: "复核 E 的分析脚本及其对运行数据的使用" }, status: "todo" },
-        { text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" }, status: "todo" },
-        { text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" }, status: "todo" },
-        { text: { en: "Maintain the site and add the in-browser ring demo to the ring page", zh: "维护网站，并把浏览器内的环路演示加入环路页面" }, status: "todo" }
+        { id: "A1", text: { en: "Define config, run-record and output interfaces", zh: "定义配置、运行记录和输出接口" }, status: "doing" },
+        { id: "A2", text: { en: "Build SUMO from source at a pinned commit", zh: "从源码编译 SUMO，并固定 commit" }, status: "todo" },
+        { id: "A3", text: { en: "Implement OVM in SUMO (C++) and go through its validation with B", zh: "用 C++ 在 SUMO 中实现 OVM，并与 B 一起确认验证结果" }, status: "todo" },
+        { id: "A4", text: { en: "Add validation checks and a minimal end-to-end run", zh: "加入验证检查并打通最小端到端运行" }, status: "todo" },
+        { id: "A5", text: { en: "Review E's analysis scripts and their use of run data", zh: "复核 E 的分析脚本及其对运行数据的使用" }, status: "todo" },
+        { id: "A6", text: { en: "Provide reproducible run records for the report and site", zh: "为报告和网站提供可复现的运行记录" }, status: "todo" },
+        { id: "A7", text: { en: "Coordinate the group report, slides and rehearsal", zh: "协调小组报告、幻灯片和排练" }, status: "todo" },
+        { id: "A8", text: { en: "Maintain the site and add the in-browser ring demo to the ring page", zh: "维护网站，并把浏览器内的环路演示加入环路页面" }, status: "todo" }
       ]
     },
     {
@@ -178,12 +182,12 @@ window.PROJECT = {
         zh: "负责环路实验，区分自发拥堵与瓶颈引起的拥堵。"
       },
       tasks: [
-        { text: { en: "Define ring-road scenarios, density sweeps and the ring congestion criterion", zh: "定义环路场景、密度扫描和环路拥堵判据" }, status: "todo" },
-        { text: { en: "Run NaSch / OVM / IDM ring-road experiments", zh: "运行 NaSch / OVM / IDM 环路实验" }, status: "todo" },
-        { text: { en: "Compare density, system size, randomness and bottleneck", zh: "比较密度、系统尺寸、随机性和瓶颈条件" }, status: "todo" },
-        { text: { en: "Produce fundamental and space–time diagrams", zh: "生成基本图和时空图" }, status: "todo" },
-        { text: { en: "Review D's planning scenarios for consistent demand and routes", zh: "复核 D 的规划场景，确认需求和路线一致" }, status: "todo" },
-        { text: { en: "Prepare ring results for the report and site", zh: "为报告和网站整理环路结果" }, status: "todo" }
+        { id: "B1", text: { en: "Define ring-road scenarios, density sweeps and the ring congestion criterion", zh: "定义环路场景、密度扫描和环路拥堵判据" }, status: "todo" },
+        { id: "B2", text: { en: "Run NaSch / OVM / IDM ring-road experiments", zh: "运行 NaSch / OVM / IDM 环路实验" }, status: "todo" },
+        { id: "B3", text: { en: "Compare density, system size, randomness and bottleneck", zh: "比较密度、系统尺寸、随机性和瓶颈条件" }, status: "todo" },
+        { id: "B4", text: { en: "Produce fundamental and space–time diagrams", zh: "生成基本图和时空图" }, status: "todo" },
+        { id: "B5", text: { en: "Review D's planning scenarios for consistent demand and routes", zh: "复核 D 的规划场景，确认需求和路线一致" }, status: "todo" },
+        { id: "B6", text: { en: "Prepare ring results for the report and site", zh: "为报告和网站整理环路结果" }, status: "todo" }
       ]
     },
     {
@@ -196,13 +200,13 @@ window.PROJECT = {
         zh: "搭建城市路网流程，保持网络密度恒定，并测量局部拥堵的扩展。"
       },
       tasks: [
-        { text: { en: "Choose a district (preferably in Singapore, with several arterial roads) and import it from OSM into SUMO; spot-check lane counts and speed limits", zh: "选定城区（优先新加坡，并包含若干条主干道）并从 OSM 导入 SUMO；抽查车道数和限速" }, status: "todo" },
-        { text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with E", zh: "和 E 一起建立 SUMO 边与 LTA 路段的对照表" }, status: "todo" },
-        { text: { en: "Define the network congestion criterion for road segments", zh: "定义路网拥堵判据（判定路段拥堵的标准）" }, status: "todo" },
-        { text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" }, status: "todo" },
-        { text: { en: "Run network-density sweeps and export representative runs", zh: "运行网络密度扫描并导出代表性运行" }, status: "todo" },
-        { text: { en: "Measure MFD inputs, queues and congested clusters", zh: "测量宏观基本图输入、排队和拥堵连通区域" }, status: "todo" },
-        { text: { en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" }, status: "todo" }
+        { id: "C1", text: { en: "Choose a district (preferably in Singapore, with several arterial roads) and import it from OSM into SUMO; spot-check lane counts and speed limits", zh: "选定城区（优先新加坡，并包含若干条主干道）并从 OSM 导入 SUMO；抽查车道数和限速" }, status: "todo" },
+        { id: "C2", text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with E", zh: "和 E 一起建立 SUMO 边与 LTA 路段的对照表" }, status: "todo" },
+        { id: "C3", text: { en: "Define the network congestion criterion for road segments", zh: "定义路网拥堵判据（判定路段拥堵的标准）" }, status: "todo" },
+        { id: "C4", text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" }, status: "todo" },
+        { id: "C5", text: { en: "Run network-density sweeps and export representative runs", zh: "运行网络密度扫描并导出代表性运行" }, status: "todo" },
+        { id: "C6", text: { en: "Measure MFD inputs, queues and congested clusters", zh: "测量宏观基本图输入、排队和拥堵连通区域" }, status: "todo" },
+        { id: "C7", text: { en: "Review B's ring protocol and density sweeps", zh: "复核 B 的环路协议和密度扫描" }, status: "todo" }
       ]
     },
     {
@@ -215,13 +219,13 @@ window.PROJECT = {
         zh: "先搭建 4×4 测试网格，再在相同密度取值和随机种子下比较基准、封路和新增连接方案。"
       },
       tasks: [
-        { text: { en: "Build the 4×4 test grid and validate the pipeline with C", zh: "搭建 4×4 测试网格，并与 C 一起验证流程" }, status: "todo" },
-        { text: { en: "Prototype baseline, road-closure and new-link scenarios on the grid, then port them to the district", zh: "先在网格上做出基准、封路和新增连接场景，再移植到城区路网" }, status: "todo" },
-        { text: { en: "Reuse C's density values, routes and seed groups", zh: "沿用 C 的密度取值、路线和随机种子组" }, status: "todo" },
-        { text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" }, status: "todo" },
-        { text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" }, status: "todo" },
-        { text: { en: "Review C's network pipeline, units and seeds before reusing them", zh: "复核 C 的路网流程、单位和随机种子，确认可以直接沿用" }, status: "todo" },
-        { text: { en: "Prepare planning figures for the report and site", zh: "为报告和网站整理规划方案图表" }, status: "todo" }
+        { id: "D1", text: { en: "Build the 4×4 test grid and validate the pipeline with C", zh: "搭建 4×4 测试网格，并与 C 一起验证流程" }, status: "todo" },
+        { id: "D2", text: { en: "Prototype baseline, road-closure and new-link scenarios on the grid, then port them to the district", zh: "先在网格上做出基准、封路和新增连接场景，再移植到城区路网" }, status: "todo" },
+        { id: "D3", text: { en: "Reuse C's density values, routes and seed groups", zh: "沿用 C 的密度取值、路线和随机种子组" }, status: "todo" },
+        { id: "D4", text: { en: "Run planning sweeps and compare MFD peaks", zh: "运行规划扫描并比较宏观基本图峰值" }, status: "todo" },
+        { id: "D5", text: { en: "Test whether a new link produces a Braess effect", zh: "检验新增连接是否产生 Braess 悖论" }, status: "todo" },
+        { id: "D6", text: { en: "Review C's network pipeline, units and seeds before reusing them", zh: "复核 C 的路网流程、单位和随机种子，确认可以直接沿用" }, status: "todo" },
+        { id: "D7", text: { en: "Prepare planning figures for the report and site", zh: "为报告和网站整理规划方案图表" }, status: "todo" }
       ]
     },
     {
@@ -234,14 +238,14 @@ window.PROJECT = {
         zh: "制定临界点估计和误差分析方法，与真实数据对照，并把结果汇总成结论和网站数据。"
       },
       tasks: [
-        { text: { en: "Define critical-point estimators and error bars; B and C supply the congestion criteria", zh: "制定临界点估计方法和误差范围（拥堵判据由 B、C 分别定义）" }, status: "todo" },
-        { text: { en: "Provide shared analysis functions that estimate the critical density and its error range, for B and C to call in their own plots; confirm the method with B and C", zh: "提供临界密度估计和误差范围的共用分析函数，供 B、C 画自己的图时调用，并与 B、C 确认方法" }, status: "todo" },
-        { text: { en: "Apply for PeMS / highD / LTA access in week 1 (approval takes time)", zh: "第一周提交 PeMS / highD / LTA 数据申请（审核需要时间）" }, status: "todo" },
-        { text: { en: "Record LTA speed bands on a schedule from week 2 (only current data is served), covering weekday peaks", zh: "第 2 周起定时抓取并保存 LTA 速度带数据（只提供实时数据），覆盖工作日早晚高峰" }, status: "todo" },
-        { text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
-        { text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with C", zh: "和 C 一起建立 SUMO 边与 LTA 路段的对照表" }, status: "todo" },
-        { text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
-        { text: { en: "Check that the results on the site match the analysis", zh: "检查网站上的结果与分析结论一致" }, status: "todo" }
+        { id: "E1", text: { en: "Define critical-point estimators and error bars; B and C supply the congestion criteria", zh: "制定临界点估计方法和误差范围（拥堵判据由 B、C 分别定义）" }, status: "todo" },
+        { id: "E2", text: { en: "Provide shared analysis functions that estimate the critical density and its error range, for B and C to call in their own plots; confirm the method with B and C", zh: "提供临界密度估计和误差范围的共用分析函数，供 B、C 画自己的图时调用，并与 B、C 确认方法" }, status: "todo" },
+        { id: "E3", text: { en: "Apply for PeMS / highD / LTA access in week 1 (approval takes time)", zh: "第一周提交 PeMS / highD / LTA 数据申请（审核需要时间）" }, status: "todo" },
+        { id: "E4", text: { en: "Record LTA speed bands on a schedule from week 2 (only current data is served), covering weekday peaks", zh: "第 2 周起定时抓取并保存 LTA 速度带数据（只提供实时数据），覆盖工作日早晚高峰" }, status: "todo" },
+        { id: "E5", text: { en: "Obtain and clean PeMS / highD / LTA comparison data", zh: "获取并清洗 PeMS / highD / LTA 对照数据" }, status: "todo" },
+        { id: "E6", text: { en: "Build the SUMO edge ↔ LTA road stretch lookup table with C", zh: "和 C 一起建立 SUMO 边与 LTA 路段的对照表" }, status: "todo" },
+        { id: "E7", text: { en: "Review A's run records for reproducibility", zh: "复核 A 的运行记录，确保可复现" }, status: "todo" },
+        { id: "E8", text: { en: "Check that the results on the site match the analysis", zh: "检查网站上的结果与分析结论一致" }, status: "todo" }
       ]
     }
   ],

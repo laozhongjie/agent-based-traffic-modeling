@@ -128,7 +128,7 @@ window.I18N = {
       "req.late": "逾期提交，每晚一天扣 20%。",
 
       "resources.h": "资料",
-      "footer.howto": "更新进展：修改 <code>docs/data/project.js</code> 后推送即可。",
+      "footer.howto": "更新进展：在自己的成员页面点击任务即可。要修改任务本身，请编辑 <code>docs/data/project.js</code> 后推送。",
 
       // hub additions
       "nav.experiments": "方法",
@@ -375,6 +375,11 @@ window.I18N = {
       reviewedBy: (x) => ["Reviewed by ", x],
       taskCount: (n) => n + (n === 1 ? " task" : " tasks"),
       openTasks: "View tasks →",
+      toggleHint: (s) => "Click to mark as " + s,
+      syncConnecting: "Connecting to the shared progress…",
+      syncLive: "Click a task to change its status: To do → Doing → Done. Everyone sees the change at once.",
+      syncOffline: "Cannot reach the shared progress. Showing the default status; changes are not possible right now.",
+      saveFailed: "Could not save the change. Check your connection and try again.",
       tasksH: "Tasks",
       scheduleH: "Week by week",
       scheduleNote: "Items for you or the whole group, from the timeline.",
@@ -408,6 +413,11 @@ window.I18N = {
       reviewedBy: (x) => ["由 ", x, " 复核"],
       taskCount: (n) => n + " 项任务",
       openTasks: "查看任务 →",
+      toggleHint: (s) => "点击改为「" + s + "」",
+      syncConnecting: "正在连接共享进度……",
+      syncLive: "点击任务切换状态：待开始 → 进行中 → 已完成。改动会立即同步给所有人。",
+      syncOffline: "无法连接共享进度，暂时显示默认状态，现在不能修改。",
+      saveFailed: "保存失败，请检查网络后重试。",
       tasksH: "任务清单",
       scheduleH: "每周安排",
       scheduleNote: "取自时间线中你本人和全组的事项。",

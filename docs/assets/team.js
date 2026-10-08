@@ -46,12 +46,35 @@
   function reviewee(m) { const r = reviewRing(m); return r ? r[(r.indexOf(m) + 1) % r.length] : null; }
   function reviewer(m) { const r = reviewRing(m); return r ? r[(r.indexOf(m) + r.length - 1) % r.length] : null; }
 
+  // ---------- live task status ----------
+  // live.js fills `live` from Firebase ({ taskId: status }); without it the status in project.js is used.
+  const STATUSES = ["todo", "doing", "done"];
+  const live = {};
+  const liveListeners = [];
+  const sync = { state: "connecting", save: null };
+  function setLive(map) {
+    Object.keys(live).forEach((k) => delete live[k]);
+    Object.assign(live, map);
+    liveListeners.forEach((fn) => fn());
+  }
+  function setSync(state, save) {
+    sync.state = state;
+    if (save !== undefined) sync.save = save;
+    liveListeners.forEach((fn) => fn());
+  }
+  const onLive = (fn) => liveListeners.push(fn);
+  function statusOf(t) {
+    const st = (t.id && live[t.id]) || t.status;
+    return STATUSES.includes(st) ? st : "todo";
+  }
+  const nextStatus = (st) => STATUSES[(STATUSES.indexOf(st) + 1) % STATUSES.length];
+
   // ---------- progress ----------
   const WEIGHT = { done: 1, doing: 0.5, todo: 0 };
   function counts(tasks) {
     const c = { done: 0, doing: 0, todo: 0 };
-    tasks.forEach((t) => { c[t.status in c ? t.status : "todo"]++; });
-    const score = tasks.reduce((s, t) => s + (WEIGHT[t.status] || 0), 0);
+    tasks.forEach((t) => { c[statusOf(t)]++; });
+    const score = tasks.reduce((s, t) => s + WEIGHT[statusOf(t)], 0);
     return { c, total: tasks.length, pct: tasks.length ? Math.round((score / tasks.length) * 100) : 0 };
   }
   const countText = (n, key) => (Site.lang === "zh" ? U()[key] + " " + n : n + " " + U()[key]);
@@ -63,19 +86,25 @@
       h("div", { class: "seg-doing", style: "width:" + (k.c.doing / k.total) * 100 + "%" })
     ]);
   }
-  function taskList(tasks) {
-    return h("ul", { class: "tasks" }, tasks.map((t) => {
-      const st = t.status in U().status ? t.status : "todo";
-      return h("li", { class: st }, [
+  // With `onToggle`, each task is a button that passes the task and its next status.
+  function taskList(tasks, onToggle) {
+    return h("ul", { class: "tasks" + (onToggle ? " editable" : "") }, tasks.map((t) => {
+      const st = statusOf(t);
+      const parts = [
         h("span", { class: "status " + st, text: U().status[st] }),
         h("span", { class: "text", text: Site.tr(t.text) })
-      ]);
+      ];
+      if (!onToggle) return h("li", { class: st }, parts);
+      const b = h("button", { type: "button", class: "task-btn", "data-task": t.id, title: U().toggleHint(U().status[nextStatus(st)]) }, parts);
+      b.addEventListener("click", () => onToggle(t, nextStatus(st)));
+      return h("li", { class: st }, b);
     }));
   }
 
   window.Team = {
     TZ, h, dayStart, dayEnd, fmtDay,
     member, memberLabel, memberHref, reviewee, reviewer,
-    counts, countText, countSpans, barEl, taskList
+    counts, countText, countSpans, barEl, taskList,
+    live, sync, setLive, setSync, onLive, statusOf
   };
 })();

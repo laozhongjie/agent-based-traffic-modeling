@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// Access rules for the project site's live task progress (Firebase project pc5253-progress).
+// Paste into Firebase console › Firestore › Rules and publish after any change.
+// Each task's status is one document, tasks/<task id> = { status }. Everyone can read them. A write must
+// use a task id (owner letter + number, e.g. "B3") and set only `status` to "todo", "doing" or "done".
+// Nothing can be deleted, and nothing else in the database can be read or written.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /tasks/{taskId} {
+      allow read: if true;
+      allow create, update: if taskId.matches('^[A-E][0-9]{1,2}$')
+        && request.resource.data.keys().hasOnly(['status'])
+        && request.resource.data.status in ['todo', 'doing', 'done'];
+      allow delete: if false;
+    }
+  }
+}

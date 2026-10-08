@@ -8,7 +8,8 @@
   const Site = window.Site;
   const tr = Site.tr;
   const U = Site.ui;
-  const { h, dayStart, dayEnd, fmtDay, member, memberLabel, memberHref, reviewee, reviewer, counts, countSpans, barEl, taskList } = window.Team;
+  const Team = window.Team;
+  const { h, dayStart, dayEnd, fmtDay, member, memberLabel, memberHref, reviewee, reviewer, counts, countSpans, barEl, taskList } = Team;
 
   const owners = P.workstreams.filter((w) => w.owner).map((w) => w.owner);
   const asked = (new URLSearchParams(location.search).get("m") || "").toUpperCase();
@@ -48,9 +49,30 @@
     );
   }
 
+  // Clicking a task saves its next status to Firebase; the snapshot listener then re-renders every open page.
+  let saveError = "", lastTask = null;
+  function toggle(t, next) {
+    lastTask = t.id;
+    saveError = "";
+    Team.sync.save(t.id, next).catch((err) => {
+      console.warn("[live] save failed:", err);
+      saveError = U().saveFailed;
+      renderTasks();
+    });
+  }
+
   function renderTasks() {
+    const editable = Team.sync.state === "live";
+    const note = saveError || { connecting: U().syncConnecting, live: U().syncLive, offline: U().syncOffline }[Team.sync.state];
+    const hadFocus = document.activeElement && document.activeElement.closest("#member-tasks");
     fill("member-tasks-h").textContent = U().tasksH;
-    fill("member-tasks", taskList(w.tasks));
+    fill("member-tasks",
+      h("p", { class: "sync-note " + (saveError ? "error" : Team.sync.state), role: "status", text: note }),
+      taskList(w.tasks, editable ? toggle : null));
+    if (hadFocus && lastTask) {
+      const b = document.querySelector('#member-tasks [data-task="' + lastTask + '"]');
+      if (b) b.focus();
+    }
   }
 
   function renderReview() {
@@ -101,4 +123,5 @@
   Site.init();
   renderAll();
   Site.onChange(renderAll);
+  Team.onLive(() => { renderHead(); renderTasks(); });
 })();

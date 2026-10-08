@@ -385,5 +385,6 @@
   renderAll();
   const demo = ringDemo();
   Site.onChange(() => { renderAll(); demo.relabel(); });
+  window.Team.onLive(() => { renderAssignments(); renderProgress(); });
   Site.renderMath();
 })();
