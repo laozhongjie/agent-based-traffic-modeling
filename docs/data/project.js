@@ -40,10 +40,12 @@ window.PROJECT = {
 
   timelineStatus: { en: "Five primary owners are assigned. Workstreams run in parallel through shared interfaces and cross-review.", zh: "五个主责方向已经分配。各方向通过共享接口和交叉复核并行推进。" },
   // `who` is a member letter, a list of letters, or "all" for the whole group.
+  // `goal` is the phase's milestone, shown at the top of the hub while the phase is current.
   timeline: [
     {
       start: "2026-10-01", end: "2026-10-07",
       title: { en: "Kick-off & literature survey", zh: "启动与文献调研" },
+      goal: { en: "Everyone can run the repository locally; primary owners, cross-review and shared interfaces are agreed.", zh: "每人都能在本地运行仓库；主责方向、交叉复核和共享接口确定下来。" },
       items: [
         { who: "all", en: "Read the project overview and survey traffic models", zh: "阅读项目概览，调研交通模型及其变体和应用" },
         { who: "all", en: "Set up Python, SUMO and the repository locally", zh: "在本地配置 Python、SUMO 和仓库" },
@@ -53,6 +55,7 @@ window.PROJECT = {
     {
       start: "2026-10-08", end: "2026-10-14",
       title: { en: "Build & validate", zh: "搭建与验证" },
+      goal: { en: "Tools and scenarios ready: pinned SUMO build and ring example run; ring, district network and 4×4 grid built; ring and network congestion criteria defined; data requests sent.", zh: "工具和场景就绪：固定版本 SUMO 和环路示例可运行；环路、城区路网和 4×4 网格搭好；环路和路网的拥堵判据定义完成；数据申请已提交。" },
       items: [
         { who: "A", en: "Build SUMO from source at a pinned commit; publish a runnable ring example and the run rules", zh: "从源码编译 SUMO 并固定 commit；发布可运行的环路示例和运行规则" },
         { who: "A", en: "Start the OVM implementation in C++", zh: "开始用 C++ 实现 OVM" },
@@ -66,6 +69,7 @@ window.PROJECT = {
     {
       start: "2026-10-15", end: "2026-10-21",
       title: { en: "Main experiments", zh: "主要实验" },
+      goal: { en: "OVM finished and validated; ring sweeps for all three models done; constant-density network sweeps working; ring critical-point analysis done.", zh: "OVM 完成并通过验证；三种模型的环路扫描跑完；路网恒定密度扫描跑通；环路临界点分析完成。" },
       items: [
         { who: "A", en: "Finish OVM; validate NaSch (p = 0) and OVM stability with B", zh: "完成 OVM；与 B 一起完成 NaSch（p = 0）和 OVM 稳定性验证" },
         { who: "A", en: "Run formal batches on the pinned build; add the in-browser ring demo to the ring page", zh: "用固定版本运行正式批量实验；把浏览器内的环路演示加入环路页面" },
@@ -82,6 +86,7 @@ window.PROJECT = {
     {
       start: "2026-10-22", end: "2026-10-28",
       title: { en: "Planning runs & figures", zh: "规划实验与图表" },
+      goal: { en: "Planning sweeps run and Braess effect tested; final ring diagrams, queue and cluster analysis done; network critical points compared with real data.", zh: "规划方案扫描完成并检验 Braess 悖论；环路图表、排队与拥堵区域分析完成；路网临界点与真实数据对照。" },
       note: { en: "Lighter week: course test on 24 Oct", zh: "任务较轻的一周：10月24日有课程测验" },
       items: [
         { who: "A", en: "Export validated results to the site", zh: "把通过验证的结果导出到网站" },
@@ -95,6 +100,7 @@ window.PROJECT = {
     {
       start: "2026-10-29", end: "2026-11-01",
       title: { en: "Integrate results", zh: "整合结果" },
+      goal: { en: "Group conclusions fixed; slide outline set and everyone's slide drafts done.", zh: "确定全组结论；定好幻灯片大纲，每人完成自己的幻灯片初稿。" },
       items: [
         { who: "A", en: "Run the meeting that freezes conclusions; set the slide outline and assign slides", zh: "组织会议确定结论；制定幻灯片大纲并分配页面" },
         { who: "E", en: "Pull results together into the cross-workstream conclusions", zh: "把各方向结果汇总成整体结论" },
@@ -105,6 +111,7 @@ window.PROJECT = {
     {
       start: "2026-11-02", end: "2026-11-05",
       title: { en: "Presentation", zh: "展示" },
+      goal: { en: "Talk rehearsed; slides submitted by 5 Nov, 6:00 pm.", zh: "完成排练，11月5日 18:00 前提交幻灯片。" },
       items: [
         { who: "all", en: "Rehearse the talk (15 min + 3 min Q&A)", zh: "排练展示（15 分钟 + 3 分钟问答）" },
         { who: "A", en: "Assemble the deck and submit by 5 Nov, 6:00 pm", zh: "合并幻灯片，11月5日 18:00 前提交" }
@@ -113,6 +120,7 @@ window.PROJECT = {
     {
       start: "2026-11-06", end: "2026-11-15",
       title: { en: "Report drafting & peer grading", zh: "撰写报告与互评" },
+      goal: { en: "Each workstream's methods, results and limitations written and edited into the group report; peer grading done by 15 Nov.", zh: "各方向写完方法、结果和局限并统稿成小组报告；11月15日前完成互评。" },
       items: [
         { who: "all", en: "Write methods, results and limitations for your own workstream", zh: "撰写自己方向的方法、结果和局限" },
         { who: "A", en: "Edit the group report into one document (at least 10 pages)", zh: "统稿小组报告（至少 10 页）" },
@@ -122,6 +130,7 @@ window.PROJECT = {
     {
       start: "2026-11-16", end: "2026-11-22",
       title: { en: "Final submission", zh: "最终提交" },
+      goal: { en: "Group report, data and code, and individual reports submitted by 22 Nov, 11:59 pm.", zh: "11月22日 23:59 前提交小组报告、数据与代码以及个人报告。" },
       items: [
         { who: "all", en: "Write individual reports", zh: "撰写个人报告" },
         { who: "A", en: "Finalize report, data and code; submit by 22 Nov, 11:59 pm", zh: "完善报告、数据和代码，11月22日 23:59 前提交" }

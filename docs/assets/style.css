@@ -228,6 +228,8 @@ p, li { text-wrap: pretty; }
 .next-deadline .what { font-size: 14px; color: var(--muted); line-height: 1.5; border-left: 1px solid var(--border); padding-left: 16px; }
 .next-deadline .what strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 2px; }
 .next-deadline .what span { display: block; }
+.next-deadline .what .goal { color: var(--text); margin-top: 6px; }
+.next-deadline .what .minor { font-size: 12px; margin-top: 6px; }
 
 .demo { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
 .demo canvas { display: block; width: 100%; max-width: 360px; height: auto; aspect-ratio: 1; margin: 0 auto; }

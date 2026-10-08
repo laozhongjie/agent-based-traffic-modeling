@@ -18,13 +18,38 @@
 
   const now = new Date();
 
-  // ---------- next deadline ----------
-  function renderNextDeadline() {
+  // ---------- current phase ----------
+  // The hero card shows the current timeline phase and its goal, with days left in the phase
+  // (calendar days in Singapore time, today included); between phases it shows the next one.
+  // The nearest submission deadline stays as a small line underneath.
+  const todaySGT = () => dayStart(now.toLocaleDateString("en-CA", { timeZone: TZ }));
+
+  function renderPhase() {
     const box = clear("next-deadline");
     const next = P.deadlines
       .map((d) => Object.assign({}, d, { at: new Date(d.date) }))
       .sort((a, b) => a.at - b.at)
       .find((d) => d.at > now);
+    const today = todaySGT();
+    const i = P.timeline.findIndex((ph) => dayEnd(ph.end) >= now);
+    const ph = P.timeline[i];
+    if (ph && ph.goal) {
+      const current = dayStart(ph.start) <= now;
+      const days = current
+        ? Math.round((dayStart(ph.end) - today) / DAY) + 1
+        : Math.round((dayStart(ph.start) - today) / DAY);
+      const range = fmtDay(dayStart(ph.start)) + " – " + fmtDay(dayStart(ph.end));
+      box.append(
+        h("div", { class: "days" }, [String(days), h("small", { text: current ? (days === 1 ? U().dayLeft : U().daysLeft) : U().daysToGo })]),
+        h("div", { class: "what" }, [
+          h("strong", { text: (current ? U().phaseNow : U().phaseNext) + tr(ph.title) }),
+          h("span", { text: range + " · " + U().phaseOf(i + 1, P.timeline.length) }),
+          h("span", { class: "goal", text: tr(ph.goal) }),
+          next ? h("span", { class: "minor", text: U().nextDue + tr(next.label) + " · " + fmtDay(next.at, { weekday: "short" }) + " " + fmtTime(next.at) }) : null
+        ])
+      );
+      return;
+    }
     if (!next) {
       box.append(h("div", { class: "what" }, [h("strong", { text: U().allPassed })]));
       return;
@@ -399,7 +424,7 @@
 
   // ---------- boot ----------
   function renderAll() {
-    renderNextDeadline();
+    renderPhase();
     renderAssignments();
     renderTimeline();
     renderProgress();
