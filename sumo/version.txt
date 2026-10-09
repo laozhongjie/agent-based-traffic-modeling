@@ -1,5 +1,5 @@
 # Pinned SUMO build for this project (maintained by A).
-# The source and the build live outside this repository; OVM will be added on top
+# The source and the build live outside this repository; OVM is added on top
 # of this commit (sumo/ovm/ for new files, sumo/patches/ for changes to SUMO files).
 
 tag     v1_28_0
@@ -19,6 +19,13 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 # otherwise SUMO links against /opt/anaconda3/lib and breaks when Anaconda changes.
 # Enabled features: FMI Proj FMT Intl. Build time about 25 min with 4 jobs.
 
+# Add OVM (carFollowModel="OVM") after cloning and before building; run from the repository root:
+#   cp sumo/ovm/MSCFModel_OVM.h sumo/ovm/MSCFModel_OVM.cpp ~/sumo/src/microsim/cfmodels/
+#   git -C ~/sumo apply "$PWD/sumo/patches/register-ovm.patch"
+# The patch registers the model and its vType attributes alpha (1/s), sc (m) and d (m);
+# the model itself is documented at the top of sumo/ovm/MSCFModel_OVM.h. The patch changes a
+# header used almost everywhere, so the next build recompiles nearly all of SUMO.
+
 # Use it in a terminal (instead of the release installed from the SUMO website):
 #   export SUMO_HOME=~/sumo
 #   export PATH=~/sumo/bin:$PATH
@@ -32,3 +39,15 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 #   for N = 10, 20, 25, 50. Two conditions are needed: vehicles must start on cell positions
 #   (N = 40 evenly spaced gives 2.5 cells and 7.5 m/s instead of 11.25), and speedDev = 0,
 #   speedFactor = 1 (SUMO's default speed factor otherwise gives each car its own top speed).
+# - OVM, checked on 2026-10-10 on the 1000 m ring, step 0.1 s, length 5, minGap 0, maxSpeed 25,
+#   alpha 1, sc 18, d 11.6:
+#   - With no perturbation every vehicle settles at V(s0), s0 = L/N - length, to 6 decimals
+#     (N = 10, 20, 100, 150; N = 10 checks that leaders 95 m ahead on the next edge are found).
+#   - With a 0.5 m seeded perturbation, positions and speeds agree with an independent Python
+#     integrator of v' = max(0, v + dt*alpha*(V(s) - v)), x' = x + dt*v' to 5e-9 over 300 s
+#     (N = 20, 30, 80, 100; 1.4e-6 for N = 50, where the jam amplifies output rounding).
+#   - These parameters give collisions in the unstable range (N = 40-60, minimum gap -2.19 m);
+#     the Python integrator gives the same gaps, so the overlap belongs to the model, not the code.
+#   - Near the threshold, growth follows the discrete-time rate for dt = 0.1, which differs from
+#     the continuous V'(s0) = alpha/2 criterion (e.g. N = 30: +0.0005/s instead of +0.0025/s).
+#   - pytest: all 29 tests pass on this build.

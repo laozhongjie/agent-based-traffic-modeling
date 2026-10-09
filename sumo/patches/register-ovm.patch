@@ -1,0 +1,105 @@
+diff --git a/src/microsim/MSVehicleType.cpp b/src/microsim/MSVehicleType.cpp
+index b6097597e..aa9423ff0 100644
+--- a/src/microsim/MSVehicleType.cpp
++++ b/src/microsim/MSVehicleType.cpp
+@@ -51,6 +51,7 @@
+ #include "MSVehicleControl.h"
+ #include "cfmodels/MSCFModel_CC.h"
+ #include "cfmodels/MSCFModel_NaSch.h"
++#include "cfmodels/MSCFModel_OVM.h"
+ #include "MSVehicleType.h"
+ 
+ 
+@@ -412,6 +413,9 @@ MSVehicleType::build(SUMOVTypeParameter& from, const std::string& fileName) {
+             vtype->myCarFollowModel = new MSCFModel_NaSch(vtype,
+                     from.getCFParam(SUMO_ATTR_SIGMA, SUMOVTypeParameter::getDefaultImperfection(from.vehicleClass)));
+             break;
++        case SUMO_TAG_CF_OVM:
++            vtype->myCarFollowModel = new MSCFModel_OVM(vtype);
++            break;
+         case SUMO_TAG_CF_KRAUSS:
+         default:
+             vtype->myCarFollowModel = new MSCFModel_Krauss(vtype);
+diff --git a/src/microsim/cfmodels/CMakeLists.txt b/src/microsim/cfmodels/CMakeLists.txt
+index 4de07ee5c..e8e3cf9df 100644
+--- a/src/microsim/cfmodels/CMakeLists.txt
++++ b/src/microsim/cfmodels/CMakeLists.txt
+@@ -33,6 +33,8 @@ set(microsim_cfmodels_STAT_SRCS
+    MSCFModel_Rail.h
+    MSCFModel_NaSch.cpp
+    MSCFModel_NaSch.h
++   MSCFModel_OVM.cpp
++   MSCFModel_OVM.h
+    CC_Const.h
+    CC_VehicleVariables.cpp
+    CC_VehicleVariables.h
+diff --git a/src/utils/vehicle/SUMOVehicleParserHelper.cpp b/src/utils/vehicle/SUMOVehicleParserHelper.cpp
+index cac68aaa9..bbfd1a72c 100644
+--- a/src/utils/vehicle/SUMOVehicleParserHelper.cpp
++++ b/src/utils/vehicle/SUMOVehicleParserHelper.cpp
+@@ -1546,6 +1546,13 @@ SUMOVehicleParserHelper::getAllowedCFModelAttrs() {
+         naschParams.insert(SUMO_ATTR_SIGMA);
+         allowedCFModelAttrs[SUMO_TAG_CF_NASCH] = naschParams;
+         allParams.insert(naschParams.begin(), naschParams.end());
++        // OVM
++        std::set<SumoXMLAttr> ovmParams(genericParams);
++        ovmParams.insert(SUMO_ATTR_CF_OVM_ALPHA);
++        ovmParams.insert(SUMO_ATTR_CF_OVM_SC);
++        ovmParams.insert(SUMO_ATTR_CF_OVM_D);
++        allowedCFModelAttrs[SUMO_TAG_CF_OVM] = ovmParams;
++        allParams.insert(ovmParams.begin(), ovmParams.end());
+         // last element
+         allowedCFModelAttrs[SUMO_TAG_NOTHING] = allParams;
+     }
+diff --git a/src/utils/xml/SUMOXMLDefinitions.cpp b/src/utils/xml/SUMOXMLDefinitions.cpp
+index 9f12aa4d9..4c3452009 100644
+--- a/src/utils/xml/SUMOXMLDefinitions.cpp
++++ b/src/utils/xml/SUMOXMLDefinitions.cpp
+@@ -235,6 +235,7 @@ SequentialStringBijection::Entry SUMOXMLDefinitions::tags[] = {
+     { "carFollowing-CACC",                      SUMO_TAG_CF_CACC },
+     { "carFollowing-CC",                        SUMO_TAG_CF_CC },
+     { "carFollowing-NaSch",                     SUMO_TAG_CF_NASCH },
++    { "carFollowing-OVM",                       SUMO_TAG_CF_OVM },
+     // Person
+     { "person",                                 SUMO_TAG_PERSON },
+     { "personTrip",                             SUMO_TAG_PERSONTRIP },
+@@ -1232,6 +1233,9 @@ SequentialStringBijection::Entry SUMOXMLDefinitions::attrs[] = {
+     { "cc7",                    SUMO_ATTR_CF_W99_CC7 },
+     { "cc8",                    SUMO_ATTR_CF_W99_CC8 },
+     { "cc9",                    SUMO_ATTR_CF_W99_CC9 },
++    { "alpha",                  SUMO_ATTR_CF_OVM_ALPHA },
++    { "sc",                     SUMO_ATTR_CF_OVM_SC },
++    { "d",                      SUMO_ATTR_CF_OVM_D },
+ 
+     { "ccDecel",                SUMO_ATTR_CF_CC_CCDECEL },
+     { "constSpacing",           SUMO_ATTR_CF_CC_CONSTSPACING },
+@@ -1630,6 +1634,7 @@ StringBijection<SumoXMLTag>::Entry SUMOXMLDefinitions::carFollowModelValues[] =
+     { "CACC",        SUMO_TAG_CF_CACC },
+     { "W99",         SUMO_TAG_CF_W99 },
+     { "NaSch",       SUMO_TAG_CF_NASCH },
++    { "OVM",         SUMO_TAG_CF_OVM },
+     { "Wiedemann",   SUMO_TAG_CF_WIEDEMANN } //< must be the last one
+ };
+ 
+diff --git a/src/utils/xml/SUMOXMLDefinitions.h b/src/utils/xml/SUMOXMLDefinitions.h
+index 81919ee76..2f17e20bf 100644
+--- a/src/utils/xml/SUMOXMLDefinitions.h
++++ b/src/utils/xml/SUMOXMLDefinitions.h
+@@ -374,6 +374,7 @@ enum SumoXMLTag {
+     SUMO_TAG_CF_RAIL,
+     SUMO_TAG_CF_CC,
+     SUMO_TAG_CF_NASCH,
++    SUMO_TAG_CF_OVM,
+     /// @}
+ 
+     /// @name Persons
+@@ -1620,6 +1621,9 @@ enum SumoXMLAttr {
+     SUMO_ATTR_CF_W99_CC7,
+     SUMO_ATTR_CF_W99_CC8,
+     SUMO_ATTR_CF_W99_CC9,
++    SUMO_ATTR_CF_OVM_ALPHA,
++    SUMO_ATTR_CF_OVM_SC,
++    SUMO_ATTR_CF_OVM_D,
+ 
+     SUMO_ATTR_CF_CC_CCDECEL,
+     SUMO_ATTR_CF_CC_CONSTSPACING,
