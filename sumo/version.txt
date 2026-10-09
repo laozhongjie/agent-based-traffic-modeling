@@ -12,10 +12,12 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 #   cd ~/sumo
 #   env PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin \
 #     cmake -B build . -DCMAKE_BUILD_TYPE=Release -DCMAKE_IGNORE_PREFIX_PATH=/opt/anaconda3
-#   env PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin cmake --build build --parallel
+#   env PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin nice -n 15 cmake --build build --parallel 4
+# Always give --parallel a number: without one, make starts unlimited compile jobs, runs out of
+# memory and freezes the computer. 4 jobs at low priority keep the computer usable.
 # The PATH and CMAKE_IGNORE_PREFIX_PATH settings keep Anaconda's libraries out of the build;
 # otherwise SUMO links against /opt/anaconda3/lib and breaks when Anaconda changes.
-# Enabled features: FMI Proj FMT Intl. Build time about 10 min on 15 cores.
+# Enabled features: FMI Proj FMT Intl. Build time about 25 min with 4 jobs.
 
 # Use it in a terminal (instead of the release installed from the SUMO website):
 #   export SUMO_HOME=~/sumo
