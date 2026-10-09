@@ -1,0 +1,32 @@
+# Pinned SUMO build for this project (maintained by A).
+# The source and the build live outside this repository; OVM will be added on top
+# of this commit (sumo/ovm/ for new files, sumo/patches/ for changes to SUMO files).
+
+tag     v1_28_0
+commit  daf91b5578901d599ac9af53f49d26eeb9aefc3b
+release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
+
+# Build on macOS (Apple silicon), headless: no sumo-gui, no GDAL.
+#   brew install cmake xerces-c proj
+#   git clone --depth 1 --branch v1_28_0 --recursive --shallow-submodules https://github.com/eclipse-sumo/sumo ~/sumo
+#   cd ~/sumo
+#   env PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin \
+#     cmake -B build . -DCMAKE_BUILD_TYPE=Release -DCMAKE_IGNORE_PREFIX_PATH=/opt/anaconda3
+#   env PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin cmake --build build --parallel
+# The PATH and CMAKE_IGNORE_PREFIX_PATH settings keep Anaconda's libraries out of the build;
+# otherwise SUMO links against /opt/anaconda3/lib and breaks when Anaconda changes.
+# Enabled features: FMI Proj FMT Intl. Build time about 10 min on 15 cores.
+
+# Use it in a terminal (instead of the release installed from the SUMO website):
+#   export SUMO_HOME=~/sumo
+#   export PATH=~/sumo/bin:$PATH
+#   sumo --version        # Eclipse SUMO sumo 1.28.0
+
+# Checked on 2026-10-09:
+# - pytest: all 29 tests pass.
+# - Ring IDM sweep (configs/ring/idm_sweep.toml): identical to SUMO 1.27.1 in every run.
+# - NaSch, p = 0 (sigma = 0), 750 m ring = 100 cells of 7.5 m, vmax = 4 cells, speedDev = 0,
+#   speedFactor = 1: mean speed equals the deterministic result 7.5 * min(4, (1 - rho) / rho) m/s
+#   for N = 10, 20, 25, 50. Two conditions are needed: vehicles must start on cell positions
+#   (N = 40 evenly spaced gives 2.5 cells and 7.5 m/s instead of 11.25), and speedDev = 0,
+#   speedFactor = 1 (SUMO's default speed factor otherwise gives each car its own top speed).
