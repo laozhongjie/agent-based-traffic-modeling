@@ -168,7 +168,8 @@ for each run in the sweep:
     results.write_timeseries(run_id, series, cfg)
     row = dict(measured, scenario=…, model=…, variant=…, seed=…)
     rows.append(runner.finish(run_dir, run_id, row, {**checks, **more_checks}))
-results.write_summary(rows, cfg)</code></pre>`,
+results.write_summary(rows, cfg)</code></pre>
+    <p>在运行过程中改变仿真的场景（例如城市路网的恒定密度控制器）用 <code>runner.run_traci(run_dir, controller)</code> 代替 <code>runner.run_sumo(run_dir)</code>。SUMO 会逐步推进，每一步之后调用 <code>controller(conn, time_s)</code>，其中 <code>conn</code> 是 TraCI 连接，例如 <code>conn.vehicle.add</code>、<code>conn.vehicle.remove</code>。它写出同样的 <code>log.txt</code>，返回同样的检查结果。该运行的 <code>.sumocfg</code> 必须设置结束时间。</p>`,
 
   "guide.records": `
     <h2>5. 运行编号和运行记录</h2>

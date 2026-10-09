@@ -204,6 +204,7 @@ for each run in the sweep:
     row = dict(measured, scenario=…, model=…, variant=…, seed=…)
     rows.append(runner.finish(run_dir, run_id, row, {**checks, **more_checks}))
 results.write_summary(rows, cfg)</code></pre>
+      <p>A scenario that changes the simulation while it runs, such as the constant-density controller on the city network, calls <code>runner.run_traci(run_dir, controller)</code> instead of <code>runner.run_sumo(run_dir)</code>. SUMO then advances one step at a time and calls <code>controller(conn, time_s)</code> after every step, where <code>conn</code> is the TraCI connection, for example <code>conn.vehicle.add</code> or <code>conn.vehicle.remove</code>. It writes the same <code>log.txt</code> and returns the same checks. The run's <code>.sumocfg</code> must set an end time.</p>
     </section>
 
     <section class="card model-section" id="records" data-i18n="guide.records">

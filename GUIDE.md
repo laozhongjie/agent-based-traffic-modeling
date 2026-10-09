@@ -206,6 +206,8 @@ for each run in the sweep:
 results.write_summary(rows, cfg)
 ```
 
+A scenario that changes the simulation while it runs, such as the constant-density controller on the city network, calls `runner.run_traci(run_dir, controller)` instead of `runner.run_sumo(run_dir)`. SUMO then advances one step at a time and calls `controller(conn, time_s)` after every step, where `conn` is the TraCI connection, for example `conn.vehicle.add` or `conn.vehicle.remove`. It writes the same `log.txt` and returns the same checks. The run's `.sumocfg` must set an end time.
+
 ## 5. Run IDs and run records
 
 A run ID names the scenario, the model, the parameters that vary and the seed, joined by underscores, with no spaces. The ring example uses `ring_idm_L1000_n30_s1`: ring, IDM, length 1000 m, 30 vehicles, seed 1. Owners of other scenarios follow the same pattern and add their format here.

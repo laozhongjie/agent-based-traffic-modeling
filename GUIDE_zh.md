@@ -206,6 +206,8 @@ for each run in the sweep:
 results.write_summary(rows, cfg)
 ```
 
+在运行过程中改变仿真的场景（例如城市路网的恒定密度控制器）用 `runner.run_traci(run_dir, controller)` 代替 `runner.run_sumo(run_dir)`。SUMO 会逐步推进，每一步之后调用 `controller(conn, time_s)`，其中 `conn` 是 TraCI 连接，例如 `conn.vehicle.add`、`conn.vehicle.remove`。它写出同样的 `log.txt`，返回同样的检查结果。该运行的 `.sumocfg` 必须设置结束时间。
+
 ## 5. 运行编号和运行记录
 
 运行编号依次写出场景、模型、变化的参数和种子，用下划线连接，不含空格。环路示例的编号是 `ring_idm_L1000_n30_s1`：环路、IDM、长度 1000 m、30 辆车、种子 1。其他场景的负责人按同样的方式命名，并把格式补充到本节。
