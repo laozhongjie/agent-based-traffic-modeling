@@ -17,7 +17,7 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 # memory and freezes the computer. 4 jobs at low priority keep the computer usable.
 # The PATH and CMAKE_IGNORE_PREFIX_PATH settings keep Anaconda's libraries out of the build;
 # otherwise SUMO links against /opt/anaconda3/lib and breaks when Anaconda changes.
-# Enabled features: FMI Proj FMT Intl. Build time about 25 min with 4 jobs.
+# Enabled features: FMI Proj FMT Intl.
 
 # Add OVM (carFollowModel="OVM") after cloning and before building; run from the repository root:
 #   cp sumo/ovm/MSCFModel_OVM.h sumo/ovm/MSCFModel_OVM.cpp ~/sumo/src/microsim/cfmodels/
@@ -30,6 +30,8 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 #   export SUMO_HOME=~/sumo
 #   export PATH=~/sumo/bin:$PATH
 #   sumo --version        # Eclipse SUMO sumo 1.28.0
+#   python sumo/ovm/check_ovm.py   # checks OVM against theory and a reference integrator
+#   pytest                # includes short OVM checks, skipped when sumo has no OVM
 
 # Checked on 2026-10-09:
 # - pytest: all 29 tests pass.
@@ -39,7 +41,7 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 #   for N = 10, 20, 25, 50. Two conditions are needed: vehicles must start on cell positions
 #   (N = 40 evenly spaced gives 2.5 cells and 7.5 m/s instead of 11.25), and speedDev = 0,
 #   speedFactor = 1 (SUMO's default speed factor otherwise gives each car its own top speed).
-# - OVM, checked on 2026-10-10 on the 1000 m ring, step 0.1 s, length 5, minGap 0, maxSpeed 25,
+# - OVM (sumo/ovm/check_ovm.py), checked on 2026-10-10 on the 1000 m ring, step 0.1 s, length 5, minGap 0, maxSpeed 25,
 #   alpha 1, sc 18, d 11.6:
 #   - With no perturbation every vehicle settles at V(s0), s0 = L/N - length, to 6 decimals
 #     (N = 10, 20, 100, 150; N = 10 checks that leaders 95 m ahead on the next edge are found).
@@ -50,4 +52,4 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 #     the Python integrator gives the same gaps, so the overlap belongs to the model, not the code.
 #   - Near the threshold, growth follows the discrete-time rate for dt = 0.1, which differs from
 #     the continuous V'(s0) = alpha/2 criterion (e.g. N = 30: +0.0005/s instead of +0.0025/s).
-#   - pytest: all 29 tests pass on this build.
+#   - pytest: all 42 tests pass on this build.

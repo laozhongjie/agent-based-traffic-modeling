@@ -89,6 +89,8 @@
 | `src/traffic_project/` 中的 `config.py`、`io.py`、`runner.py` | 读取配置、读取 SUMO 输出、运行 SUMO、写运行记录、通用检查 | A |
 | `src/traffic_project/results.py` | 结果数据格式（第 6 节）：必需列、检查和写出函数 | A |
 | `src/traffic_project/export_web.py`、`scripts/export_web.py` | 把通过检查的结果导出到网站（第 3 节第 6 步） | A |
+| `src/traffic_project/ovm.py` | OVM 理论：最优速度、均匀流的稳定性、参考积分器 | A |
+| `sumo/` | 包含 OVM 的 SUMO 构建：版本、OVM 源码、补丁，以及检查脚本 `sumo/ovm/check_ovm.py` | A |
 | `tests/` | 共用代码的自动测试，用 `pytest` 运行 | A |
 | `src/traffic_project/measurements.py` | 测量量，每个场景一个函数 | A；环路 B；路网 C |
 | `src/traffic_project/demand.py` | 城区路网的恒定密度 TraCI 控制器（尚未建立） | C |

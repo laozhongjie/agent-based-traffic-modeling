@@ -7,6 +7,7 @@ Modules:
     measurements  turn SUMO outputs into measured quantities
     results       result data format: writers for experiments, readers for analysis
     export_web    export validated results to the website (docs/data/<scenario>/)
+    ovm           OVM theory and a reference integrator (checks of SUMO's OVM)
 
 Scripts in scripts/ import from here instead of copying code. Changes to this
 package go through a pull request reviewed by A (see docs/guide.html).

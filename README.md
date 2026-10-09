@@ -42,7 +42,7 @@ The tree below is the intended layout. The repository currently contains the ove
 ├── research/                   # Decision log and validation notes
 ├── sumo/
 │   ├── version.txt             # Pinned upstream SUMO commit
-│   ├── ovm/                    # MSCFModel_OVM.h/.cpp, kept as complete files
+│   ├── ovm/                    # MSCFModel_OVM.h/.cpp, kept as complete files, and check_ovm.py
 │   └── patches/                # Small edits that register OVM in SUMO
 ├── scenarios/                  # Fixed SUMO inputs and their generators
 │   ├── ring/                   # Ring road and bottleneck variants
@@ -60,6 +60,7 @@ The tree below is the intended layout. The repository currently contains the ove
 │   ├── demand.py               # Destinations, routing, vehicle-count control
 │   ├── measurements.py         # Common measurement definitions
 │   ├── results.py              # Result data format shared with the analysis
+│   ├── ovm.py                  # OVM theory and reference integrator
 │   ├── analysis/               # Critical points, fluctuations, clusters
 │   └── export_web.py           # Export compact website data
 ├── scripts/                    # Command-line entry points
