@@ -188,12 +188,12 @@ window.PROJECT = {
             en: [
               "Compile SUMO from source; record the commit and the build steps",
               "Publish a ring-road example that runs on this build, plus the run rules",
-              "Needed because built-in NaSch is only in the development version and OVM must be compiled in; one pinned build keeps results identical across computers"
+              "Needed because OVM must be compiled in; one pinned build keeps results identical across computers"
             ],
             zh: [
               "从源码编译 SUMO，记下所用的 commit 和编译步骤",
               "发布一个能在这个版本上运行的环路示例，以及运行规则",
-              "NaSch 只在 SUMO 开发版中，OVM 也要编译进去；统一固定版本，避免不同电脑结果不一致"
+              "OVM 要编译进 SUMO；统一固定版本，避免不同电脑结果不一致"
             ]
           }
         },

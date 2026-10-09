@@ -61,7 +61,7 @@ Object.assign(window.I18N.static.zh, {
   "model.nasch.project": `
     <h2>7. 在本项目中的作用</h2>
     <p>NaSch 是高速公路环路的随机模型基准。改变占有率、随机减速概率和道路长度，观察噪声与有限尺寸对拥堵的影响，再与 OVM 和 IDM 比较。</p>
-    <p>首页动画在浏览器中演示这些规则。正式结果将来自固定版本的 SUMO；NaSch 的实现取决于所选开发版本，应检查实现是否符合上述规则。</p>`,
+    <p>首页动画在浏览器中演示这些规则。正式结果来自 SUMO 1.28.0，其中内置 NaSch（<code>carFollowModel="NaSch"</code>）。项目用 \\(p = 0\\) 时的确定性结果检查它是否符合上述规则。</p>`,
   "model.nasch.reference": `
     <h2>8. 原始论文</h2>
     <p>K. Nagel 和 M. Schreckenberg（1992），<em>A cellular automaton model for freeway traffic</em>，Journal de Physique I，2，2221–2229。<a href='https://doi.org/10.1051/jp1:1992277' class='more'>阅读原始论文</a></p>`,

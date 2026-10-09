@@ -84,7 +84,7 @@ The rules are simple and fast to compute, which makes NaSch well suited to valid
 | Same maximum speed for every vehicle | `speedDev=0`, `maxSpeed` a multiple of 7.5 m/s |
 | Random slowdown probability p | `sigma=p` (defaults to 0.5, so it must be set explicitly) |
 
-This model was added to SUMO's development branch in August 2026 and is not yet in the latest release (1.27.1), so the project uses a SUMO build compiled from source (see 4.8).
+This model is part of the official release since SUMO 1.28.0 (released 8 October 2026).
 
 ### 4.3 Intelligent Driver Model (IDM)
 
@@ -108,7 +108,7 @@ All three are agent-based microscopic models, but they produce congestion throug
 
 | Model | Space and time | Source of congestion | Role in the comparison | In SUMO |
 |---|---|---|---|---|
-| **NaSch** | Discrete cells, discrete time | Random slowdowns; with zero slowdown probability there are no spontaneous jams | Congestion caused by random perturbations | Built in (development branch) |
+| **NaSch** | Discrete cells, discrete time | Random slowdowns; with zero slowdown probability there are no spontaneous jams | Congestion caused by random perturbations | Built in (since 1.28.0) |
 | **OVM** | Continuous | Deterministic instability: uniform flow is unstable when V′(h) > a/2 | Provides a theoretical critical condition to validate the simulated threshold | Our own C++ implementation |
 | **IDM** | Continuous | Instability, while keeping safe gaps and avoiding collisions | Most realistic behavior; main model for the city network | Built in |
 
@@ -152,7 +152,7 @@ CTM/LWR is not an agent-based model. Its role is to provide a cross-scale compar
 | Data analysis | Python, Matplotlib, Pandas | Aggregate repeated runs, compute metrics, produce report figures |
 | Interactive front end | JavaScript, Canvas, ECharts | Display, replay and compare SUMO results; in-browser ring-road illustration |
 
-All formal simulations run on the same SUMO build, so ring-road and city-network results can be compared directly. The built-in NaSch model currently exists only in SUMO's development branch, and OVM must be compiled into SUMO, so the project builds SUMO from source and pins the exact code version (commit) to keep results reproducible. One member owns the build and the batch runs, which avoids version differences between computers. SUMO is a simulation platform, not a separate traffic model, so it is not compared side by side with NaSch, OVM and IDM.
+All formal simulations run on the same SUMO build, so ring-road and city-network results can be compared directly. OVM must be compiled into SUMO, so the project builds SUMO 1.28.0 (which already includes NaSch and IDM) from source and pins the exact code version (commit) to keep results reproducible. One member owns the build and the batch runs, which avoids version differences between computers. SUMO is a simulation platform, not a separate traffic model, so it is not compared side by side with NaSch, OVM and IDM.
 
 ### 4.9 Model validation
 

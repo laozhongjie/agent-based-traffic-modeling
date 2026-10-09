@@ -67,7 +67,7 @@ window.I18N = {
       "models.col3": "拥堵成因",
       "models.col4": "作用",
       "models.col5": "SUMO 中的实现",
-      "models.nasch.sumo": "内置（开发版）",
+      "models.nasch.sumo": "内置（1.28.0 起）",
       "models.ovm.sumo": "<strong>自行实现（C++）</strong>",
       "models.idm.sumo": "内置",
       "models.note": "环路和城市路网的所有正式模拟，都在同一个从源码编译、固定版本的 SUMO 中运行，因此所有结果可以直接比较。",

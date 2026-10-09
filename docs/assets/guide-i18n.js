@@ -23,9 +23,9 @@ Object.assign(window.I18N.static.zh, {
 
   "guide.setup": `
     <h2>1. 安装 SUMO 和 Python</h2>
-    <p>开发阶段使用 SUMO 正式版 <strong>1.27.1</strong>，其中已包含 IDM。NaSch 只在 SUMO 开发版中提供，OVM 由本项目自行加入，所以正式实验将使用 A 提供的固定版本。正式版足以熟悉流程和开发场景。</p>
+    <p>使用 SUMO 正式版 <strong>1.28.0</strong>，其中已包含 IDM 和 NaSch。OVM 由本项目自行加入，所以 OVM 的运行和正式实验使用 A 编译的版本：同为 1.28.0，另加入了 OVM。其余工作用正式版就够了：熟悉流程、开发场景、运行 IDM 和 NaSch。</p>
     <ol>
-      <li>按 <a href='https://sumo.dlr.de/docs/Installing/index.html'>SUMO 安装说明</a> 安装适合自己系统的 SUMO 1.27.1。</li>
+      <li>按 <a href='https://sumo.dlr.de/docs/Installing/index.html'>SUMO 安装说明</a> 安装适合自己系统的 SUMO 1.28.0。如果之前装的是 1.27.1，用同样的方法安装 1.28.0，再按第 3 步检查。</li>
       <li>设置 <code>SUMO_HOME</code>，并把 SUMO 的 <code>bin</code> 目录加入 <code>PATH</code>：
         <ul>
           <li><strong>Windows：</strong><code>.msi</code> 安装包会自动设置这两项。安装后关闭并重新打开终端。</li>
@@ -40,7 +40,7 @@ source ~/.bashrc</code></pre>
           </li>
         </ul>
       </li>
-      <li>检查安装结果。输出的第一行应为 <code>Eclipse SUMO sumo 1.27.1</code>。
+      <li>检查安装结果。输出的第一行应为 <code>Eclipse SUMO sumo 1.28.0</code>。
 <pre><code>sumo --version</code></pre>
       </li>
       <li><strong>可选：</strong><code>sumo-gui</code> 用窗口显示仿真过程，可以看到车辆怎样移动、拥堵在哪里形成，适合用来检查新搭建的场景是否正确。做实验不需要它：除了第 3 节中一个可选步骤，本手册的所有命令都不打开窗口。在 Windows 上，安装 SUMO 后即可使用 <code>sumo-gui</code>。在 macOS 上需要先安装 XQuartz（用下面的 Homebrew 命令，或从 <a href='https://www.xquartz.org/'>xquartz.org</a> 下载），再注销并重新登录。没有 XQuartz 时，<code>sumo-gui</code> 会报错 <code>unable to open display</code>。<code>sumo-gui</code> 输出的 <code>Fontconfig warning</code> 不影响运行。
@@ -244,7 +244,7 @@ df = df[df.valid]                                                     # 只保�
         </tbody>
       </table>
     </div>
-    <p>环路还要遵守两条规则。每条边都显式设置 <code>length</code>，并用 <code>--no-internal-links</code> 生成路网，保证密度严格等于车辆数 ÷ 环路长度。模型有已知结果时，用它核对仿真：IDM 平衡速度、NaSch 在 \\(p = 0\\) 时的结果、OVM 稳定性条件。</p>`,
+    <p>环路还要遵守两条规则。每条边都显式设置 <code>length</code>，并用 <code>--no-internal-links</code> 生成路网，保证密度严格等于车辆数 ÷ 环路长度。模型有已知结果时，用它核对仿真：IDM 平衡速度、NaSch 在 \\(p = 0\\) 时的结果、OVM 稳定性条件。NaSch 只有在格点上才能得到 \\(p = 0\\) 的结果：环路长度是 7.5 m 格子的整数倍，车辆初始位置是 7.5 m 的整数倍，<code>speedDev</code> 为 0，<code>maxSpeed</code> 是 7.5 m/s 的整数倍且不超过路段限速。</p>`,
 
   "guide.units": `
     <h2>8. 单位和测量方法</h2>
@@ -273,7 +273,6 @@ df = df[df.valid]                                                     # 只保�
       <li><strong>连续模型的步长和预热时长</strong>。</li>
       <li><strong>哪些运行保留 <code>fcd.xml</code>。</strong>30 辆车运行 1800 秒约产生 7 MB，完整扫描只应为代表性运行保留轨迹。</li>
       <li><strong>时间序列的取样间隔</strong>（E）。示例使用 10 秒。</li>
-      <li><strong>包含 NaSch 和 OVM 的固定版 SUMO</strong>（A）。</li>
     </ul>`,
 
   "guide.git": `

@@ -25,9 +25,9 @@
 
 ## 1. 安装 SUMO 和 Python
 
-开发阶段使用 SUMO 正式版 **1.27.1**，其中已包含 IDM。NaSch 只在 SUMO 开发版中提供，OVM 由本项目自行加入，所以正式实验将使用 A 提供的固定版本。正式版足以熟悉流程和开发场景。
+使用 SUMO 正式版 **1.28.0**，其中已包含 IDM 和 NaSch。OVM 由本项目自行加入，所以 OVM 的运行和正式实验使用 A 编译的版本：同为 1.28.0，另加入了 OVM。其余工作用正式版就够了：熟悉流程、开发场景、运行 IDM 和 NaSch。
 
-1. 按 [SUMO 安装说明](https://sumo.dlr.de/docs/Installing/index.html) 安装适合自己系统的 SUMO 1.27.1。
+1. 按 [SUMO 安装说明](https://sumo.dlr.de/docs/Installing/index.html) 安装适合自己系统的 SUMO 1.28.0。如果之前装的是 1.27.1，用同样的方法安装 1.28.0，再按第 3 步检查。
 2. 设置 `SUMO_HOME`，并把 SUMO 的 `bin` 目录加入 `PATH`：
    - **Windows：** `.msi` 安装包会自动设置这两项。安装后关闭并重新打开终端。
    - **macOS：** 安装包不会设置这两项。在终端运行下面三行，它们会把两项设置追加到 `~/.zshrc` 末尾并立即生效：
@@ -45,7 +45,7 @@
      source ~/.bashrc
      ```
 
-3. 检查安装结果。输出的第一行应为 `Eclipse SUMO sumo 1.27.1`。
+3. 检查安装结果。输出的第一行应为 `Eclipse SUMO sumo 1.28.0`。
 
    ```bash
    sumo --version
@@ -285,7 +285,7 @@ df = df[df.valid]                                                     # 只保�
 | `all_vehicles_present` | 车辆初始位置离其他车太近时，SUMO 会推迟插入这辆车，并且不报错。此时车辆数和密度都是错的。在环路上，`build_run.py` 还会直接拒绝放不下的车辆数。 |
 | `no_negative_speed` | 模型错误，尤其是新写的 OVM 代码 |
 
-环路还要遵守两条规则。每条边都显式设置 `length`，并用 `--no-internal-links` 生成路网，保证密度严格等于车辆数 ÷ 环路长度。模型有已知结果时，用它核对仿真：IDM 平衡速度、NaSch 在 $p = 0$ 时的结果、OVM 稳定性条件。
+环路还要遵守两条规则。每条边都显式设置 `length`，并用 `--no-internal-links` 生成路网，保证密度严格等于车辆数 ÷ 环路长度。模型有已知结果时，用它核对仿真：IDM 平衡速度、NaSch 在 $p = 0$ 时的结果、OVM 稳定性条件。NaSch 只有在格点上才能得到 $p = 0$ 的结果：环路长度是 7.5 m 格子的整数倍，车辆初始位置是 7.5 m 的整数倍，`speedDev` 为 0，`maxSpeed` 是 7.5 m/s 的整数倍且不超过路段限速。
 
 ## 8. 单位和测量方法
 
@@ -309,7 +309,6 @@ df = df[df.valid]                                                     # 只保�
 - **连续模型的步长和预热时长**。
 - **哪些运行保留 `fcd.xml`。** 30 辆车运行 1800 秒约产生 7 MB，完整扫描只应为代表性运行保留轨迹。
 - **时间序列的取样间隔**（E）。示例使用 10 秒。
-- **包含 NaSch 和 OVM 的固定版 SUMO**（A）。
 
 ## 10. 用 Git 协作
 

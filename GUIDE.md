@@ -25,9 +25,9 @@ Items marked **(To decide)** still need group agreement. A maintains this guide;
 
 ## 1. Set up SUMO and Python
 
-Use the official SUMO release **1.27.1** for development. It includes IDM. NaSch is only in the SUMO development version, and OVM is added by this project, so formal runs will use a pinned build that A provides. The release is enough to learn the workflow and to develop scenarios.
+Use the official SUMO release **1.28.0**. It includes IDM and NaSch. OVM is added by this project, so OVM runs and the formal runs use A's build: the same version with OVM compiled in. The release is enough for everything else: learning the workflow, developing scenarios, and running IDM and NaSch.
 
-1. Install SUMO 1.27.1 from the [SUMO installation page](https://sumo.dlr.de/docs/Installing/index.html) for your system.
+1. Install SUMO 1.28.0 from the [SUMO installation page](https://sumo.dlr.de/docs/Installing/index.html) for your system. If you installed 1.27.1 earlier, install 1.28.0 the same way and check it with step 3.
 2. Set `SUMO_HOME` and add the SUMO `bin` folder to `PATH`:
    - **Windows:** the `.msi` installer sets both. Close and reopen the terminal afterwards.
    - **macOS:** the installer sets neither. Run these three lines in the terminal. They add both settings to the end of `~/.zshrc` and load them:
@@ -45,7 +45,7 @@ Use the official SUMO release **1.27.1** for development. It includes IDM. NaSch
      source ~/.bashrc
      ```
 
-3. Check the installation. The first line must read `Eclipse SUMO sumo 1.27.1`.
+3. Check the installation. The first line must read `Eclipse SUMO sumo 1.28.0`.
 
    ```bash
    sumo --version
@@ -285,7 +285,7 @@ SUMO does not stop on several problems that silently change the experiment. Ever
 | `all_vehicles_present` | SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, `build_run.py` also refuses a vehicle count that cannot fit. |
 | `no_negative_speed` | Model errors, especially in the new OVM code |
 
-Two more rules apply to the ring. Set each edge's `length` explicitly and build the network with `--no-internal-links`, so that density = vehicles ÷ ring length exactly. When a model has a known result, compare with it: the IDM equilibrium speed, the NaSch result at $p = 0$ and the OVM stability condition.
+Two more rules apply to the ring. Set each edge's `length` explicitly and build the network with `--no-internal-links`, so that density = vehicles ÷ ring length exactly. When a model has a known result, compare with it: the IDM equilibrium speed, the NaSch result at $p = 0$ and the OVM stability condition. NaSch reproduces the $p = 0$ result only on a lattice: the ring length is a whole number of 7.5 m cells, vehicles start at multiples of 7.5 m, `speedDev` is 0, and `maxSpeed` is a multiple of 7.5 m/s no higher than the edge's speed limit.
 
 ## 8. Units and measurements
 
@@ -309,7 +309,6 @@ On the ring, the mean speed $\bar v$ is the average speed of all vehicles at eac
 - **Step length and warm-up length** for the continuous models.
 - **Which runs keep `fcd.xml`.** One run of 30 vehicles for 1800 s writes about 7 MB, so a full sweep should keep trajectories only for representative runs.
 - **Time-series sample interval** (E). The example uses 10 s.
-- **The pinned SUMO build with NaSch and OVM** (A).
 
 ## 10. Working with Git
 
