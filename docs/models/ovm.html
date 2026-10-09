@@ -6,7 +6,7 @@
   <script src="../assets/access.js"></script>
   <script src="../assets/theme.js"></script>
   <title>OVM · Agent-Based Traffic Modeling</title>
-  <meta name="description" content="A detailed introduction to the Optimal Velocity Model: headway, desired speed, relaxation dynamics and traffic-flow instability.">
+  <meta name="description" content="The Optimal Velocity Model: the rule, a ring-road demo, why uniform flow breaks down, and our SUMO implementation.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -35,77 +35,98 @@
     <header class="model-head">
       <p class="eyebrow" data-i18n="model.ovm.tag">Continuous · Deterministic · Car following</p>
       <h1 data-i18n="model.ovm.title">Optimal Velocity Model (OVM)</h1>
-      <p class="lede" data-i18n="model.ovm.lede">A driver chooses a desired speed from the distance to the car ahead and gradually adjusts to it. Even with no random braking, small disturbances can grow when the response is too slow.</p>
-      <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
+      <p class="lede" data-i18n="model.ovm.lede">Each driver reads the gap to the car ahead, decides how fast that gap allows, and catches up with that speed only gradually. No randomness is needed: if drivers respond too slowly, uniform traffic turns into stop-and-go by itself.</p>
     </header>
 
-    <section class="card model-viz" id="model-viz" data-model="ovm" aria-labelledby="model-viz-title"></section>
+    <section class="card model-section" data-i18n="model.ovm.rule">
+      <h2>The rule</h2>
+      <p>Positions and speeds are continuous. A car looks at one thing only: its net gap \(s_i\) to the car ahead, from its front bumper to the leader's rear bumper, in metres. The optimal-velocity function \(V(s)\) says how fast that gap allows, and the car moves its speed towards it at rate \(\alpha\):</p>
+      <div class="eq-math">\[\frac{dx_i}{dt}=v_i,\qquad \frac{dv_i}{dt}=\alpha\,\bigl[V(s_i)-v_i\bigr]\]
+      \[V(s)=v_{\max}\,\frac{\tanh\bigl((s-s_c)/d\bigr)+\tanh(s_c/d)}{1+\tanh(s_c/d)}\]</div>
+      <ul>
+        <li>\(V(0)=0\): with no gap the driver wants to stop; for large gaps \(V\to v_{\max}\).</li>
+        <li>\(s_c\) is where the curve is steepest and \(d\) sets how wide the transition is. Near \(s_c\), a small change in gap asks for a large change in speed.</li>
+        <li>\(\alpha\) is in s\(^{-1}\); \(1/\alpha\) is the relaxation time: the gap between actual and desired speed shrinks by a factor \(e\) every \(1/\alpha\) seconds. It is not a reaction delay, but it acts like one: the car always lags behind its target.</li>
+      </ul>
+      <p>OVM uses the gap alone, not the leader's speed. Even if the leader brakes hard, the follower does not slow down until the gap has actually shrunk. This is why OVM cars can collide.</p>
+      <p>“Optimal” is just the name of \(V\); nobody optimizes anything. Bando et al. measure headway (including the car length) in scaled units. Our implementation and this page use the net gap \(s\) and SI units.</p>
+    </section>
 
-    <div class="model-grid">
-      <section class="card model-card" data-i18n="model.ovm.idea">
-        <h2>1. Basic idea</h2>
-        <p>Introduced by Bando and colleagues in 1995, OVM models continuous positions and speeds. The optimal-velocity function \(V(h)\) assigns a desired speed to each headway: close vehicles prefer low speed; widely spaced vehicles approach a free-flow speed.</p>
-        <p>“Optimal” names the prescribed speed function. It does not mean each driver solves a route or travel-time optimization problem.</p>
-      </section>
-      <section class="card model-card" data-i18n="model.ovm.state">
-        <h2>2. State and distance conventions</h2>
-        <p>Let \(x_i(t)\) and \(v_i(t)\) be position and speed. Headway \(h_i=x_{i+1}-x_i\) is the distance between corresponding points on successive vehicles. On a ring, it is measured forward around the boundary.</p>
-        <p>Headway is not the empty bumper-to-bumper gap. For identical vehicle length \(\ell_{\mathrm{veh}}\), that gap is \(s_i=h_i-\ell_{\mathrm{veh}}\). Keep this distinction when translating an analytical OVM into SUMO.</p>
-      </section>
-    </div>
+    <section class="card model-viz model-section" id="model-viz" data-model="ovm" aria-labelledby="model-viz-title"></section>
 
-    <section class="card model-equation" data-i18n="model.ovm.equations">
-      <h2>3. Relaxation toward the desired speed</h2>
-      <div class="eq-math">\[\frac{dx_i}{dt}=v_i,\qquad \frac{dv_i}{dt}=\alpha[V(h_i)-v_i]\]</div>
-      <p>If a car is slower than its desired speed, it accelerates. If it is faster, it decelerates. The sensitivity \(\alpha>0\) has units s\(^{-1}\), and \(1/\alpha\) is the relaxation time, not an explicit reaction delay.</p>
-      <p>A dimensionally consistent version of a common smooth function is:</p>
-      <div class="eq-math">\[V(h)=\frac{v_{\max}}{1+\tanh(h_c/d)}\left[\tanh\left(\frac{h-h_c}{d}\right)+\tanh\left(\frac{h_c}{d}\right)\right]\]</div>
-      <p class="caption">This choice gives \(V(0)=0\) and \(V(h)\to v_{\max}\) for large headway. The homepage's shorter \(v_{\max}/2\) form is often written in scaled coordinates; its parameter is an amplitude, with large-headway limit \(v_{\max}[1+\tanh(h_c)]/2\). Fix the length scaling and normalization before a quantitative comparison.</p>
+    <section class="card model-sim" id="model-sim" data-model="ovm" aria-labelledby="model-sim-title"></section>
+
+    <section class="card model-section" data-i18n="model.ovm.look">
+      <h2>What to look for</h2>
+      <ol class="experiment-list">
+        <li>
+          <h3>Low density: disturbances die out</h3>
+          <p>At 20 veh/km the gap is 45 m, on the flat part of \(V(s)\), so \(V'(s_0)&lt;\alpha/2\). At 10 s the outlined car stops dead; the cars behind it slow down less and less, and the flow recovers.</p>
+          <button type="button" class="btn" data-preset="ovm-stable">Load</button>
+        </li>
+        <li>
+          <h3>Middle density: jams without any randomness</h3>
+          <p>At 50 veh/km the gap is 15 m, where \(V(s)\) is steepest, so \(V'(s_0)&gt;\alpha/2\). The cars start evenly spaced with only 0.5 m of jitter. Press nothing: within a minute the jitter grows into stop-and-go waves that travel backwards (dark bands in the space–time diagram). Watch “Smallest gap” as well: it turns negative because OVM cars collide.</p>
+          <button type="button" class="btn" data-preset="ovm-unstable">Load</button>
+        </li>
+        <li>
+          <h3>Faster response: no jams</h3>
+          <p>Same density with \(\alpha=2.5\ \mathrm{s^{-1}}\). Now \(\alpha/2\) is above the largest slope of \(V\), the unstable band disappears from the fundamental diagram, and a stopped car causes only a brief dip. Drag \(\alpha\) down slowly and watch the band open up.</p>
+          <button type="button" class="btn" data-preset="ovm-alpha">Load</button>
+        </li>
+      </ol>
+    </section>
+
+    <section class="card model-section" data-i18n="model.ovm.theory">
+      <h2>Why uniform flow breaks down</h2>
+      <p>With every gap equal to \(s_0=L/N-\ell\) and every speed equal to \(V(s_0)\), nobody accelerates: uniform flow solves the equations. Whether it survives depends on a chain reaction. If the leader slows a little, the follower's gap shrinks by \(\Delta s\) and its target speed drops by \(V'(s_0)\,\Delta s\). The follower needs about \(1/\alpha\) seconds to reach the new target; by then the gap has shrunk further, so it brakes harder than its leader did. Each car passes on a larger disturbance than it received.</p>
+      <p>Linearizing the equations for small gap disturbances \(y_n=s_n-s_0\) gives \(\ddot y_n+\alpha\dot y_n=\alpha V'(s_0)(y_{n+1}-y_n)\). For long waves along the platoon, a disturbance grows when</p>
+      <div class="eq-math">\[V'(s_0)&gt;\frac{\alpha}{2}\]</div>
+      <p>\(V'\) measures how strongly a change in gap asks the speed to change; \(\alpha/2\) measures how fast the driver can follow. \(V'\) is largest at \(s=s_c\) (1.13 s\(^{-1}\) here), so the unstable densities form a band around \(s_0=s_c\), and \(\alpha&gt;2.26\ \mathrm{s^{-1}}\) makes every density stable. That band is the shaded region in the demo.</p>
+      <p>Two limits of this result: it is a long-wave criterion, so on a finite ring and with a finite time step the threshold moves a little (<code>growth_rate</code> in <code>src/traffic_project/ovm.py</code> computes the exact rate). And it only says whether a disturbance starts to grow; once large, the waves settle into steady stop-and-go.</p>
     </section>
 
     <section class="card model-section" data-i18n="model.ovm.parameters">
-      <h2>4. Parameters and physical units</h2>
+      <h2>Parameters</h2>
       <div class="table-wrap"><table class="model-table">
-        <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
+        <thead><tr><th>Symbol</th><th>SUMO attribute</th><th>Value here</th><th>Meaning</th></tr></thead>
         <tbody>
-          <tr><td>\(\alpha\)</td><td>Sensitivity in s\(^{-1}\). A larger value gives faster relaxation toward \(V(h)\).</td></tr>
-          <tr><td>\(v_{\max}\)</td><td>Asymptotic desired speed in m/s for the normalized function above.</td></tr>
-          <tr><td>\(h_c,\ d\)</td><td>Transition headway and smoothing length in m. \(h_c\) locates the steepest part of the curve; smaller \(d\) makes the speed response to headway steeper.</td></tr>
-          <tr><td>\(h_0=L/N\)</td><td>Uniform headway in m on a ring of physical length \(L\) with \(N\) vehicles. Density in veh/km is \(1000/h_0\).</td></tr>
-          <tr><td>\(\Delta t\)</td><td>Numerical integration step in s, not a defining OVM parameter. Check convergence as the step is reduced.</td></tr>
+          <tr><td>\(\alpha\)</td><td><code>alpha</code></td><td>1.0 s\(^{-1}\)</td><td>Sensitivity; \(1/\alpha\) is the relaxation time.</td></tr>
+          <tr><td>\(v_{\max}\)</td><td><code>maxSpeed</code></td><td>25 m/s</td><td>Speed at large gaps.</td></tr>
+          <tr><td>\(s_c\)</td><td><code>sc</code></td><td>18 m</td><td>Gap where \(V\) is steepest.</td></tr>
+          <tr><td>\(d\)</td><td><code>d</code></td><td>11.6 m</td><td>Width of the transition; smaller \(d\), steeper \(V\).</td></tr>
+          <tr><td>\(\ell\)</td><td><code>length</code></td><td>5 m</td><td>Car length.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="caption">Test values from <code>sumo/ovm/check_ovm.py</code>, not calibrated.</p>
+    </section>
+
+    <section class="card model-section" data-i18n="model.ovm.sumo">
+      <h2>In SUMO</h2>
+      <p>SUMO has no OVM, so we added <code>carFollowModel="OVM"</code> ourselves (<code>sumo/ovm/</code>, attributes <code>alpha</code>, <code>sc</code>, <code>d</code>). Each step of length \(\Delta t\) it computes \(v'=\max\bigl(0,\ v+\Delta t\,\alpha[V(s)-v]\bigr)\), then \(x'=x+\Delta t\,v'\); there are no acceleration limits and collisions are allowed. \(s\) is SUMO's gap, which excludes <code>minGap</code>. The demo uses the same update with \(\Delta t=0.1\) s, so it shows what SUMO does, including the overlaps.</p>
+      <p>The step length matters: with \(\Delta t=1\) s and \(\alpha=1\) the update becomes \(v'=V(s)\), the lag disappears and much of the instability with it. OVM runs therefore use 0.1 s.</p>
+    </section>
+
+    <section class="card model-section model-compare" data-current="ovm" data-i18n="model.compare">
+      <h2>The three models side by side</h2>
+      <div class="table-wrap"><table class="model-table">
+        <thead><tr><th>Model</th><th>Space and time</th><th>Randomness</th><th>Why uniform flow breaks down</th><th>Collisions</th><th>In SUMO</th></tr></thead>
+        <tbody>
+          <tr data-model="nasch"><td><a href="nasch.html">NaSch</a></td><td>Cells of 7.5 m, steps of 1 s</td><td>Random slowdown with probability \(p\)</td><td>Random slowdowns and a cautious gap rule; with \(p=0\) there are no spontaneous jams</td><td>Never (rule 2)</td><td>Built in since 1.28.0</td></tr>
+          <tr data-model="ovm"><td><a href="ovm.html">OVM</a></td><td>Continuous</td><td>None</td><td>Slow response: \(V'(s_0)&gt;\alpha/2\)</td><td>Yes, in the unstable range</td><td>Our C++ model</td></tr>
+          <tr data-model="idm"><td><a href="idm.html">IDM</a></td><td>Continuous</td><td>None</td><td>Weak acceleration or a short time gap; the closing-speed term helps but does not guarantee stability</td><td>Not in continuous time; with a coarse step gaps can fall below \(s_0\)</td><td>Built in</td></tr>
         </tbody>
       </table></div>
     </section>
 
-    <section class="card model-section" data-i18n="model.ovm.stability">
-      <h2>5. Uniform flow and instability</h2>
-      <p>In uniform flow, every headway equals \(h_0\) and every speed equals \(V(h_0)\). Linearizing around this state gives, for the standard homogeneous OVM and long-wavelength disturbances on a large ring, the stability condition \(V'(h_0)&lt;\alpha/2\). The boundary is \(V'(h_0)=\alpha/2\).</p>
-      <div class="eq-math">\[V'(h)=\frac{v_{\max}}{d[1+\tanh(h_c/d)]}\operatorname{sech}^2\left(\frac{h-h_c}{d}\right)\]</div>
-      <p>When \(V'(h_0)&gt;\alpha/2\), a small change in headway demands a large change in desired speed, and delayed relaxation can amplify the disturbance. Cars alternately brake and accelerate, generating stop-and-go waves without stochastic forcing.</p>
-      <p>This criterion depends on the model and background state. A finite ring has discrete perturbation modes, so its threshold may differ from the long-wavelength limit. Nonlinear jams and numerical safeguards also require separate checks.</p>
-    </section>
-
-    <div class="model-grid model-section">
-      <section class="card model-card" data-i18n="model.ovm.limits">
-        <h2>6. Strengths and limitations</h2>
-        <ul>
-          <li>A compact mechanism with an analytical stability condition: useful for separating deterministic instability from random noise.</li>
-          <li>The basic acceleration law uses headway and own speed, with no separate closing-speed term.</li>
-          <li>It does not guarantee collision avoidance or realistic acceleration bounds. Extreme conditions and numerical integration can produce unphysical states.</li>
-          <li>Any clipping, emergency braking or safety override changes the simulated dynamics and must be documented.</li>
-        </ul>
-      </section>
-      <section class="card model-card" data-i18n="model.ovm.project">
-        <h2>7. Role in this project</h2>
-        <p>OVM supplies the deterministic theory reference. Perturb uniform ring-road flow slightly, sweep density and sensitivity, and compare perturbation growth with the analytical prediction.</p>
-        <p>The project plans a C++ implementation in the fixed SUMO build. Verify the exact \(V(h)\), headway definition, integrator and safety interventions before comparing it with the theoretical model.</p>
-      </section>
-    </div>
-
     <section class="card model-section" data-i18n="model.ovm.reference">
-      <h2>8. Original paper</h2>
-      <p>M. Bando, K. Hasebe, A. Nakayama, A. Shibata and Y. Sugiyama (1995), <em>Dynamical model of traffic congestion and numerical simulation</em>, Physical Review E, 51, 1035–1042. <a href="https://doi.org/10.1103/PhysRevE.51.1035" class="more">Read the original paper</a></p>
+      <h2>Further reading</h2>
+      <ul>
+        <li>M. Bando, K. Hasebe, A. Nakayama, A. Shibata and Y. Sugiyama (1995), <em>Dynamical model of traffic congestion and numerical simulation</em>, Physical Review E 51, 1035–1042. <a href="https://doi.org/10.1103/PhysRevE.51.1035">doi:10.1103/PhysRevE.51.1035</a></li>
+        <li>Y. Sugiyama et al. (2008), <em>Traffic jams without bottlenecks: experimental evidence for the physical mechanism of the formation of a jam</em>, New Journal of Physics 10, 033001. Real cars on a ring, as in the demo. <a href="https://doi.org/10.1088/1367-2630/10/3/033001">doi:10.1088/1367-2630/10/3/033001</a></li>
+      </ul>
     </section>
+
     <div class="model-links">
       <a class="more btn" href="../lab/ring.html" data-i18n="model.ring">Open ring-road experiment</a>
       <a class="more btn" href="idm.html" data-i18n="model.toIdm">Next: IDM</a>
@@ -120,5 +141,6 @@
   <script defer src="../assets/common.js"></script>
   <script defer src="../assets/model.js"></script>
   <script defer src="../assets/model-viz.js"></script>
+  <script defer src="../assets/model-sim.js"></script>
 </body>
 </html>

@@ -183,7 +183,7 @@
           <thead><tr><th data-i18n="models.col1">Model</th><th data-i18n="models.col2">Space &amp; time</th><th data-i18n="models.col3">Why jams form</th><th data-i18n="models.col4">Role</th><th data-i18n="models.col5">In SUMO</th></tr></thead>
           <tbody>
             <tr><td><a href="models/nasch.html"><strong>NaSch</strong></a></td><td data-i18n="models.nasch.space">Discrete cells and steps</td><td data-i18n="models.nasch.why">Random slowdowns</td><td data-i18n="models.nasch.role">Noise-driven congestion</td><td data-i18n="models.nasch.sumo">Built in (since 1.28.0)</td></tr>
-            <tr><td><a href="models/ovm.html"><strong>OVM</strong></a></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, \(V'(h) > a/2\)</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td><td data-i18n="models.ovm.sumo"><strong>Our C++ implementation</strong></td></tr>
+            <tr><td><a href="models/ovm.html"><strong>OVM</strong></a></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.ovm.why">Deterministic instability, \(V'(s) > \alpha/2\)</td><td data-i18n="models.ovm.role">Has a theoretical threshold to test simulations against</td><td data-i18n="models.ovm.sumo"><strong>Our C++ implementation</strong></td></tr>
             <tr><td><a href="models/idm.html"><strong>IDM</strong></a></td><td data-i18n="models.cont">Continuous</td><td data-i18n="models.idm.why">Instability without collisions</td><td data-i18n="models.idm.role">Closest to real driving; main model for the city network</td><td data-i18n="models.idm.sumo">Built in</td></tr>
           </tbody>
         </table>
@@ -200,8 +200,8 @@
         </a>
         <a class="card eq exp-card" href="models/ovm.html">
           <h3>OVM</h3>
-          <div class="eq-math">\[\frac{dv_i}{dt}=a\left[V(\Delta x_i)-v_i\right]\]\[V(h)=\frac{v_{\max}}{2}\left[\tanh(h-h_c)+\tanh h_c\right]\]</div>
-          <p data-i18n="eq.ovm">\(\Delta x_i\): headway to the car ahead; \(a\): sensitivity; \(h_c\): safety distance. Uniform flow becomes unstable when \(V'(h) > a/2\).</p>
+          <div class="eq-math">\[\frac{dv_i}{dt}=\alpha\left[V(s_i)-v_i\right]\]\[V(s)=v_{\max}\,\frac{\tanh\frac{s-s_c}{d}+\tanh\frac{s_c}{d}}{1+\tanh\frac{s_c}{d}}\]</div>
+          <p data-i18n="eq.ovm">\(s_i\): gap to the car ahead; \(\alpha\): sensitivity; \(s_c\), \(d\): where \(V\) is steepest and how wide the transition is. Uniform flow becomes unstable when \(V'(s) > \alpha/2\).</p>
           <span class="exp-foot"><span class="exp-open" data-i18n="models.details">Explore this model</span></span>
         </a>
         <a class="card eq exp-card" href="models/idm.html">

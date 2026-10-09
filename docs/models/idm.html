@@ -6,7 +6,7 @@
   <script src="../assets/access.js"></script>
   <script src="../assets/theme.js"></script>
   <title>IDM · Agent-Based Traffic Modeling</title>
-  <meta name="description" content="A detailed introduction to the Intelligent Driver Model: acceleration, desired gap, closing speed, equilibrium traffic and model limitations.">
+  <meta name="description" content="The Intelligent Driver Model: the acceleration law, a ring-road demo, why uniform flow can break down, and SUMO’s built-in version.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -35,78 +35,100 @@
     <header class="model-head">
       <p class="eyebrow" data-i18n="model.idm.tag">Continuous · Deterministic · Car following</p>
       <h1 data-i18n="model.idm.title">Intelligent Driver Model (IDM)</h1>
-      <p class="lede" data-i18n="model.idm.lede">A car accelerates toward its desired speed while adapting to the gap and the speed of its leader. The model combines free-road driving, following and anticipatory braking in one acceleration law.</p>
-      <p class="note" data-i18n="model.purpose">This page explains the model and its assumptions. Examples are illustrative; they are not results from the project's formal SUMO runs.</p>
+      <p class="lede" data-i18n="model.idm.lede">Each car accelerates towards its desired speed and brakes when the gap is smaller than the gap it wants, a gap that grows with its speed and with how fast it is closing in. One smooth formula covers free driving, following and braking. Cars do not collide, but uniform flow can still break down.</p>
     </header>
 
-    <section class="card model-viz" id="model-viz" data-model="idm" aria-labelledby="model-viz-title"></section>
+    <section class="card model-section" data-i18n="model.idm.rule">
+      <h2>The rule</h2>
+      <p>Positions and speeds are continuous. A car looks at its speed \(v\), its net gap \(s\) to the car ahead, and its closing speed \(\Delta v=v-v_{\text{leader}}\) (positive when it is catching up):</p>
+      <div class="eq-math">\[\frac{dv}{dt}=a\left[1-\Bigl(\frac{v}{v_0}\Bigr)^{\delta}-\Bigl(\frac{s^*(v,\Delta v)}{s}\Bigr)^{2}\right],\qquad s^*=s_0+\max\Bigl(0,\ vT+\frac{v\,\Delta v}{2\sqrt{ab}}\Bigr)\]</div>
+      <ul>
+        <li><strong>Free-road term</strong> \(a[1-(v/v_0)^\delta]\): on an empty road the car accelerates at about \(a\) and levels off at its desired speed \(v_0\).</li>
+        <li><strong>Interaction term</strong> \(-a(s^*/s)^2\): braking when the actual gap \(s\) is smaller than the desired gap \(s^*\), and almost nothing when it is much larger.</li>
+        <li><strong>Desired gap</strong> \(s^*\): \(s_0\) when stopped, plus \(T\) seconds of driving at speed \(v\), plus a term that grows when the car is closing in. That last term makes the car brake <em>early</em> when it approaches a slower car.</li>
+      </ul>
+      <p>The closing speed is the difference from OVM: an IDM car reacts as soon as its leader slows, not only once the gap has shrunk. Approaching gently, it brakes at about the comfortable deceleration \(b\); in an emergency it brakes harder. This is why IDM cars do not collide.</p>
+      <p>In uniform flow \(\Delta v=0\) and the acceleration is zero, which gives the equilibrium gap for each speed: \(s_e(v)=(s_0+vT)/\sqrt{1-(v/v_0)^\delta}\). At low speed this is about \(s_0+vT\): the gap grows linearly with speed, and \(T\) is the time headway.</p>
+    </section>
 
-    <div class="model-grid">
-      <section class="card model-card" data-i18n="model.idm.idea">
-        <h2>1. Basic idea</h2>
-        <p>Developed by Treiber, Hennecke and Helbing and presented in 2000, IDM is a continuous car-following model. The driver balances the wish to reach a preferred speed against the need to maintain a speed-dependent gap.</p>
-        <p>“Intelligent” refers to this adaptive driving rule. The model contains no learning algorithm or route optimization. The basic homogeneous model is deterministic; variability can be introduced through driver parameters or external processes.</p>
-      </section>
-      <section class="card model-card" data-i18n="model.idm.state">
-        <h2>2. State and closing-speed convention</h2>
-        <p>The acceleration depends on own speed \(v_i\), net bumper-to-bumper gap \(s_i\), and closing speed \(\Delta v_i=v_i-v_{i+1}\). Positive \(\Delta v_i\) means the follower is approaching its leader.</p>
-        <p>For identical vehicle length \(\ell_{\mathrm{veh}}\), \(s_i=x_{i+1}-x_i-\ell_{\mathrm{veh}}\). The sign of closing speed matters: reversing it without changing the equation would reverse the anticipatory braking response.</p>
-      </section>
-    </div>
+    <section class="card model-viz model-section" id="model-viz" data-model="idm" aria-labelledby="model-viz-title"></section>
 
-    <section class="card model-equation" data-i18n="model.idm.equations">
-      <h2>3. Acceleration and desired gap</h2>
-      <div class="eq-math">\[\frac{dx_i}{dt}=v_i,\qquad \frac{dv_i}{dt}=a\left[1-\left(\frac{v_i}{v_0}\right)^\delta-\left(\frac{s^*(v_i,\Delta v_i)}{s_i}\right)^2\right]\]
-      \[s^*(v,\Delta v)=s_0+\max\left(0,vT+\frac{v\Delta v}{2\sqrt{ab}}\right)\]</div>
-      <p>The free-road term \(1-(v/v_0)^\delta\) accelerates a slow car toward \(v_0\). The interaction term \(-(s^*/s)^2\) reduces acceleration or produces braking when the available gap is small relative to the desired gap.</p>
-      <p>The desired gap contains a standstill distance \(s_0\), a time-headway contribution \(vT\), and a closing-speed contribution \(v\Delta v/(2\sqrt{ab})\). The nonnegative clamp shown here is a common implementation convention that keeps \(s^*\ge s_0\); record the exact variant used in SUMO.</p>
-      <p class="caption">Illustration: \(s_0=2\) m, \(T=1.5\) s, \(a=1\) m/s² and \(b=2\) m/s². At \(v=10\) m/s with \(\Delta v=0\), the desired gap is 17 m. If \(\Delta v=2\) m/s, it increases to about 24.1 m. These values illustrate the formula and are not a project calibration.</p>
+    <section class="card model-sim" id="model-sim" data-model="idm" aria-labelledby="model-sim-title"></section>
+
+    <section class="card model-section" data-i18n="model.idm.look">
+      <h2>What to look for</h2>
+      <ol class="experiment-list">
+        <li>
+          <h3>Low density: a stopped car is absorbed</h3>
+          <p>At 20 veh/km the outlined car stops at 10 s. The cars behind brake early and gently, the stopped car pulls away at about \(a\), and the disturbance fades.</p>
+          <button type="button" class="btn" data-preset="idm-free">Load</button>
+        </li>
+        <li>
+          <h3>Middle density: a wave that does not go away</h3>
+          <p>At 50 veh/km the same stop creates a jam that travels backwards at about 15 km/h, close to the 15–20 km/h of real highway jams, and never dissolves. Watch “Smallest gap”: it stays several metres; unlike OVM, IDM cars brake in time. (Without the stop, the 0.5 m starting jitter also grows into waves, but that takes several minutes.)</p>
+          <button type="button" class="btn" data-preset="idm-stop">Load</button>
+        </li>
+        <li>
+          <h3>Stronger acceleration: stable flow</h3>
+          <p>With \(a=2\ \mathrm{m/s^2}\) cars leave a jam fast enough to catch up with their leaders before the next car arrives: the disturbance fades and the unstable band disappears from the fundamental diagram. Drag \(a\) down to 0.5 and watch the band widen.</p>
+          <button type="button" class="btn" data-preset="idm-strong">Load</button>
+        </li>
+      </ol>
+    </section>
+
+    <section class="card model-section" data-i18n="model.idm.theory">
+      <h2>Why uniform flow can break down</h2>
+      <p>Each gap \(s\) has an equilibrium speed \(v_e(s)\), the inverse of \(s_e(v)\). With density \(k=1000/(s+\ell)\) veh/km the uniform flow is \(q=3.6\,k\,v_e\) veh/h: the grey curve in the demo.</p>
+      <p>Whether it is stable can be decided for any car-following law \(dv/dt=f(s,v,\Delta v)\) from three partial derivatives at equilibrium. Long waves do not grow when (Wilson and Ward 2011)</p>
+      <div class="eq-math">\[f_s\le\frac{f_v^2}{2}+f_{\Delta v}\,f_v\]</div>
+      <p>\(f_s&gt;0\) says how strongly a change in gap changes the acceleration; \(f_v^2/2\) is the damping from relaxing towards a speed; \(f_{\Delta v}f_v&gt;0\) is the extra damping from reacting to the closing speed. For OVM, \(f=\alpha[V(s)-v]\) gives \(f_s=\alpha V'\), \(f_v=-\alpha\), \(f_{\Delta v}=0\), and the condition becomes \(V'\le\alpha/2\). IDM has the extra damping term, but with a small \(a\) or a short \(T\) the gap term still wins. The demo evaluates the condition numerically at every density to draw the band.</p>
+      <p>As with OVM, this is a long-wave criterion for small disturbances; a finite ring, a finite step and large disturbances (a stopped car) can all behave differently.</p>
     </section>
 
     <section class="card model-section" data-i18n="model.idm.parameters">
-      <h2>4. Parameters and physical units</h2>
+      <h2>Parameters</h2>
       <div class="table-wrap"><table class="model-table">
-        <thead><tr><th>Quantity</th><th>Meaning and effect</th></tr></thead>
+        <thead><tr><th>Symbol</th><th>SUMO attribute</th><th>Value here</th><th>Meaning</th></tr></thead>
         <tbody>
-          <tr><td>\(v_0\)</td><td>Desired free-road speed in m/s. It can differ between vehicles.</td></tr>
-          <tr><td>\(T\)</td><td>Desired time headway in s. Larger \(T\) increases following distance at a given speed; it is not an explicit reaction delay.</td></tr>
-          <tr><td>\(s_0\)</td><td>Minimum desired standstill gap in m.</td></tr>
-          <tr><td>\(a\)</td><td>Maximum free-road acceleration parameter in m/s². It sets how quickly a slow car speeds up.</td></tr>
-          <tr><td>\(b\)</td><td>Comfortable deceleration parameter in m/s², taken as positive. It shapes anticipatory braking and is not a hard maximum braking bound.</td></tr>
-          <tr><td>\(\delta\)</td><td>Dimensionless acceleration exponent, commonly 4. It controls the approach to the desired speed.</td></tr>
+          <tr><td>\(v_0\)</td><td><code>maxSpeed</code></td><td>30 m/s</td><td>Desired speed.</td></tr>
+          <tr><td>\(T\)</td><td><code>tau</code></td><td>1.5 s</td><td>Desired time headway; larger \(T\), larger gaps.</td></tr>
+          <tr><td>\(s_0\)</td><td><code>minGap</code></td><td>2 m</td><td>Gap when stopped.</td></tr>
+          <tr><td>\(a\)</td><td><code>accel</code></td><td>1.0 m/s²</td><td>Maximum acceleration.</td></tr>
+          <tr><td>\(b\)</td><td><code>decel</code></td><td>1.5 m/s²</td><td>Comfortable deceleration; not a hard limit.</td></tr>
+          <tr><td>\(\delta\)</td><td><code>delta</code></td><td>4</td><td>How sharply acceleration fades near \(v_0\).</td></tr>
+          <tr><td>\(\ell\)</td><td><code>length</code></td><td>5 m</td><td>Car length.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="caption">The values of <code>configs/ring/idm_sweep.toml</code>, still placeholders.</p>
+    </section>
+
+    <section class="card model-section" data-i18n="model.idm.sumo">
+      <h2>In SUMO</h2>
+      <p>SUMO has IDM built in (<code>carFollowModel="IDM"</code>), with \(s_0\) given by <code>minGap</code>. Each step of length \(\Delta t\) is split into sub-steps of 0.25 s (4 for \(\Delta t=1\) s) during which the leader's speed is held fixed; then \(x'=x+\Delta t\,v'\). The demo does the same with \(\Delta t=1\) s, the step of our ring runs, and reproduces our SUMO ring sweep (<code>results/ring/idm_sweep.csv</code>) to about 1%.</p>
+      <p>The step length matters: with \(\Delta t=0.1\) s the same parameters are noticeably more stable. Our ring runs also set <code>speedDev="0"</code> and <code>speedFactor="1"</code> so that every car has the same \(v_0\).</p>
+    </section>
+
+    <section class="card model-section model-compare" data-current="idm" data-i18n="model.compare">
+      <h2>The three models side by side</h2>
+      <div class="table-wrap"><table class="model-table">
+        <thead><tr><th>Model</th><th>Space and time</th><th>Randomness</th><th>Why uniform flow breaks down</th><th>Collisions</th><th>In SUMO</th></tr></thead>
+        <tbody>
+          <tr data-model="nasch"><td><a href="nasch.html">NaSch</a></td><td>Cells of 7.5 m, steps of 1 s</td><td>Random slowdown with probability \(p\)</td><td>Random slowdowns and a cautious gap rule; with \(p=0\) there are no spontaneous jams</td><td>Never (rule 2)</td><td>Built in since 1.28.0</td></tr>
+          <tr data-model="ovm"><td><a href="ovm.html">OVM</a></td><td>Continuous</td><td>None</td><td>Slow response: \(V'(s_0)&gt;\alpha/2\)</td><td>Yes, in the unstable range</td><td>Our C++ model</td></tr>
+          <tr data-model="idm"><td><a href="idm.html">IDM</a></td><td>Continuous</td><td>None</td><td>Weak acceleration or a short time gap; the closing-speed term helps but does not guarantee stability</td><td>Not in continuous time; with a coarse step gaps can fall below \(s_0\)</td><td>Built in</td></tr>
         </tbody>
       </table></div>
     </section>
 
-    <section class="card model-section" data-i18n="model.idm.equilibrium">
-      <h2>5. Equilibrium and traffic waves</h2>
-      <p>In uniform traffic, all cars have equal speed \(v&lt;v_0\), so \(\Delta v=0\) and acceleration vanishes. The equilibrium net gap for the equation above is:</p>
-      <div class="eq-math">\[s_{\mathrm{eq}}(v)=\frac{s_0+vT}{\sqrt{1-(v/v_0)^\delta}},\qquad k(v)=\frac{1000}{s_{\mathrm{eq}}(v)+\ell_{\mathrm{veh}}}\]</div>
-      <p>With gaps and vehicle length in m, \(k\) is in veh/km. Equilibrium flow in veh/h is \(q=3.6kv\) when \(v\) is in m/s. The equation describes homogeneous equilibrium states; observed congested traffic need not stay on that curve.</p>
-      <p>Depending on parameters and density, disturbances may decay or amplify into stop-and-go waves. Closing-speed feedback supplies anticipatory braking, but does not make every state stable. Stability depends on derivatives of the full acceleration function with respect to speed, gap and closing speed; the OVM threshold cannot simply be reused.</p>
-    </section>
-
-    <div class="model-grid model-section">
-      <section class="card model-card" data-i18n="model.idm.limits">
-        <h2>6. Strengths and limitations</h2>
-        <ul>
-          <li>Parameters have direct physical meanings, and one smooth law spans free flow, following and braking.</li>
-          <li>Closing-speed feedback supports early braking when approaching a slower leader.</li>
-          <li>Collision avoidance is an intended property under suitable continuous dynamics and initial conditions; it is not an unconditional guarantee for arbitrary numerical steps, cut-ins or sudden stops.</li>
-          <li>The basic model does not include lane changes, explicit reaction delay or route choice. SUMO adds separate mechanisms for these tasks.</li>
-        </ul>
-      </section>
-      <section class="card model-card" data-i18n="model.idm.project">
-        <h2>7. Role in this project</h2>
-        <p>IDM is the main city-network car-following model and a continuous benchmark on the ring road. Compare its flow and jam patterns with NaSch and OVM, then keep driver parameters fixed while changing network planning scenarios.</p>
-        <p>SUMO provides an IDM implementation. Record its version, parameter mapping, internal integration step and safety settings; distinguish the car-following rule from signals, junction priorities and lane-changing logic.</p>
-      </section>
-    </div>
-
     <section class="card model-section" data-i18n="model.idm.reference">
-      <h2>8. Original paper</h2>
-      <p>M. Treiber, A. Hennecke and D. Helbing (2000), <em>Congested traffic states in empirical observations and microscopic simulations</em>, Physical Review E, 62, 1805–1824. <a href="https://doi.org/10.1103/PhysRevE.62.1805" class="more">Read the original paper</a></p>
+      <h2>Further reading</h2>
+      <ul>
+        <li>M. Treiber, A. Hennecke and D. Helbing (2000), <em>Congested traffic states in empirical observations and microscopic simulations</em>, Physical Review E 62, 1805–1824. <a href="https://doi.org/10.1103/PhysRevE.62.1805">doi:10.1103/PhysRevE.62.1805</a></li>
+        <li>M. Treiber and A. Kesting (2013), <em>Traffic Flow Dynamics</em>, Springer. Textbook covering IDM, OVM and string stability; interactive simulations at <a href="https://traffic-simulation.de/">traffic-simulation.de</a>.</li>
+        <li>R. E. Wilson and J. A. Ward (2011), <em>Car-following models: fifty years of linear stability analysis – a mathematical perspective</em>, Transportation Planning and Technology 34, 3–18.</li>
+      </ul>
     </section>
+
     <div class="model-links">
       <a class="more btn" href="../lab/network.html" data-i18n="model.network">Open city-network experiment</a>
       <a class="more btn" href="nasch.html" data-i18n="model.toNasch">Compare with NaSch</a>
@@ -121,5 +143,6 @@
   <script defer src="../assets/common.js"></script>
   <script defer src="../assets/model.js"></script>
   <script defer src="../assets/model-viz.js"></script>
+  <script defer src="../assets/model-sim.js"></script>
 </body>
 </html>

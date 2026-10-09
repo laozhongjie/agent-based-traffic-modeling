@@ -701,6 +701,70 @@ nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); f
 }
 @media (max-width: 380px) { .viz-controls, .viz-controls:has(label:nth-child(4)) { grid-template-columns: 1fr; } }
 
+/* Ring-road demo on model pages (model-sim.js) */
+.model-sim { margin-top: 20px; --sim-pale: color-mix(in srgb, var(--jam) 12%, var(--surface)); }
+:root[data-theme="dark"] .model-sim { --sim-pale: color-mix(in srgb, var(--jam) 30%, var(--surface)); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .model-sim { --sim-pale: color-mix(in srgb, var(--jam) 30%, var(--surface)); } }
+.model-sim figure { margin: 0; min-width: 0; }
+.model-sim figcaption { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.sim-layout { display: grid; grid-template-columns: minmax(0, 240px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.sim-ring { display: block; width: 100%; aspect-ratio: 1; }
+.sim-st-wrap { display: flex; gap: 6px; align-items: stretch; }
+.sim-st { display: block; width: 100%; min-width: 0; aspect-ratio: 2; border: 1px solid var(--border); border-radius: 4px; }
+.sim-st-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+.sim-scale { display: inline-flex; align-items: center; gap: 6px; }
+.sim-ramp { display: inline-block; width: 96px; height: 10px; border-radius: 2px; background: linear-gradient(to right, var(--jam), var(--sim-pale)); }
+.sim-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; }
+.sim-actions .btn { cursor: pointer; font: inherit; font-size: 14px; }
+.sim-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 20px; margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--border); }
+.sim-stats div { min-width: 0; }
+.sim-stats dt { font-size: 13px; color: var(--muted); }
+.sim-stats dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sim-stats.sim-overlap div:last-child dd { color: var(--jam); }
+.model-page .sim-verdict { margin-top: 12px; padding: 10px 12px; background: var(--surface-2); border-radius: 6px; font-size: 14px; color: var(--text); font-variant-numeric: tabular-nums; }
+.sim-controls { margin-top: 18px; }
+.sim-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.model-sim .sim-fd-fig { margin-top: 24px; }
+.sim-fd svg { display: block; width: 100%; }
+.viz-svg .sim-theory { fill: none; stroke: var(--muted); stroke-width: 2; }
+.viz-svg .sim-theory.dashed { stroke-dasharray: 6 5; }
+.viz-svg .sim-band { fill: var(--jam); opacity: .1; }
+.viz-svg .sim-band-label { fill: var(--muted); font-size: 12px; }
+.viz-svg .sim-current { fill: none; stroke: var(--text); stroke-width: 2.5; }
+.sim-legend { list-style: none; padding: 0 !important; margin: 8px 0 0 !important; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.sim-legend li { margin: 0 !important; display: inline-flex; align-items: center; gap: 6px; }
+.sim-key { display: inline-block; flex: none; }
+.sim-key.line { width: 18px; border-top: 2px solid var(--muted); }
+.sim-key.line.dashed { border-top-style: dashed; }
+.sim-key.band { width: 14px; height: 12px; background: color-mix(in srgb, var(--jam) 18%, var(--surface)); }
+.sim-key.current { width: 12px; height: 12px; border: 2.5px solid var(--text); border-radius: 50%; }
+@media (max-width: 720px) {
+  .sim-layout { grid-template-columns: 1fr; gap: 16px; }
+  .sim-ring-fig { max-width: 220px; }
+  .sim-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* "Things to look at" under the demo */
+.experiment-list { list-style: none; padding: 0 !important; margin: 0 !important; display: grid; gap: 0; counter-reset: exp; }
+.experiment-list > li { margin: 0 !important; padding: 18px 0; border-top: 1px solid var(--border); counter-increment: exp; }
+.experiment-list > li:first-child { border-top: none; padding-top: 4px; }
+.experiment-list h3 { margin: 0 0 8px; font-size: 16px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.experiment-list h3::before { content: counter(exp); color: var(--accent); font-variant-numeric: tabular-nums; }
+.experiment-list p { color: var(--muted); }
+.experiment-list p + p { margin-top: 8px !important; }
+.experiment-list .btn { cursor: pointer; font: inherit; font-size: 14px; margin-top: 10px; padding: 4px 12px; }
+.experiment-list strong { color: var(--text); }
+.model-compare .model-table { min-width: 680px; }
+.model-compare .model-table th:first-child { width: 11%; }
+.model-compare[data-current="nasch"] tr[data-model="nasch"] td,
+.model-compare[data-current="ovm"] tr[data-model="ovm"] td,
+.model-compare[data-current="idm"] tr[data-model="idm"] td { background: var(--accent-soft); }
+.model-section ul, .model-section ol { color: var(--muted); }
+.model-section li strong, .model-section p strong { color: var(--text); }
+.model-section h3 { margin: 22px 0 8px; font-size: 16px; }
+.model-section > p:first-of-type { margin-top: 0; }
+.model-section ul + p, .model-section ol + p, .model-section .eq-math + ul { margin-top: 12px; }
+
 /* ==========================================================================
    Hover & motion
    One set of timings for the whole site. Clickable things lift and take the

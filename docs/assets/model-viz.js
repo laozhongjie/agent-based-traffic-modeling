@@ -4,7 +4,7 @@
   if (!root) return;
   const model = root.dataset.model;
   const values = model === "nasch" ? { speed: 3, gap: 2, probability: 0.3 }
-    : model === "ovm" ? { headway: 25, speed: 10, sensitivity: 0.6 }
+    : model === "ovm" ? { gap: 15, speed: 10, sensitivity: 1 }
       : { gap: 35, speed: 20, leader: 16, headway: 1.5 };
   let randomDraw = 0.23;
   let seed = 5253;
@@ -116,33 +116,41 @@
       `随机数 u ≈ ${number(randomDraw, 3)}；p = ${number(values.probability, 2)}。${braking ? "本次触发随机减速（u < p）。" : "本次不触发随机减速（u ≥ p）。"}后车最终前进 ${finalSpeed} 格。`);
   }
 
-  function optimalVelocity(headway) {
-    return 30 / (1 + Math.tanh(25 / 8)) * (Math.tanh((headway - 25) / 8) + Math.tanh(25 / 8));
+  // Same V(s) and values as the ring-road lab and sumo/ovm/check_ovm.py: vmax 25 m/s, sc 18 m, d 11.6 m.
+  const OVM_OFFSET = Math.tanh(18 / 11.6);
+  function optimalVelocity(gap) {
+    return 25 * (Math.tanh((gap - 18) / 11.6) + OVM_OFFSET) / (1 + OVM_OFFSET);
+  }
+  function optimalVelocitySlope(gap) {
+    return 25 / (11.6 * (1 + OVM_OFFSET)) / Math.cosh((gap - 18) / 11.6) ** 2;
   }
 
   function renderOvm() {
-    const target = optimalVelocity(values.headway);
+    const target = optimalVelocity(values.gap);
+    const slope = optimalVelocitySlope(values.gap);
+    const half = values.sensitivity / 2;
     const acceleration = values.sensitivity * (target - values.speed);
-    road(values.headway, false);
+    road(values.gap, true);
     makePlot("velocity", {
-      xMin: 0, xMax: 60, yMin: 0, yMax: 32, yDigits: 0,
-      xLabel: text("Headway h (m)", "车头间距 h（m）"), yLabel: "V(h) (m/s)",
-      evaluate: optimalVelocity, selected: values.headway,
-      label: text("Desired speed rises with headway", "期望速度随车头间距增大而上升")
+      xMin: 0, xMax: 60, yMin: 0, yMax: 27, yDigits: 0,
+      xLabel: text("Net gap s (m)", "净间距 s（m）"), yLabel: "V(s) (m/s)",
+      evaluate: optimalVelocity, selected: values.gap,
+      label: text("Desired speed rises with the gap", "期望速度随净间距增大而上升")
     });
-    makePlot("response", {
-      xMin: 0, xMax: 8, yMin: 0, yMax: 32, yDigits: 0, xDigits: 1,
-      xLabel: text("Time t (s)", "时间 t（s）"), yLabel: "v(t) (m/s)", reference: target,
-      evaluate: time => target + (values.speed - target) * Math.exp(-values.sensitivity * time),
-      label: text("Speed relaxes toward the fixed target", "实际速度趋向固定的期望速度")
+    makePlot("slope", {
+      xMin: 0, xMax: 60, yMin: 0, yMax: Math.max(1.3, half * 1.15), yDigits: 1,
+      xLabel: text("Net gap s (m)", "净间距 s（m）"), yLabel: "V′(s) (1/s)", reference: half,
+      evaluate: optimalVelocitySlope, selected: values.gap,
+      label: text("Slope of V against alpha/2", "V 的斜率与 α/2 比较")
     });
     root.querySelector(".viz-result").textContent = text(
-      `V(h) = ${number(target)} m/s; current v = ${number(values.speed)} m/s. Initial acceleration = ${number(acceleration)} m/s² (${acceleration >= 0 ? "accelerating" : "braking"}). Relaxation time 1/α = ${number(1 / values.sensitivity)} s.`,
-      `期望速度 V(h) = ${number(target)} m/s；当前速度 v = ${number(values.speed)} m/s。初始加速度为 ${number(acceleration)} m/s²（${acceleration >= 0 ? "加速" : "减速"}），松弛时间 1/α = ${number(1 / values.sensitivity)} s。`);
+      `V(s) = ${number(target)} m/s, current v = ${number(values.speed)} m/s, so the car ${acceleration >= 0 ? "accelerates" : "brakes"} at ${number(Math.abs(acceleration))} m/s²; relaxation time 1/α = ${number(1 / values.sensitivity)} s. V′(s) = ${number(slope, 2)} s⁻¹ ${slope > half ? ">" : "≤"} α/2 = ${number(half, 2)} s⁻¹: uniform flow at this gap is ${slope > half ? "unstable" : "stable"}.`,
+      `V(s) = ${number(target)} m/s，当前速度 v = ${number(values.speed)} m/s，所以车辆以 ${number(Math.abs(acceleration))} m/s² ${acceleration >= 0 ? "加速" : "减速"}；松弛时间 1/α = ${number(1 / values.sensitivity)} s。V′(s) = ${number(slope, 2)} s⁻¹ ${slope > half ? ">" : "≤"} α/2 = ${number(half, 2)} s⁻¹：以这个间距行驶的均匀车流${slope > half ? "失稳" : "稳定"}。`);
   }
 
   function renderIdm() {
-    const targetGap = 2 + Math.max(0, values.speed * values.headway + values.speed * (values.speed - values.leader) / (2 * Math.sqrt(2)));
+    // configs/ring/idm_sweep.toml: v0 30 m/s, s0 2 m, a 1 m/s², b 1.5 m/s², delta 4
+    const targetGap = 2 + Math.max(0, values.speed * values.headway + values.speed * (values.speed - values.leader) / (2 * Math.sqrt(1.5)));
     const freeTerm = 1 - (values.speed / 30) ** 4;
     const evaluate = gap => freeTerm - (targetGap / gap) ** 2;
     const acceleration = evaluate(values.gap);
@@ -178,25 +186,25 @@
     let figures;
     let note;
     if (model === "nasch") {
-      title = text("See the four rules in one step", "图解：四条规则如何完成一次更新");
+      title = text("One step, rule by rule", "图解：一步更新里的四条规则");
       intro = text("Change the starting speed, empty cells and braking probability. Follow the speed through each rule, then compare the car's position.", "调整初始速度、前方空格数和减速概率，观察每条规则怎样改变速度，再看车辆最终移动到哪里。");
       controls = control("speed", text("Initial speed v", "初始速度 v"), 0, 5, 1, text("cells/step", "格/步"), 0)
         + control("gap", text("Empty cells g", "前方空格数 g"), 0, 8, 1, text("cells", "格"), 0)
         + control("probability", text("Slowdown probability p", "减速概率 p"), 0, 1, 0.05, "", 2);
       figures = `<ol class="viz-steps"></ol>${figure("road", text("One lane, one follower update →", "单车道上的后车单步更新 →"))}
         <button type="button" class="btn viz-action" data-action="draw">${text("Draw another random event", "重新抽取随机数")}</button>`;
-      note = text("Illustration only. vmax = 5 cells/step. The leader's old position is shown as a reference; this isolates one follower update rather than simulating all cars. A fixed random sequence makes the demonstration reproducible.", "原理示意：最大速度为 5 格/步。前车位置保留在更新前，作为间距参考；这里仅演示后车的一步更新，不是所有车辆的完整模拟。固定随机序列便于重复查看。");
+      note = text("vmax = 5 cells/step. Only the follower is updated here; the leader stays where it was, to show the gap that rule 2 uses.", "vmax = 5 格/步。这里只更新后车，前车留在原位，以显示规则 2 所用的间距。");
     } else if (model === "ovm") {
-      title = text("See how headway sets the target speed", "图解：间距决定目标，敏感度决定响应");
-      intro = text("Open the gap to raise the desired speed. Change the current speed to switch between acceleration and braking; increase sensitivity to reach the target faster.", "拉大车头间距，期望速度就会上升；调整当前速度，可看到加速或减速；提高敏感度，则更快接近期望速度。");
-      controls = control("headway", text("Headway h", "车头间距 h"), 5, 60, 1, "m")
-        + control("speed", text("Current speed v", "当前速度 v"), 0, 30, 1, "m/s")
-        + control("sensitivity", text("Sensitivity α", "敏感度 α"), 0.2, 3, 0.1, "s⁻¹");
-      figures = figure("road", text("Headway is measured from front to front", "车头间距：两车相同参考点之间的距离"))
-        + `<div class="viz-plots">${figure("velocity", text("Desired-speed curve · dot = selected headway", "期望速度曲线 · 圆点为所选间距"))}${figure("response", text("Speed response · dashed line = target", "速度响应 · 虚线为期望速度"))}</div>`;
-      note = text("Illustration only. vmax = 30 m/s, hc = 25 m, d = 8 m, vehicle length = 5 m. The response curve holds headway fixed and uses the exact relaxation solution; it is not a multi-car simulation.", "原理示意：最大期望速度为 30 m/s，hc = 25 m，d = 8 m，车长为 5 m。响应曲线保持间距不变，使用松弛方程的精确解，不是多车模拟。");
+      title = text("One car: the gap sets the target, the slope decides stability", "图解：间距决定目标速度，斜率决定稳定性");
+      intro = text("Move the gap along V(s). Where the slope V′(s) on the right rises above the dashed line α/2, uniform traffic with that gap is unstable. Raise α and watch the dashed line climb.", "沿 V(s) 移动间距。右图中斜率 V′(s) 高于虚线 α/2 的那些间距，均匀车流会失稳。提高 α，虚线随之上升。");
+      controls = control("gap", text("Net gap s", "净间距 s"), 0, 60, 0.5, "m")
+        + control("speed", text("Current speed v", "当前速度 v"), 0, 25, 0.5, "m/s")
+        + control("sensitivity", text("Sensitivity α", "敏感度 α"), 0.3, 3, 0.05, "s⁻¹", 2);
+      figures = figure("road", text("The net gap runs from bumper to bumper", "净间距：前车车尾到本车车头"))
+        + `<div class="viz-plots">${figure("velocity", text("Desired speed V(s) · dot = this gap", "期望速度 V(s) · 圆点为当前间距"))}${figure("slope", text("Slope V′(s) · dashed line = α/2", "斜率 V′(s) · 虚线为 α/2"))}</div>`;
+      note = text("vmax = 25 m/s, sc = 18 m, d = 11.6 m, car length 5 m: the same values as the lab below.", "vmax = 25 m/s，sc = 18 m，d = 11.6 m，车长 5 m：与下面的实验室相同。");
     } else {
-      title = text("See when following turns into braking", "图解：距离和接近速度如何触发制动");
+      title = text("One car: when following turns into braking", "图解：间距和接近速度如何触发制动");
       intro = text("Reduce the gap or increase your speed relative to the leader. Watch the desired gap grow and the acceleration move below zero.", "缩短净间距，或让本车比前车更快，观察期望间距怎样变化，以及加速度何时降到零以下。");
       controls = control("gap", text("Net gap s", "净间距 s"), 10, 80, 1, "m")
         + control("speed", text("Follower speed v", "本车速度 v"), 0, 30, 1, "m/s")
@@ -205,7 +213,7 @@
       figures = figure("road", text("Net gap excludes the length of the vehicle", "净间距：不包含车长的两车空隙"))
         + figure("acceleration", text("Acceleration versus gap · dot = current state", "加速度随间距变化 · 圆点为当前状态"))
         + '<p class="viz-terms"></p>';
-      note = text("Illustration only. v0 = 30 m/s, s0 = 2 m, a = 1 m/s², b = 2 m/s², δ = 4, vehicle length = 5 m. The curve evaluates the raw IDM acceleration at fixed speeds; large negative values are not capped at comfortable braking b. This is not a trajectory or a SUMO result.", "原理示意：v0 = 30 m/s，s0 = 2 m，a = 1 m/s²，b = 2 m/s²，δ = 4，车长为 5 m。曲线在固定速度下计算 IDM 原始加速度；负值没有按舒适减速度 b 截断。这不是车辆轨迹或 SUMO 结果。");
+      note = text("v0 = 30 m/s, s0 = 2 m, a = 1 m/s², b = 1.5 m/s², δ = 4, car length 5 m, as in the lab below. The curve is the acceleration at the current speeds; strong braking can exceed b, which IDM allows in emergencies.", "v0 = 30 m/s，s0 = 2 m，a = 1 m/s²，b = 1.5 m/s²，δ = 4，车长 5 m，与下面的实验室相同。曲线是当前速度下的加速度；紧急时刹车可以超过 b，IDM 允许这样做。");
     }
     root.innerHTML = `<h2 id="model-viz-title">${title}</h2><p class="viz-intro">${intro}</p>
       <div class="viz-controls">${controls}</div>${figures}<p class="viz-result" aria-live="polite"></p><p class="viz-note">${note}</p>`;
