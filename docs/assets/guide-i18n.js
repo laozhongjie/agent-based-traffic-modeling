@@ -48,7 +48,7 @@ source ~/.bashrc</code></pre>
       </li>
       <li>在仓库根目录创建全组共用的 Python 环境，只需做一次。这一步会安装固定版本的 Python 和软件包，并安装 <code>src/traffic_project</code> 中的项目代码，让所有脚本都能导入它。
 <pre><code>conda env create -f environment.yml</code></pre>
-        如果你在 10月8日加入 pandas 和 JupyterLab 之前已经创建过环境，改为运行下面的命令更新：
+        如果你的环境是在 10月9日之前创建的（之后加入了 pandas、JupyterLab 和 pytest），改为运行下面的命令更新：
 <pre><code>conda env update -f environment.yml --prune</code></pre>
       </li>
       <li>每次打开新终端，运行项目命令前先激活环境：
@@ -70,6 +70,8 @@ source ~/.bashrc</code></pre>
           <tr><td><code>scripts/</code></td><td>命令行入口，每个任务一个：<code>&lt;scenario&gt;_sweep.py</code>、<code>plot_&lt;scenario&gt;.py</code></td><td>场景负责人</td></tr>
           <tr><td><code>src/traffic_project/</code> <code>config.py</code>、<code>io.py</code>、<code>runner.py</code></td><td>读取配置、读取 SUMO 输出、运行 SUMO、写运行记录、通用检查</td><td>A</td></tr>
           <tr><td><code>src/traffic_project/results.py</code></td><td>结果数据格式（第 6 节）：必需列、检查和写出函数</td><td>A</td></tr>
+          <tr><td><code>src/traffic_project/export_web.py</code>、<code>scripts/export_web.py</code></td><td>把通过检查的结果导出到网站（第 3 节第 6 步）</td><td>A</td></tr>
+          <tr><td><code>tests/</code></td><td>共用代码的自动测试，用 <code>pytest</code> 运行</td><td>A</td></tr>
           <tr><td><code>src/traffic_project/measurements.py</code></td><td>测量量，每个场景一个函数</td><td>A；环路 B；路网 C</td></tr>
           <tr><td><code>src/traffic_project/demand.py</code></td><td>城区路网的恒定密度 TraCI 控制器（尚未建立）</td><td>C</td></tr>
           <tr><td><code>src/traffic_project/analysis/</code></td><td>临界点、涨落和误差范围（尚未建立）</td><td>E</td></tr>
@@ -77,6 +79,7 @@ source ~/.bashrc</code></pre>
           <tr><td><code>data/raw/</code>、<code>data/processed/</code></td><td>外部数据：OSM、PeMS、highD、LTA</td><td>E</td></tr>
           <tr><td><code>runs/&lt;run-id&gt;/</code></td><td>每次运行一个目录，由脚本写出，不手工修改</td><td>—</td></tr>
           <tr><td><code>sandbox/&lt;your-name&gt;/</code></td><td>个人试验代码和 notebook</td><td>本人</td></tr>
+          <tr><td><code>docs/data/&lt;scenario&gt;/</code></td><td>导出到网站的结果，由 <code>scripts/export_web.py</code> 写出，不手工修改</td><td>—</td></tr>
           <tr><td><code>docs/</code></td><td>本网站</td><td>A</td></tr>
         </tbody>
       </table>
@@ -139,6 +142,9 @@ source ~/.bashrc</code></pre>
       </li>
       <li>把基本图和时空图画到 <code>results/ring/</code>。
 <pre><code>python scripts/plot_ring.py --config configs/ring/idm_sweep.toml</code></pre>
+      </li>
+      <li>把通过检查的运行导出到网站。命令会写出 <code>docs/data/ring/idm_sweep.js</code>，其中包含每次运行的配置哈希值、SUMO 版本和 git commit。运行来自未提交的代码，或运行之后配置文件改动过时，命令会报错停止；加 <code>--allow-dirty</code> 可以写出供预览的草稿。导出要读取 <code>runs/</code> 中的运行记录，所以在运行扫描的那台电脑上执行。
+<pre><code>python scripts/export_web.py --config configs/ring/idm_sweep.toml</code></pre>
       </li>
     </ol>
     <p><strong>预期结果：</strong>密度为 30 veh/km 时，平均速度为 16.6 m/s，与该间距下的 IDM 平衡速度一致。流量在 30 veh/km 附近达到峰值。约 40 到 80 veh/km 之间出现走走停停的拥堵波；100 veh/km 以上是均匀的慢速车流。结果不一致时，先检查 SUMO 版本。</p>`,
@@ -292,6 +298,7 @@ git pull</code></pre>
       <li>确认 <code>git status</code> 中没有 <code>runs/</code>、<code>data/raw/</code> 或 <code>sandbox/</code> 下的文件。</li>
       <li>把配置文件、代码和 <code>results/</code> 一起提交，保证结果始终对应产生它的代码。</li>
       <li>结果写进报告或放上网站前，先从干净的 commit 重新运行一次。</li>
+      <li>在仓库根目录运行 <code>pytest</code>，确认所有测试通过；没有安装 SUMO 时，需要 SUMO 的测试会被跳过。修改 <code>src/traffic_project/</code> 时，在 <code>tests/</code> 中为改动补充测试。</li>
       <li>如果修改了本手册中的某项规定，在同一个 PR 中同时更新本页、<code>GUIDE.md</code> 和 <code>GUIDE_zh.md</code>。</li>
     </ol>`
 });

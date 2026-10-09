@@ -63,7 +63,7 @@ Use the official SUMO release **1.27.1** for development. It includes IDM. NaSch
    conda env create -f environment.yml
    ```
 
-   If you created the environment before pandas and JupyterLab were added on 8 Oct, update it instead:
+   If you created the environment before 9 Oct, when pandas, JupyterLab and pytest were added, update it instead:
 
    ```bash
    conda env update -f environment.yml --prune
@@ -88,6 +88,8 @@ Code is organised by what it does, not by who wrote it. Each kind of code has on
 | `scripts/` | Entry points, one per task: `<scenario>_sweep.py`, `plot_<scenario>.py` | Scenario owner |
 | `src/traffic_project/` `config.py`, `io.py`, `runner.py` | Load configs, read SUMO outputs, run SUMO, write run records, common checks | A |
 | `src/traffic_project/results.py` | Result data format (section 6): required columns, checks and writers | A |
+| `src/traffic_project/export_web.py`, `scripts/export_web.py` | Export validated results to the website (section 3, step 6) | A |
+| `tests/` | Automated checks of the shared code, run with `pytest` | A |
 | `src/traffic_project/measurements.py` | Measured quantities, one function per scenario | A; B ring; C network |
 | `src/traffic_project/demand.py` | Constant-density TraCI controller for the city network (planned) | C |
 | `src/traffic_project/analysis/` | Critical points, fluctuations, error bars (planned) | E |
@@ -95,6 +97,7 @@ Code is organised by what it does, not by who wrote it. Each kind of code has on
 | `data/raw/`, `data/processed/` | External data: OSM, PeMS, highD, LTA | E |
 | `runs/<run-id>/` | One folder per run, written by the scripts; never edited by hand | — |
 | `sandbox/<your-name>/` | Your own experiments and notebooks | You |
+| `docs/data/<scenario>/` | Results exported for the website; written by `scripts/export_web.py`, never edited by hand | — |
 | `docs/` | The project website | A |
 
 ### Network files in `scenarios/`
@@ -172,6 +175,12 @@ Run every command from the repository root, with the `traffic` environment activ
 
    ```bash
    python scripts/plot_ring.py --config configs/ring/idm_sweep.toml
+   ```
+
+6. Export the valid runs to the website. This writes `docs/data/ring/idm_sweep.js` with each run's config hash, SUMO version and git commit. It stops when the runs came from uncommitted code or the config changed after the runs; `--allow-dirty` writes a draft for previewing. Run it on the computer that ran the sweep, because it reads the run records in `runs/`.
+
+   ```bash
+   python scripts/export_web.py --config configs/ring/idm_sweep.toml
    ```
 
 **Expected result:** at 30 veh/km the mean speed is 16.6 m/s, the IDM equilibrium speed for that spacing. Flow peaks near 30 veh/km. Stop-and-go waves appear between about 40 and 80 veh/km; above 100 veh/km traffic is uniformly slow. If your numbers differ, check your SUMO version first.
@@ -333,4 +342,5 @@ Nobody pushes to `main` directly. Every change reaches `main` through a pull req
 1. Check that `git status` lists no files under `runs/`, `data/raw/` or `sandbox/`.
 2. Commit the config, code and `results/` together, so a result always matches the code that produced it.
 3. Rerun the result from a clean commit before it goes into the report or onto the website.
-4. If you changed a convention in this guide, update the page `docs/guide.html` (with `docs/assets/guide-i18n.js`), `GUIDE.md` and `GUIDE_zh.md` in the same PR.
+4. Run `pytest` from the repository root and check that every test passes; tests that need SUMO are skipped when it is not installed. When you change `src/traffic_project/`, add a test for the change in `tests/`.
+5. If you changed a convention in this guide, update the page `docs/guide.html` (with `docs/assets/guide-i18n.js`), `GUIDE.md` and `GUIDE_zh.md` in the same PR.

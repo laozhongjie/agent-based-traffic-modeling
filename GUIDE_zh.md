@@ -63,7 +63,7 @@
    conda env create -f environment.yml
    ```
 
-   如果你在 10 月 8 日加入 pandas 和 JupyterLab 之前已经创建过环境，改为运行下面的命令更新：
+   如果你的环境是在 10 月 9 日之前创建的（之后加入了 pandas、JupyterLab 和 pytest），改为运行下面的命令更新：
 
    ```bash
    conda env update -f environment.yml --prune
@@ -88,6 +88,8 @@
 | `scripts/` | 命令行入口，每个任务一个：`<scenario>_sweep.py`、`plot_<scenario>.py` | 场景负责人 |
 | `src/traffic_project/` 中的 `config.py`、`io.py`、`runner.py` | 读取配置、读取 SUMO 输出、运行 SUMO、写运行记录、通用检查 | A |
 | `src/traffic_project/results.py` | 结果数据格式（第 6 节）：必需列、检查和写出函数 | A |
+| `src/traffic_project/export_web.py`、`scripts/export_web.py` | 把通过检查的结果导出到网站（第 3 节第 6 步） | A |
+| `tests/` | 共用代码的自动测试，用 `pytest` 运行 | A |
 | `src/traffic_project/measurements.py` | 测量量，每个场景一个函数 | A；环路 B；路网 C |
 | `src/traffic_project/demand.py` | 城区路网的恒定密度 TraCI 控制器（尚未建立） | C |
 | `src/traffic_project/analysis/` | 临界点、涨落和误差范围（尚未建立） | E |
@@ -95,6 +97,7 @@
 | `data/raw/`、`data/processed/` | 外部数据：OSM、PeMS、highD、LTA | E |
 | `runs/<run-id>/` | 每次运行一个目录，由脚本写出，不手工修改 | — |
 | `sandbox/<your-name>/` | 个人试验代码和 notebook | 本人 |
+| `docs/data/<scenario>/` | 导出到网站的结果，由 `scripts/export_web.py` 写出，不手工修改 | — |
 | `docs/` | 项目网站 | A |
 
 ### `scenarios/` 中的路网文件
@@ -172,6 +175,12 @@ git 忽略 `runs/`、`data/raw/`、`sandbox/` 和所有 `*.fcd.xml`，表中其�
 
    ```bash
    python scripts/plot_ring.py --config configs/ring/idm_sweep.toml
+   ```
+
+6. 把通过检查的运行导出到网站。命令会写出 `docs/data/ring/idm_sweep.js`，其中包含每次运行的配置哈希值、SUMO 版本和 git commit。运行来自未提交的代码，或运行之后配置文件改动过时，命令会报错停止；加 `--allow-dirty` 可以写出供预览的草稿。导出要读取 `runs/` 中的运行记录，所以在运行扫描的那台电脑上执行。
+
+   ```bash
+   python scripts/export_web.py --config configs/ring/idm_sweep.toml
    ```
 
 **预期结果：** 密度为 30 veh/km 时，平均速度为 16.6 m/s，与该间距下的 IDM 平衡速度一致。流量在 30 veh/km 附近达到峰值。约 40 到 80 veh/km 之间出现走走停停的拥堵波；100 veh/km 以上是均匀的慢速车流。结果不一致时，先检查 SUMO 版本。
@@ -333,4 +342,5 @@ df = df[df.valid]                                                     # 只保�
 1. 确认 `git status` 中没有 `runs/`、`data/raw/` 或 `sandbox/` 下的文件。
 2. 把配置文件、代码和 `results/` 一起提交，保证结果始终对应产生它的代码。
 3. 结果写进报告或放上网站前，先从干净的 commit 重新运行一次。
-4. 如果修改了本手册中的某项规定，在同一个 PR 中同时更新网页 `docs/guide.html`（含 `docs/assets/guide-i18n.js`）、`GUIDE.md` 和 `GUIDE_zh.md`。
+4. 在仓库根目录运行 `pytest`，确认所有测试通过；没有安装 SUMO 时，需要 SUMO 的测试会被跳过。修改 `src/traffic_project/` 时，在 `tests/` 中为改动补充测试。
+5. 如果修改了本手册中的某项规定，在同一个 PR 中同时更新网页 `docs/guide.html`（含 `docs/assets/guide-i18n.js`）、`GUIDE.md` 和 `GUIDE_zh.md`。
