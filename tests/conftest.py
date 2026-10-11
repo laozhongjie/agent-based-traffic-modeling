@@ -1,7 +1,7 @@
 """Shared fixtures. Run all tests from the repository root with:  pytest
 
 Tests that need SUMO are skipped when sumo is not on PATH or SUMO_HOME is not set;
-tests of OVM are also skipped when that sumo is not A's OVM build.
+tests of NaSch need SUMO 1.28.0 or later, and tests of OVM need A's OVM build.
 """
 import os
 import shutil
@@ -17,20 +17,22 @@ needs_sumo = pytest.mark.skipif(shutil.which("sumo") is None or "SUMO_HOME" not 
                                 reason="SUMO is not installed (see docs/guide.html, section 1)")
 
 
-def _sumo_has_ovm():
-    """True if the sumo on PATH accepts carFollowModel="OVM" (A's build, see sumo/version.txt)."""
+def _sumo_has_model(model):
+    """True if the sumo on PATH accepts carFollowModel=model."""
     if shutil.which("sumo") is None or "SUMO_HOME" not in os.environ:
         return False
     with tempfile.TemporaryDirectory() as tmp:
         vtype = Path(tmp) / "ovm.add.xml"
-        vtype.write_text('<additional><vType id="car" carFollowModel="OVM"/></additional>\n')
+        vtype.write_text(f'<additional><vType id="car" carFollowModel="{model}"/></additional>\n')
         net = ROOT / "scenarios" / "ring" / "ring_1000.net.xml"
         r = subprocess.run(["sumo", "-n", str(net), "-a", str(vtype), "--end", "1", "--no-step-log"],
                            capture_output=True, text=True)
     return r.returncode == 0
 
 
-needs_ovm = pytest.mark.skipif(not _sumo_has_ovm(),
+needs_nasch = pytest.mark.skipif(not _sumo_has_model("NaSch"),
+                                 reason="sumo on PATH has no NaSch (needs SUMO 1.28.0 or later)")
+needs_ovm = pytest.mark.skipif(not _sumo_has_model("OVM"),
                                reason="sumo on PATH has no OVM (build it from sumo/version.txt)")
 
 

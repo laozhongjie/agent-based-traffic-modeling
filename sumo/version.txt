@@ -30,8 +30,9 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 #   export SUMO_HOME=~/sumo
 #   export PATH=~/sumo/bin:$PATH
 #   sumo --version        # Eclipse SUMO sumo 1.28.0
+#   python sumo/check_nasch.py     # checks NaSch (p = 0) against the exact result
 #   python sumo/ovm/check_ovm.py   # checks OVM against theory and a reference integrator
-#   pytest                # includes short OVM checks, skipped when sumo has no OVM
+#   pytest                # includes short NaSch and OVM checks, skipped when sumo lacks the model
 
 # Checked on 2026-10-09:
 # - pytest: all 29 tests pass.
@@ -53,3 +54,7 @@ release 2026-10-08 (SUMO 1.28.0; first release with carFollowModel="NaSch")
 #   - Near the threshold, growth follows the discrete-time rate for dt = 0.1, which differs from
 #     the continuous V'(s0) = alpha/2 criterion (e.g. N = 30: +0.0005/s instead of +0.0025/s).
 #   - pytest: all 42 tests pass on this build.
+# - NaSch (sumo/check_nasch.py), checked on 2026-10-11 on a 750 m ring (100 cells), sigma 0, vmax 4 cells,
+#   N = 5-90: every vehicle's cell and speed equal an independent NaSch automaton at every step for 300 s,
+#   and the mean speed and flow after 200 s equal J = min(rho vmax, 1 - rho) exactly. With speedDev = 0.1
+#   the free-flow points fail, as expected. pytest: all 50 tests pass on this build.
