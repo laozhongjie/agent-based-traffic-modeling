@@ -1,0 +1,14 @@
+{
+  "variant": "base",
+  "n": 4,
+  "block_m": 200.0,
+  "speed_mps": 13.89,
+  "lanes": 1,
+  "junction": "traffic_light",
+  "edges": 48,
+  "lane_length_m": 9600.0,
+  "baseline_lane_length_m": 9600.0,
+  "change": {
+    "type": "none"
+  }
+}

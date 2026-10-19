@@ -1,0 +1,47 @@
+# Smoke test of the 4x4 grid: does N stay fixed, and where does the network jam?
+# Build: python scenarios/grid/build_net.py
+# Run:   python scripts/grid_sweep.py --config configs/validation/grid_smoke.toml
+#
+# Placeholders until agreed with C for the network experiment:
+#  - route rule: fixed random walks (see scenarios/grid/build_run.py). Vehicles do
+#    not reroute, so this config cannot test for a Braess effect yet.
+#  - junction control (traffic lights at 3- and 4-way junctions, set in build_net.py)
+#  - IDM instead of OVM, and the congestion threshold, as in configs/ring/idm_sweep.toml
+
+name = "grid_smoke"
+scenario = "grid"
+model = "IDM"
+
+[grid]
+n = 4                     # needs scenarios/grid/grid<n>x<n>_L<block>_<variant>.net.xml
+block_m = 200
+
+[run]
+end_s = 1800
+step_s = 1.0
+warmup_s = 600            # discarded before measuring
+jitter_m = 0.5            # max seeded offset of each start position
+keep_fcd = false          # FCD is deleted after measuring (about 200 MB at 900 vehicles)
+
+[sweep]
+variants = ["base", "closure", "newlink"]
+vehicles = [50, 150, 300, 450, 600, 750, 900]
+seeds = [1, 2]
+
+[vtype]                   # written unchanged into the SUMO <vType> element
+carFollowModel = "IDM"
+length = 5                # m
+minGap = 2                # m, IDM s0
+accel = 1.0               # m/s^2, IDM a
+decel = 1.5               # m/s^2, IDM b
+tau = 1.5                 # s, IDM time headway T
+delta = 4
+maxSpeed = 30             # m/s; the 13.89 m/s lane limit binds first
+speedDev = 0
+speedFactor = 1
+
+[measure]
+jam_speed_mps = 5.0       # placeholder; on a 13.89 m/s grid it flags most cars
+timeseries_every_s = 10   # sample interval of results/<scenario>/<name>/<run_id>.csv
+variance_block_s = "signal_cycle"  # average phi over each signal cycle before its variance;
+                          # a number of seconds instead, or 0 for every step as on the ring
