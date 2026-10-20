@@ -1,0 +1,54 @@
+# SUMO edge <-> LTA road-stretch lookup (task 2) and the LTA speed-band poller.
+# Lookup: python scripts/lta_lookup.py --config configs/city/lta_lookup.toml
+# Poll:   python -I scripts/lta_poll.py --config configs/city/lta_lookup.toml [--from-file F --out DIR]
+#         (needs $LTA_ACCOUNT_KEY in the environment for a live poll; never put the key here)
+# Every choice below is provisional pending the decision IDs in `provisional_on`
+# (C's task 2 progress file). Today's input is a third-party 2024 v3 sample, so the
+# output is a PROTOTYPE: valid_for_results = false, never cited (T2-D3).
+
+name = "lta_lookup"
+scenario = "city"
+model = "IDM"             # car-following model of the city experiments; the lookup does not use it
+provisional_on = ["T1-D1", "T1-D2", "T2-D1", "T2-D2", "T2-D3", "T2-D4", "T2-D5", "T2-D6"]
+
+[network]
+net = "scenarios/city/bugis_all.net.xml"  # T1-D1 district, T1-D2 "all" road classes
+
+[lta]
+# After T2-D1 (key): input = one v4 poll file, source = "v4", api_version = "v4",
+# out_dir = "data/processed/lta" (committed, owner E, GUIDE.md L100).
+input = "data/raw/github_ukrys_is5126_lta_snapshots/Speed_Bands.json"   # git-ignored
+source = "v3-snapshot-2024-PROTOTYPE"     # T2-D3: prototype only
+api_version = "v3"                        # v3 letters A-F; v4 codes 1-6
+
+[output]
+out_dir = "runs/lta_lookup_proto_bugis"   # git-ignored; files <out_dir>/<prefix>_{pairs,links,missing_roads}.csv
+prefix = "bugis_all"
+
+[match]                   # T2-D5: matching settings (sandbox flags of the same names)
+radius = 25.0             # endpoint snap radius, m
+max_angle = 45.0          # max heading difference, deg
+detour = 1.5              # matcher A: max path length / stretch length
+buffer = 15.0             # matcher B: buffer half-width, m
+min_frac = 0.5            # matcher B: min overlap share of the stretch (or of the edge)
+margin = 50.0             # skip links within this of the net boundary, m
+
+[checks]                  # proposal §2 failure checks (judgment thresholds)
+min_name_exact = 0.90     # check 2: share of A matches with the same road name
+min_arterial_coverage = 0.85  # check 4: share of arterial links matched by A (judged on v4 only)
+arterial_codes = [2, 3]   # T2-D6: major arterial (2) and arterial (3); v3 B, C mapped in order (ASSUMED)
+
+[poll]                    # T2-D2: polling plan (T2-D4: start as soon as the key exists)
+url = "https://datamall2.mytransport.sg/ltaodataservice/v4/TrafficSpeedBands"
+interval_s = 300          # one poll every 5 min (LTA updates the feed every 5 min)
+windows = ["07:30-09:30", "17:30-19:30", "02:00-04:00"]   # Singapore time (UTC+8)
+weekdays_only = true
+bbox_margin_m = 200.0     # keep links with an end point inside the net boundary + this
+page_pause_s = 1.0        # sleep between pages; doubled per retry on HTTP 429 / 5xx
+timeout_s = 30.0
+out_dir = "data/raw/lta_speedbands_v4"    # git-ignored; daily parquet + links file + poll log
+
+[qa.manual]               # step 3a: causes found by hand for unmatched arterial links (LinkID = note)
+103000635 = "net-lacks-direction: OSM way 667082790 Prinsep St is two-way (lanes:backward=2) but the net has only its forward edge"
+103000798 = "road-absent-here: OSM Sungei Rd ends at 103.85616,1.30432, ~60 m short of this stretch; nearest edge Rochor Canal Rd at 34.5 m"
+103000799 = "road-absent-here: twin of 103000798; nearest edge Rochor Canal Rd at 37.8 m"
