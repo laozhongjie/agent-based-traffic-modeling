@@ -462,7 +462,8 @@ def fetch_all_pages(key, url=V4_URL, page_size=PAGE_SIZE, pause_s=1.0, timeout_s
                     max_pages=200, max_retries=4):
     """Fetch every page of a DataMall OData endpoint ($skip by page_size until a page has
     fewer rows). The key is sent only as the AccountKey header and never logged.
-    Returns (rows, n_pages). Backs off exponentially on HTTP 429 and 5xx."""
+    Returns (rows, n_pages). Backs off exponentially on HTTP 429 and 5xx, and on network
+    errors (DNS failures, timeouts, dropped connections), so one blip does not lose a poll."""
     rows, page = [], 0
     while page < max_pages:
         req = urllib.request.Request(f"{url}?$skip={page * page_size}",
@@ -477,6 +478,11 @@ def fetch_all_pages(key, url=V4_URL, page_size=PAGE_SIZE, pause_s=1.0, timeout_s
                     time.sleep(pause_s * 2 ** (attempt + 1))
                     continue
                 raise RuntimeError(f"HTTP {err.code} on page {page}") from None
+            except (urllib.error.URLError, TimeoutError, ConnectionError) as err:
+                if attempt < max_retries:
+                    time.sleep(max(pause_s, 2.0) * 2 ** (attempt + 1))  # 4, 8, 16, 32 s
+                    continue
+                raise RuntimeError(f"network error on page {page}: {getattr(err, 'reason', err)}") from None
         rows.extend(batch)
         page += 1
         if len(batch) < page_size:

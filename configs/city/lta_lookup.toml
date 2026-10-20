@@ -38,13 +38,15 @@ min_name_exact = 0.90     # check 2: share of A matches with the same road name
 min_arterial_coverage = 0.85  # check 4: share of arterial links matched by A (judged on v4 only)
 arterial_codes = [2, 3]   # T2-D6: major arterial (2) and arterial (3); v3 B, C mapped in order (ASSUMED)
 
-[poll]                    # T2-D2: polling plan (T2-D4: start as soon as the key exists)
+[poll]                    # T2-D2 (ruled by C 2026-10-20, awaiting group): whole days, island-wide
 url = "https://datamall2.mytransport.sg/ltaodataservice/v4/TrafficSpeedBands"
 interval_s = 300          # one poll every 5 min (LTA updates the feed every 5 min)
-windows = ["07:30-09:30", "17:30-19:30", "02:00-04:00"]   # Singapore time (UTC+8)
-weekdays_only = true
+windows = ["00:00-24:00"] # Singapore time (UTC+8); whole days, for time-of-day profiles
+weekdays_only = false     # weekends cost little and give a no-commute contrast
+scope = "island"          # "island" keeps every link (independent of the district, T1-D1); "box" keeps the net box
 bbox_margin_m = 200.0     # keep links with an end point inside the net boundary + this
-page_pause_s = 1.0        # sleep between pages; doubled per retry on HTTP 429 / 5xx
+page_pause_s = 0.25       # sleep between pages; doubled per retry on HTTP 429 / 5xx (1.0 s made a poll take 240 s)
+max_pages = 1000          # 500 links per page; a poll that reaches this cap fails loudly (the old cap of 200 cut at 100,000 links)
 timeout_s = 30.0
 out_dir = "data/raw/lta_speedbands_v4"    # git-ignored; daily parquet + links file + poll log
 
