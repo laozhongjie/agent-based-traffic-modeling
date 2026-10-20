@@ -1,0 +1,76 @@
+# Settled multi-seed pilot of the Task 3 congestion criterion on the Bugis district (net "all"):
+# T3-D9 recommended run length (3,600 s, measured from 1,800 s), 3 seeds, T3-D8 option A
+# reference (k = 2 veh/km for 3,600 s). Copied from bugis_all_density_pilot.toml; only
+# name, durations, densities, seeds, jobs, run prefix and globs changed.
+# NOT the city experiment: the constant-density controller is Task 4's job.
+# Every number from this config is pilot-grade and provisional pending
+# T3-D1, T3-D2, T3-D6, T3-D8 (criterion) and T1-D1, T1-D4, T1-D7 (network).
+# Runs:    python scripts/city_pilot_density.py --config configs/city/bugis_all_density_settled.toml
+# Measure: python scripts/city_measure.py --config configs/city/bugis_all_density_settled.toml
+# Run folders runs/city_settled_bugis_all_k<k>_s<seed>/ are git-ignored; results/city/ outputs
+# of this config are pilot-grade checks.
+name = "bugis_all_density_settled"
+scenario = "city"
+model = "idm"
+
+[network]
+net_file = "scenarios/city/bugis_all.net.xml"   # Task 1 main net (all road classes)
+tag = "bugis_all"
+
+[pilot]   # constant vehicle count by re-targeting (TraCI); Task 4 replaces this controller
+densities_veh_km = [2.5, 5, 7.5, 10, 12.5, 15, 20, 25, 30, 40]   # vehicles / total lane length of normal lanes (T3-D9 settled sweep)
+seeds = [1, 2, 3]
+end_s = 3600                   # T3-D9: 3,600 s runs
+step_length_s = 1
+jobs = 10                      # parallel SUMO processes (<= 10)
+retarget_at_remaining_edges = 3  # new random destination when the vehicle is this close to its route end
+retarget_mode = "append"       # "append" (keeps the next turns) | "change_target" (first pass: late lane changes, 2 arrivals per run)
+destination = "uniform_edge"   # destination edge drawn uniformly from edges that allow passenger cars
+placement_jitter_m = 0.5       # vehicles spread evenly over all car lanes at t = 0, +- this jitter
+run_prefix = "city_settled_bugis_all"
+
+[vehicle]   # = the Task 3 grid pilot vType (configs/validation/grid_smoke.toml)
+carFollowModel = "IDM"
+length = 5
+minGap = 2
+accel = 1.0
+decel = 1.5
+tau = 1.5
+delta = 4
+maxSpeed = 30
+speedDev = 0
+speedFactor = 1
+
+[inputs]
+runs_glob = "runs/city_settled_bugis_all_k*_s*"
+meta_file = "meta.json"
+edgedata_file = "edge{period:g}.xml.gz"
+summary_file = "summary.xml"
+write_timeseries = true
+
+[run]
+warmup_s = 1800             # T3-D9: measure from 1,800 s (also the v_ref window start of the reference run)
+
+[measure]   # same values as configs/city/criterion_check.toml except vref_min_sampled_s
+timeseries_every_s = 10
+r_on = 0.5                 # T3-D1
+persist_m = 2              # T3-D1
+period_s = "cycle"         # T3-D1; 90 s in Bugis (all 76 signals), T1-D4
+period_mult = 1            # T3-D1
+adjacency = "directed"     # T3-D1
+weight = "lane_length"     # T3-D2
+reference_density_veh_km = 2
+reference_seed = 99        # T3-D8 option A: this run lasts end_s = 3,600 s
+vref_min_sampled_s = 60    # T3-D8 default; coverage must exceed 0.90 (proposal §4)
+vref_fallback = "class_median"  # T3-D8
+spillback_occ_frac = 0.8   # T3-D8
+veh_length_m = 5.0
+min_gap_m = 2.0
+gridlock_outflow_frac = 0.01   # T3-D8
+gridlock_cycles = 3        # T3-D8
+
+[measure.sensitivity]
+r_on = [0.3, 0.4, 0.5, 0.6, 0.7]
+persist_m = [1, 2, 3]
+adjacency = ["directed", "junction"]
+period_mult = [1, 2]

@@ -168,11 +168,12 @@ def main():
     lane_m = float((net.edges.length * net.edges.lanes).sum())
     lanes = car_lanes(net_path)
     dests = sorted(e for e, *_ in lanes)
+    seeds = p.get("seeds", [p.get("seed")])   # [pilot] seeds = [...] or the older seed = n
     jobs = [(m["reference_density_veh_km"], m["reference_seed"])] + \
-        [(k, p["seed"]) for k in p["densities_veh_km"]]
+        [(k, s) for k in sorted(p["densities_veh_km"], reverse=True) for s in seeds]  # slow runs first
     dirs = [write_run(cfg, k, s, net_path, lanes, lane_m, period) for k, s in jobs]
     print(f"lane length {lane_m / 1000:.2f} km, period {period:g} s, {len(dirs)} runs", flush=True)
-    with Pool(min(p["jobs"], 8, len(dirs))) as pool:
+    with Pool(min(p["jobs"], 10, len(dirs))) as pool:
         for name, ins, arr, wall in pool.imap_unordered(
                 run, [(d, dests, p["retarget_at_remaining_edges"], p["retarget_mode"]) for d in dirs]):
             print(name, "inserted", ins, "arrived", arr, "wall", wall, "s", flush=True)
