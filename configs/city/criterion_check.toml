@@ -1,0 +1,41 @@
+# Check of the city congestion criterion (Task 3) on C's pilot grid runs.
+# A check, not a result: the inputs are git-ignored sandbox runs (sandbox/c/task3/runs),
+# so results/city/criterion_check*.csv is not committed. District configs copy [measure].
+# Run: python scripts/city_measure.py --config configs/city/criterion_check.toml
+name = "criterion_check"
+scenario = "city"
+model = "idm"
+
+[inputs]
+runs_glob = "sandbox/c/task3/runs/grid*_k*_s*"   # one folder per run
+meta_file = "meta.json"          # net, tag, seed, n_vehicles, k_target
+edgedata_file = "edge{period:g}.xml.gz"   # {period} = the resolved criterion period in s
+summary_file = "summary.xml"
+write_timeseries = true
+
+[run]
+warmup_s = 600
+
+[measure]   # each value provisional pending the decision named (Task 3 proposal §8)
+timeseries_every_s = 10    # GUIDE time-series step, as in configs/ring/idm_sweep.toml
+r_on = 0.5                 # T3-D1
+persist_m = 2              # T3-D1
+period_s = "cycle"         # T3-D1; "cycle" = longest signal cycle in the net (90 s here)
+period_mult = 1            # T3-D1; 2 = merge two cycles offline
+adjacency = "directed"     # T3-D1; "junction" for comparison
+weight = "lane_length"     # T3-D2; "road_length" also written (city_*_road columns)
+reference_density_veh_km = 2   # v_ref comes from the run at this density ...
+reference_seed = 99            # ... and this seed, on the same net
+vref_min_sampled_s = 0     # T3-D8 default is 60; 0 here to match the pilot exactly
+vref_fallback = "class_median" # T3-D8; edges below the minimum: limit x median ratio of their speed class
+spillback_occ_frac = 0.8   # T3-D8, of occ_jam = veh length / (veh length + minGap)
+veh_length_m = 5.0         # pilot vType length
+min_gap_m = 2.0            # pilot vType minGap
+gridlock_outflow_frac = 0.01   # T3-D8, of the reference outflow scaled by vehicle count
+gridlock_cycles = 3        # T3-D8
+
+[measure.sensitivity]      # every combination is written to results/city/<name>_sensitivity.csv
+r_on = [0.3, 0.4, 0.5, 0.6, 0.7]
+persist_m = [1, 2, 3]
+adjacency = ["directed", "junction"]
+period_mult = [1, 2]
