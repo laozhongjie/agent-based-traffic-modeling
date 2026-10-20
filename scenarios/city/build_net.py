@@ -7,7 +7,8 @@ strongly connected component of the passenger lane-connection graph (node =
 edge that allows passenger cars, arc e -> f if some lane of e connects to f),
 so every kept road can reach every other kept road and get back; this respects
 turn restrictions and missing U-turns. Stage 2 reloads the stage-1 net with only
-those edges.
+those edges. With `tls_rebuild = true` (T1-D10), stage 2 also rebuilds every signal
+plan for the roads that remain, so no phase gives green only to a removed road.
 
 Writes, next to this script (or in --out-dir):
     <name>.net.xml    the network (committed)
@@ -94,6 +95,18 @@ def stage1_opts(net):
              "--tls.cycle.time", str(int(net["tls_cycle_s"])),
              "--osm.turn-lanes", "--output.street-names", "--output.original-names"]
             + logic_opts(net) + [str(o) for o in net["extra_netconvert_opts"]])
+
+
+def stage2_tls_opts(net):
+    """netconvert options that rebuild signal plans in stage 2 (T1-D10).
+
+    Stage 2 otherwise keeps the stage-1 plans, whose phases still serve approaches the
+    strong-component pass removed ("dead phases"). Rebuilding changes timings only:
+    no edge, lane or connection.
+    """
+    if not net["tls_rebuild"]:
+        return []
+    return ["--tls.rebuild", "--tls.default-type", "static", "--tls.cycle.time", str(int(net["tls_cycle_s"]))]
 
 
 def largest_scc(net):
@@ -185,7 +198,7 @@ def build(cfg, osm_dir, out_dir, run_dir):
     out_dir.mkdir(parents=True, exist_ok=True)
     s1 = ["--osm-files", ",".join(str(t) for t in tiles), *stage1_opts(net_cfg), "-o", "stage1.net.xml"]
     s2 = ["-s", "stage1.net.xml", "--keep-edges.input-file", "scc_edges.txt", *logic_opts(net_cfg),
-          "-o", f"{name}.net.xml"]
+          *stage2_tls_opts(net_cfg), "-o", f"{name}.net.xml"]
     with tempfile.TemporaryDirectory(prefix=f"city-{name}-") as tmp:
         err1, warn1 = netconvert(s1, tmp, "stage1.log")
         stats1, big = net_stats(Path(tmp, "stage1.net.xml"))
@@ -223,6 +236,7 @@ def build(cfg, osm_dir, out_dir, run_dir):
                                  "tls_count", "tls_cycle_lengths_s", "tls_types", "n_scc",
                                  "largest_scc_lane_km_by_type")},
         "tls_cycle_s": net_cfg["tls_cycle_s"],
+        "tls_rebuild": net_cfg["tls_rebuild"],
         "stage1": {k: stats1[k] for k in ("junctions", "edges_passenger", "lane_km_passenger", "tls_count",
                                           "n_scc", "scc_sizes_top5", "largest_scc_lane_km_share")},
         "netconvert_warnings": {"stage1": warn1, "stage2": warn2},

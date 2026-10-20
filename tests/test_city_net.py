@@ -99,14 +99,13 @@ def test_density_denominator_is_passenger_lanes(city):
     assert abs(meta["lane_length_m"] - meta["passenger_lane_length_m"]) <= 1.0
 
 
-@pytest.mark.xfail(strict=True, reason="T1-D10 (proposed): stage 2 keeps pre-trim signal plans; "
-                   "netconvert --tls.rebuild removes the unused states. Remove this marker after the rebuild.")
 def test_no_unused_signal_states(city):
     """Every signal state string has exactly one character per controlled link.
 
-    The strong-component pass removes some approaches of a few signals but keeps their
-    old phase strings, so some phases give green only to removed links: the remaining
-    approaches wait through a dead phase of up to 42 s in a 90 s cycle.
+    Without the T1-D10 rebuild (`tls_rebuild = true`), the strong-component pass removes
+    some approaches of a few signals but keeps their old phase strings, so some phases
+    give green only to removed links: the remaining approaches wait through a dead phase
+    of up to 51 s in a 90 s cycle.
     """
     _, root, _ = city
     used = {}
@@ -116,3 +115,24 @@ def test_no_unused_signal_states(city):
     extra = [t.get("id") for t in root.iter("tlLogic")
              if len(next(t.iter("phase")).get("state")) != used.get(t.get("id"), 0)]
     assert not extra, f"{len(extra)} signals with unused states: {extra[:3]}"
+
+
+def test_no_dead_phases(city):
+    """No phase longer than 5 s gives green to none of the links the net still has (T1-D10).
+
+    A dead phase holds every remaining approach at red while a removed road "has" the
+    green: an artificial bottleneck. The 5 s floor skips yellow and all-red clearance.
+    """
+    _, root, _ = city
+    links = {}
+    for c in root.iter("connection"):
+        if c.get("tl"):
+            links.setdefault(c.get("tl"), set()).add(int(c.get("linkIndex")))
+    dead = {}
+    for t in root.iter("tlLogic"):
+        used = links.get(t.get("id"), set())
+        s = sum(float(p.get("duration")) for p in t.iter("phase")
+                if float(p.get("duration")) > 5 and not any(p.get("state")[i] in "Gg" for i in used))
+        if s:
+            dead[t.get("id")] = s
+    assert not dead, f"{len(dead)} signals with dead phases, up to {max(dead.values(), default=0):.0f} s"

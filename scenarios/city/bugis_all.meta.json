@@ -1,12 +1,12 @@
 {
  "name": "bugis_all",
  "config": "configs/city/bugis_all.toml",
- "config_sha256": "0052f37d0723",
- "built_utc": "2026-10-19T23:31:56Z",
- "build_run_dir": "runs/city-build-bugis_all-20261020-073154",
+ "config_sha256": "e9b168979380",
+ "built_utc": "2026-10-20T10:30:25Z",
+ "build_run_dir": "runs/city-build-bugis_all-20261020-183021",
  "netconvert_version": "Eclipse SUMO netconvert 1.28.0",
  "netconvert_stage1": "netconvert --osm-files <osm_dir>/t0.osm.xml.gz,<osm_dir>/t1.osm.xml.gz,<osm_dir>/t2.osm.xml.gz,<osm_dir>/t3.osm.xml.gz --type-files scenarios/city/sg_types.typ.xml --lefthand --keep-edges.in-geo-boundary 103.84475,1.29075,103.87025,1.31625 --keep-edges.by-vclass passenger --remove-edges.by-type highway.motorway,highway.motorway_link,highway.service --remove-edges.isolated --geometry.remove --roundabouts.guess --ramps.guess --junctions.join --tls.guess-signals --tls.discard-simple --tls.join --tls.default-type static --tls.cycle.time 90 --osm.turn-lanes --output.street-names --output.original-names --no-turnarounds.except-deadend -o stage1.net.xml",
- "netconvert_stage2": "netconvert -s stage1.net.xml --keep-edges.input-file scc_edges.txt --no-turnarounds.except-deadend -o bugis_all.net.xml",
+ "netconvert_stage2": "netconvert -s stage1.net.xml --keep-edges.input-file scc_edges.txt --no-turnarounds.except-deadend --tls.rebuild --tls.default-type static --tls.cycle.time 90 -o bugis_all.net.xml",
  "osm_sha256": {
   "t0.osm.xml.gz": "c1b2b43194ae716a33733fe55f11dda93d69796f3a3d4f7758b1394f4f189ba9",
   "t1.osm.xml.gz": "7a03c4dbff43f7b0d9d19ae1b763bc9856dc84901721b9d69d820c2037551eec",
@@ -19,8 +19,8 @@
  "internal_lane_share": 0.1952,
  "edges_normal": 1128,
  "lanes_normal": 2484,
- "edges_internal": 1828,
- "lanes_internal": 3185,
+ "edges_internal": 1826,
+ "lanes_internal": 3182,
  "passenger_lane_length_m": 179808.14,
  "junctions": 668,
  "junction_types": {
@@ -52,6 +52,7 @@
   "highway.secondary_link": 0.06
  },
  "tls_cycle_s": 90,
+ "tls_rebuild": true,
  "stage1": {
   "junctions": 824,
   "edges_passenger": 1378,
@@ -69,7 +70,7 @@
  },
  "netconvert_warnings": {
   "stage1": 202,
-  "stage2": 24
+  "stage2": 18
  },
  "netconvert_errors": [],
  "provisional_on": [
@@ -80,6 +81,8 @@
   "T1-D5",
   "T1-D6",
   "T1-D7",
-  "T1-D9"
+  "T1-D9",
+  "T1-D10",
+  "T1-D12"
  ]
 }
