@@ -1,0 +1,54 @@
+{
+  "variant": "closure",
+  "n": 4,
+  "block_m": 200.0,
+  "speed_mps": 13.89,
+  "lanes": 1,
+  "junction": "traffic_light",
+  "edges": 46,
+  "lane_length_m": 9200.0,
+  "baseline_lane_length_m": 9600.0,
+  "change": {
+    "type": "remove",
+    "segment": "n1_1~n1_2",
+    "edges": [
+      "n1_1-n1_2",
+      "n1_2-n1_1"
+    ],
+    "rule": "largest summed edge betweenness, length-weighted; ties to smallest id",
+    "ranking": [
+      {
+        "segment": "n1_1~n1_2",
+        "betweenness": 39.0
+      },
+      {
+        "segment": "n1_1~n2_1",
+        "betweenness": 39.0
+      },
+      {
+        "segment": "n1_2~n2_2",
+        "betweenness": 39.0
+      },
+      {
+        "segment": "n2_1~n2_2",
+        "betweenness": 39.0
+      },
+      {
+        "segment": "n0_1~n1_1",
+        "betweenness": 28.833333
+      },
+      {
+        "segment": "n0_2~n1_2",
+        "betweenness": 28.833333
+      },
+      {
+        "segment": "n1_0~n1_1",
+        "betweenness": 28.833333
+      },
+      {
+        "segment": "n1_2~n1_3",
+        "betweenness": 28.833333
+      }
+    ]
+  }
+}
