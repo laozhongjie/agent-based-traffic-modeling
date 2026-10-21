@@ -42,6 +42,7 @@
 ├── research/                   # 决策记录和验证结果
 ├── sumo/
 │   ├── version.txt             # 固定的上游 SUMO commit
+│   ├── check_nasch.py          # 用 p = 0 的精确解检查 SUMO 的 NaSch
 │   ├── ovm/                    # MSCFModel_OVM.h/.cpp 完整源文件及 check_ovm.py
 │   └── patches/                # 在 SUMO 中注册 OVM 的少量改动
 ├── scenarios/                  # 固定不变的 SUMO 输入及其生成脚本
@@ -60,6 +61,7 @@
 │   ├── demand.py               # 目的地、路线及车辆数控制
 │   ├── measurements.py         # 统一指标定义
 │   ├── results.py              # 交给分析使用的结果数据格式
+│   ├── nasch.py                # NaSch 在 p = 0 时的理论与参考元胞自动机
 │   ├── ovm.py                  # OVM 理论与参考积分器
 │   ├── analysis/               # 临界点、涨落及拥堵簇分析
 │   └── export_web.py           # 导出精简网页数据

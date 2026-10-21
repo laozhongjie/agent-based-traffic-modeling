@@ -71,8 +71,9 @@ source ~/.bashrc</code></pre>
           <tr><td><code>src/traffic_project/</code> <code>config.py</code>、<code>io.py</code>、<code>runner.py</code></td><td>读取配置、读取 SUMO 输出、运行 SUMO、写运行记录、通用检查</td><td>A</td></tr>
           <tr><td><code>src/traffic_project/results.py</code></td><td>结果数据格式（第 6 节）：必需列、检查和写出函数</td><td>A</td></tr>
           <tr><td><code>src/traffic_project/export_web.py</code>、<code>scripts/export_web.py</code></td><td>把通过检查的结果导出到网站（第 3 节第 6 步）</td><td>A</td></tr>
+          <tr><td><code>src/traffic_project/nasch.py</code></td><td>NaSch 在 \\(p = 0\\) 时的理论结果和参考元胞自动机</td><td>A</td></tr>
           <tr><td><code>src/traffic_project/ovm.py</code></td><td>OVM 理论：最优速度、均匀流的稳定性、参考积分器</td><td>A</td></tr>
-          <tr><td><code>sumo/</code></td><td>包含 OVM 的 SUMO 构建：版本、OVM 源码、补丁，以及检查脚本 <code>sumo/ovm/check_ovm.py</code></td><td>A</td></tr>
+          <tr><td><code>sumo/</code></td><td>包含 OVM 的 SUMO 构建：版本、OVM 源码、补丁，以及检查脚本 <code>sumo/check_nasch.py</code> 和 <code>sumo/ovm/check_ovm.py</code></td><td>A</td></tr>
           <tr><td><code>tests/</code></td><td>共用代码的自动测试，用 <code>pytest</code> 运行</td><td>A</td></tr>
           <tr><td><code>src/traffic_project/measurements.py</code></td><td>测量量，每个场景一个函数</td><td>A；环路 B；路网 C</td></tr>
           <tr><td><code>src/traffic_project/demand.py</code></td><td>城区路网的恒定密度 TraCI 控制器（尚未建立）</td><td>C</td></tr>

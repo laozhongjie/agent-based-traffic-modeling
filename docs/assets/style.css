@@ -848,3 +848,23 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   .exp-card:hover, .btn:hover, .lang-toggle:hover, .theme-toggle:hover, .demo-row button:hover,
   .exp-card:hover .exp-open, .timeline-bar .marker:hover, .flow li:hover::before, .tasks li:hover .status, .status-btn:hover { transform: none !important; }
 }
+
+/* Ring-road results on the lab page (ring-results.js) */
+.rr-card { min-width: 0; --rr: var(--accent); }
+.grid .rr-card.wide { grid-column: 1 / -1; }
+.rr-card h3 { margin-bottom: 8px; }
+.rr-card figure { margin: 16px 0 0; min-width: 0; }
+.rr-card figcaption { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.rr-card svg { display: block; width: 100%; }
+.rr-s0 { --rr: var(--accent); }
+.rr-s1 { --rr: var(--jam); }
+.rr-s2 { --rr: var(--free); }
+.rr-s3 { --rr: var(--doing); }
+.viz-svg .rr-line { stroke: var(--rr); stroke-width: 2; fill: none; opacity: .7; }
+.viz-svg .rr-dot { fill: var(--rr); stroke: var(--surface); stroke-width: 1; }
+.rr-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 0 !important; margin: 0 !important; font-size: 13px; color: var(--muted); }
+.rr-legend li { display: inline-flex; align-items: center; gap: 6px; margin: 0 !important; }
+.rr-swatch { width: 10px; height: 10px; border-radius: 50%; background: var(--rr); }
+.rr-card .rr-note { margin-top: 12px; font-size: 13px; color: var(--muted); }
+.lab-data h3 { font-size: 16px; margin: 16px 0 8px; }
+.lab-data td code, .lab-data th code { font-size: 12px; }

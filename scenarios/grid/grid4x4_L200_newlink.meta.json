@@ -1,0 +1,63 @@
+{
+  "variant": "newlink",
+  "n": 4,
+  "block_m": 200.0,
+  "speed_mps": 13.89,
+  "lanes": 1,
+  "junction": "traffic_light",
+  "edges": 50,
+  "lane_length_m": 10165.686,
+  "baseline_lane_length_m": 9600.0,
+  "change": {
+    "type": "add",
+    "segment": "n1_1~n2_2",
+    "edges": [
+      "n1_1-n2_2",
+      "n2_2-n1_1"
+    ],
+    "length_m": 282.843,
+    "rule": "largest cut in summed all-pairs shortest paths, length <= 282.843 m; ties to smallest ids",
+    "ranking": [
+      {
+        "segment": "n1_1~n2_2",
+        "reduction_m": 3749.033201,
+        "length_m": 282.843
+      },
+      {
+        "segment": "n1_2~n2_1",
+        "reduction_m": 3749.033201,
+        "length_m": 282.843
+      },
+      {
+        "segment": "n0_1~n1_2",
+        "reduction_m": 2811.774901,
+        "length_m": 282.843
+      },
+      {
+        "segment": "n0_2~n1_1",
+        "reduction_m": 2811.774901,
+        "length_m": 282.843
+      },
+      {
+        "segment": "n1_0~n2_1",
+        "reduction_m": 2811.774901,
+        "length_m": 282.843
+      },
+      {
+        "segment": "n1_1~n2_0",
+        "reduction_m": 2811.774901,
+        "length_m": 282.843
+      },
+      {
+        "segment": "n1_2~n2_3",
+        "reduction_m": 2811.774901,
+        "length_m": 282.843
+      },
+      {
+        "segment": "n1_3~n2_2",
+        "reduction_m": 2811.774901,
+        "length_m": 282.843
+      }
+    ]
+  }
+}
