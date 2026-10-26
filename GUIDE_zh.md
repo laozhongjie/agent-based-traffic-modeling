@@ -100,6 +100,7 @@
 | `data/raw/`、`data/processed/` | 外部数据：OSM、PeMS、highD、LTA | E |
 | `runs/<run-id>/` | 每次运行一个目录，由脚本写出，不手工修改 | — |
 | `sandbox/<your-name>/` | 个人试验代码和 notebook | 本人 |
+| `notebooks/<your-name>/` | 供组员阅读的只读 notebook 副本，按日期发布（规则 6） | 本人 |
 | `docs/data/<scenario>/` | 导出到网站的结果，由 `scripts/export_web.py` 写出，不手工修改 | — |
 | `docs/` | 项目网站 | A |
 
@@ -137,7 +138,7 @@ git 忽略 `runs/`、`data/raw/`、`sandbox/` 和所有 `*.fcd.xml`，表中其�
 3. **一个实验对应一个配置文件和一条命令。** 任何人从干净的 commit 出发都能复现。
 4. **`sandbox/` 中的代码不得产出正式结果。** 结果写进报告或放上网站前，先把代码移到上表规定的位置。
 5. **每个脚本开头写文档字符串**，说明用途和运行方法。
-6. **notebook 用来探索和画图，不用来跑正式实验。** notebook 放在 `sandbox/<你的名字>/` 中；这个文件夹不进 git，notebook 只保存在你自己的电脑上。读取结果用 `load_summary` 和 `load_timeseries`（见第 6 节），像脚本一样导入 `traffic_project`。正式实验一律用配置文件加 `scripts/` 中的脚本运行，保证每个结果都有运行记录。notebook 里的分析或图要写进报告时，把代码移到 `scripts/` 或 `src/traffic_project/analysis/`（规则 4）。
+6. **notebook 用来探索和画图，不用来跑正式实验。** notebook 放在 `sandbox/<你的名字>/` 中；这个文件夹不进 git，notebook 只保存在你自己的电脑上。例外：已运行、写给组员阅读的只读 notebook 副本可以提交到 `notebooks/<你的名字>/`，文件名带发布日期（例如 `task1-district-import-2026-10-21.ipynb`）；工作中的 notebook 不放在那里。读取结果用 `load_summary` 和 `load_timeseries`（见第 6 节），像脚本一样导入 `traffic_project`。正式实验一律用配置文件加 `scripts/` 中的脚本运行，保证每个结果都有运行记录。notebook 里的分析或图要写进报告时，把代码移到 `scripts/` 或 `src/traffic_project/analysis/`（规则 4）。
 
 ## 3. 运行环路示例
 

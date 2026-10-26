@@ -115,6 +115,7 @@ source ~/.bashrc</code></pre>
             <tr><td><code>data/raw/</code>, <code>data/processed/</code></td><td>External data: OSM, PeMS, highD, LTA</td><td>E</td></tr>
             <tr><td><code>runs/&lt;run-id&gt;/</code></td><td>One folder per run, written by the scripts; never edited by hand</td><td>—</td></tr>
             <tr><td><code>sandbox/&lt;your-name&gt;/</code></td><td>Your own experiments and notebooks</td><td>You</td></tr>
+            <tr><td><code>notebooks/&lt;your-name&gt;/</code></td><td>Read-only notebook copies for teammates, released by date (rule 6)</td><td>You</td></tr>
             <tr><td><code>docs/data/&lt;scenario&gt;/</code></td><td>Results exported for the website; written by <code>scripts/export_web.py</code>, never edited by hand</td><td>—</td></tr>
             <tr><td><code>docs/</code></td><td>This website</td><td>A</td></tr>
           </tbody>
@@ -150,7 +151,7 @@ source ~/.bashrc</code></pre>
         <li><strong>One experiment is one config file and one command.</strong> Anyone can reproduce it from a clean commit.</li>
         <li><strong><code>sandbox/</code> never produces a reported result.</strong> Move the code into the places above before its output goes into the report or onto the website.</li>
         <li><strong>Start every script with a docstring</strong> that says what it does and how to run it.</li>
-        <li><strong>Notebooks are for exploring and plotting, not for formal runs.</strong> Keep them in <code>sandbox/&lt;your-name&gt;/</code>; that folder is not in git, so a notebook stays on your computer. Read results with <code>load_summary</code> and <code>load_timeseries</code> (section 6), and import <code>traffic_project</code> as a script would. Formal runs always use a config file and a script in <code>scripts/</code>, so that every result has a run record. When a notebook's analysis or figure is going into the report, move its code into <code>scripts/</code> or <code>src/traffic_project/analysis/</code> (rule 4).</li>
+        <li><strong>Notebooks are for exploring and plotting, not for formal runs.</strong> Keep them in <code>sandbox/&lt;your-name&gt;/</code>; that folder is not in git, so a notebook stays on your computer. Exception: executed, read-only copies of a notebook, written for teammates to read, may be committed under <code>notebooks/&lt;your-name&gt;/</code>, with the release date in the file name (for example <code>task1-district-import-2026-10-21.ipynb</code>); working notebooks never go there. Read results with <code>load_summary</code> and <code>load_timeseries</code> (section 6), and import <code>traffic_project</code> as a script would. Formal runs always use a config file and a script in <code>scripts/</code>, so that every result has a run record. When a notebook's analysis or figure is going into the report, move its code into <code>scripts/</code> or <code>src/traffic_project/analysis/</code> (rule 4).</li>
       </ol>
     </section>
 
