@@ -100,6 +100,7 @@ Code is organised by what it does, not by who wrote it. Each kind of code has on
 | `data/raw/`, `data/processed/` | External data: OSM, PeMS, highD, LTA | E |
 | `runs/<run-id>/` | One folder per run, written by the scripts; never edited by hand | — |
 | `sandbox/<your-name>/` | Your own experiments and notebooks | You |
+| `notebooks/<your-name>/` | Read-only notebook copies for teammates, released by date (rule 6) | You |
 | `docs/data/<scenario>/` | Results exported for the website; written by `scripts/export_web.py`, never edited by hand | — |
 | `docs/` | The project website | A |
 
@@ -137,7 +138,7 @@ Git ignores `runs/`, `data/raw/`, `sandbox/` and every `*.fcd.xml`. Everything e
 3. **One experiment is one config file and one command.** Anyone can reproduce it from a clean commit.
 4. **`sandbox/` never produces a reported result.** Move the code into the places above before its output goes into the report or onto the website.
 5. **Start every script with a docstring** that says what it does and how to run it.
-6. **Notebooks are for exploring and plotting, not for formal runs.** Keep them in `sandbox/<your-name>/`; that folder is not in git, so a notebook stays on your computer. Read results with `load_summary` and `load_timeseries` (section 6), and import `traffic_project` as a script would. Formal runs always use a config file and a script in `scripts/`, so that every result has a run record. When a notebook's analysis or figure is going into the report, move its code into `scripts/` or `src/traffic_project/analysis/` (rule 4).
+6. **Notebooks are for exploring and plotting, not for formal runs.** Keep them in `sandbox/<your-name>/`; that folder is not in git, so a notebook stays on your computer. Exception: executed, read-only copies of a notebook, written for teammates to read, may be committed under `notebooks/<your-name>/`, with the release date in the file name (for example `task1-district-import-2026-10-21.ipynb`); working notebooks never go there. Read results with `load_summary` and `load_timeseries` (section 6), and import `traffic_project` as a script would. Formal runs always use a config file and a script in `scripts/`, so that every result has a run record. When a notebook's analysis or figure is going into the report, move its code into `scripts/` or `src/traffic_project/analysis/` (rule 4).
 
 ## 3. Run the ring-road example
 
