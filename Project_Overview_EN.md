@@ -274,7 +274,7 @@ Finite road length, finite observation time and random initial conditions all in
 - Does the network-average flow peak and then decline (the MFD peak)?
 - Does the fraction of stopped vehicles keep increasing?
 - Do slow links form a connected region that grows rapidly?
-- Does gridlock occur, with vehicles unable to move for long periods?
+- Does gridlock occur? City runs teleport a vehicle that has stood still for 300 s (T3-D11), so gridlock shows as a rising teleport rate and falling flow, not as vehicles stopped for good.
 
 Candidate transition ranges are first located on a coarse density grid, then refined with extra points and more repeated runs nearby. The report gives means, the spread across repeated runs, the observation time, and the sensitivity of each criterion.
 
@@ -289,7 +289,7 @@ The road network is not just a backdrop for the animation. The project asks how 
 - Intersections are nodes.
 - One-way road segments are directed edges.
 - Length, speed limit and number of lanes are edge attributes.
-- Free-flow travel time is the edge weight used for routing.
+- Free-flow travel time is the edge weight for the betweenness analysis; vehicles themselves re-plan on current travel times (section 4.6).
 
 ### 7.2 Route load and bottlenecks
 
