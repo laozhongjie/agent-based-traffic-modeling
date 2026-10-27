@@ -31,6 +31,23 @@ results/city/:
         --name ctl_smoke_bugis_all_controller
 --jobs and --verify-routes are free. --measure-only measures finished runs again without
 running SUMO.
+
+Planning variants (T4-D2, ruled by C 2026-10-27, member D's ask): in a copy of the config with
+its own name and run_prefix, set [network] net_file to the variant, baseline_net_file to the
+baseline net (e.g. "scenarios/city/bugis_all.net.xml") and variant to the variant's name (it
+fills the results' `variant` column). N then comes from the baseline's lane length, N = round(k x
+baseline lane length / 1000), and destinations are drawn from the baseline's car edges that the
+variant still has (demand.baseline_destinations), so a closure or a new link changes the roads,
+not the number of cars or the trips: a new link is never a destination. Runs are labelled by the
+baseline's k (city_k_target); flow, the measured density and v_ref use the variant's own lanes,
+and each variant runs its own free-flow reference. The script stops when a net has lanes that
+ban cars (close a road by deleting its edge), when more than [network] max_dropped_edges
+(default 5) baseline edges are missing from the variant (a rebuilt net renames edges), when the
+two nets' measurement periods differ, and when an existing run folder of the same prefix was
+made on another net or baseline. The results add city_baseline_net, city_k_variant (1000 N / the
+variant's lane length: the target-side counterpart of density_veh_km), city_baseline_lane_length_m,
+city_n_destinations, city_new_edges and city_new_edges_vref_own (new edges with their own v_ref
+from the variant's reference run).
 """
 import argparse
 import gzip
@@ -119,6 +136,20 @@ def check_config(cfg):
     return ok
 
 
+def _car_lane_m(lanes):
+    """Total length (m) of the lanes that allow passenger cars, from demand.car_lanes()."""
+    return float(sum(length * len(idx) for _, length, idx in lanes))
+
+
+def _same_network(meta, run_dir):
+    """Stop when an existing run folder was made on another net or baseline: a copied config that
+    kept name and run_prefix would otherwise overwrite another sweep's runs and results."""
+    if meta.get("net") != str(CTX["net_path"]) or meta.get("baseline") != CTX["baseline"]:
+        raise SystemExit(f"{run_dir} holds a run on {meta.get('net')} (baseline "
+                         f"{(meta.get('baseline') or {}).get('net')}), but this config uses {CTX['net_path']} "
+                         f"(baseline {(CTX['baseline'] or {}).get('net')}): give the config its own name and run_prefix")
+
+
 def load_network(cfg):
     net_path = ROOT / cfg["network"]["net_file"]
     net = cg.read_net(net_path)
@@ -127,9 +158,43 @@ def load_network(cfg):
     if outside:
         raise SystemExit(f"{net_path.name}: {len(outside)} car edges cannot be reached from every other car edge "
                          f"(e.g. {outside[:5]}); a car sent there could not be re-targeted and would arrive")
+    lane_m = float((net.edges.length * net.edges.lanes).sum())
     CTX.update(cfg=cfg, net_path=net_path, period=cg.cycle_period(net, cfg["measure"]["period_s"]),
-               lane_m=float((net.edges.length * net.edges.lanes).sum()), lanes=lanes,
-               dests=sorted(e for e, *_ in lanes))
+               lane_m=lane_m, lanes=lanes, dests=sorted(e for e, *_ in lanes),
+               n_lane_m=lane_m, baseline=None)   # n_lane_m: the lane length that sets N
+    CTX["variant"] = ""
+    base_file = cfg["network"].get("baseline_net_file")
+    if base_file:   # planning variant (T4-D2): N and destinations from the baseline net
+        nw = cfg["network"]
+        if not nw.get("variant"):
+            raise SystemExit("[network] variant must name the planning variant when baseline_net_file is set")
+        base_path = ROOT / base_file
+        base = cg.read_net(base_path)
+        base_lanes = demand.car_lanes(base_path)
+        base_m = float((base.edges.length * base.edges.lanes).sum())
+        for name, total, car_m in ((net_path.name, lane_m, _car_lane_m(lanes)),
+                                   (base_path.name, base_m, _car_lane_m(base_lanes))):
+            if abs(total - car_m) > 0.5:   # m
+                raise SystemExit(f"{name}: {total - car_m:.1f} m of lanes ban passenger cars, so the lane length "
+                                 f"that sets N and k is not the car-lane length; close a road by deleting its edge")
+        base_period = cg.cycle_period(base, cfg["measure"]["period_s"])
+        if base_period != CTX["period"]:
+            raise SystemExit(f"measurement period {CTX['period']:g} s here, {base_period:g} s on the baseline: "
+                             f"the congested fractions would not compare")
+        dests, dropped, new = demand.baseline_destinations(base_lanes, lanes)
+        if not dests:
+            raise SystemExit(f"{net_path.name} shares no car edge with the baseline {base_path.name}")
+        limit = nw.get("max_dropped_edges", 5)
+        if len(dropped) > limit:
+            raise SystemExit(f"{len(dropped)} baseline car edges are missing from {net_path.name} (limit {limit}, "
+                             f"[network] max_dropped_edges), e.g. {dropped[:5]}: was the variant rebuilt with other ids?")
+        CTX.update(dests=dests, n_lane_m=base_m, variant=nw["variant"],
+                   baseline=dict(net=str(base_path), lane_length_m=base_m, n_destinations=len(dests),
+                                 dropped_edges=dropped, new_edges=new))
+        print(f"baseline {base_path.name}: N from its lane length {base_m / 1000:.2f} km "
+              f"(this net {lane_m / 1000:.2f} km); {len(dests)} destination edges; baseline edges missing "
+              f"here: {dropped if len(dropped) <= 10 else len(dropped)}; new edges here, never destinations: "
+              f"{new if len(new) <= 10 else len(new)}", flush=True)
 
 
 def sumocfg_text(cfg, run_dir, seed):
@@ -161,11 +226,13 @@ def build(cfg, k, seed, overrides):
     run_id = f"{cfg['sweep']['run_prefix']}_k{k:g}_s{seed}"
     run_dir = ROOT / "runs" / run_id
     if (run_dir / "meta.json").exists():
-        old = json.loads((run_dir / "meta.json").read_text()).get("controller", "")
+        old_meta = json.loads((run_dir / "meta.json").read_text())
+        old = old_meta.get("controller", "")
         if not old.startswith(CONTROLLER_TAG):
             raise SystemExit(f"{run_dir} holds another script's run ({old!r}); choose another --prefix")
+        _same_network(old_meta, run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
-    n = round(k * CTX["lane_m"] / 1000)
+    n = round(k * CTX["n_lane_m"] / 1000)   # the baseline's lane length for a planning variant (T4-D2)
     r = cfg["run"]
     (run_dir / "vehicles.rou.xml").write_text(
         demand.initial_routes(CTX["lanes"], n, cfg["vehicle"], r["placement_jitter_m"], seed))
@@ -174,11 +241,15 @@ def build(cfg, k, seed, overrides):
     (run_dir / "run.sumocfg").write_text(sumocfg_text(cfg, run_dir, seed))
     meta = dict(net=str(CTX["net_path"]), tag=cfg["network"]["tag"], k_target=k, seed=seed, n_vehicles=n,
                 lane_length_m=CTX["lane_m"], period_s=CTX["period"], end_s=r["end_s"], controller=CONTROLLER_TAG)
+    if CTX["baseline"]:
+        meta["baseline"] = CTX["baseline"]
     (run_dir / "meta.json").write_text(json.dumps(meta, indent=1) + "\n")
     parameters = {"density_veh_km": k, "seed": seed, "n_vehicles": n, "lane_length_m": CTX["lane_m"],
                   "network": cfg["network"], "run": r, "controller": cfg["controller"],
                   "rerouting": cfg["rerouting"], "settle": cfg["settle"], "vehicle": cfg["vehicle"],
                   "measure": cfg["measure"], "overrides": overrides}
+    if CTX["baseline"]:
+        parameters["baseline"] = CTX["baseline"]
     runner.write_manifest(run_dir, run_id, cfg, parameters)
     return run_id, run_dir, n
 
@@ -251,6 +322,10 @@ def controller_outputs(cfg, run_dir, run_id, k, seed, reference, window_ok):
                 city_retargets=rec["retargets"], city_guard_retargets=rec["guard_retargets"],
                 city_reinserted=rec["reinserted"], city_retarget_failed=rec["retarget_failed"],
                 city_route_cache_mismatches=rec["route_cache_mismatches"])
+    if CTX["baseline"]:   # planning variant (T4-D2): k is the baseline's; also N / the variant's lane length
+        cols.update(city_baseline_net=os.path.relpath(CTX["baseline"]["net"], ROOT),
+                    city_k_variant=1000 * n / CTX["lane_m"], city_baseline_lane_length_m=CTX["n_lane_m"],
+                    city_n_destinations=len(CTX["dests"]))
     checks = dict(rec["checks"])
     checks["teleports_match_log"] = bool(rec["teleports"] == len(starts) == rec["log_teleports"]
                                          and list(tp_t.astype(int)) == mid_log)
@@ -281,6 +356,7 @@ def main():
         for k, s in keys:
             run_id = f"{sw['run_prefix']}_k{k:g}_s{s}"
             meta = json.loads((ROOT / "runs" / run_id / "meta.json").read_text())
+            _same_network(meta, ROOT / "runs" / run_id)
             runs[(k, s)] = (run_id, ROOT / "runs" / run_id, meta["n_vehicles"])
     else:
         CTX["near"] = demand.net_near_sets(CTX["net_path"], cfg["controller"]["guard_m"])
@@ -301,6 +377,14 @@ def main():
     edname = cfg["inputs"]["edgedata_file"].format(period=CTX["period"])
     summ = cfg["inputs"]["summary_file"]
     rows, blocks = [], []
+    new_cols = {}
+    if CTX["baseline"]:   # T4-D2: did each new link get its own v_ref in this variant's reference run?
+        new = CTX["baseline"]["new_edges"]
+        ref_df = cg.read_edgedata(ref_dir / edname)
+        win = ref_df[(ref_df.begin >= cfg["run"]["warmup_s"]) & ref_df.edge.isin(new)]
+        sampled = win.groupby("edge").sampledSeconds.sum()
+        new_cols = dict(city_new_edges=len(new),
+                        city_new_edges_vref_own=int((sampled >= m["vref_min_sampled_s"]).sum()))
     for (k, s), (run_id, d, n) in runs.items():
         reference = (k, s) == ref_key
         cols, checks, b, wall = controller_outputs(cfg, d, run_id, k, s, reference, window_ok)
@@ -315,8 +399,8 @@ def main():
             results.write_timeseries(run_id, series, cfg)
         # reported, not a validity check: the reference run's v_ref must cover > vref_coverage_min (proposal section 4)
         cover_ok = bool(meas["city_vref_coverage"] > m["vref_coverage_min"])
-        row = dict(meas, scenario=cfg["scenario"], model=cfg["model"], variant="", seed=s,
-                   city_net=cfg["network"]["tag"], city_vref_coverage_ok=cover_ok, **cols)
+        row = dict(meas, scenario=cfg["scenario"], model=cfg["model"], variant=CTX["variant"], seed=s,
+                   city_net=cfg["network"]["tag"], city_vref_coverage_ok=cover_ok, **cols, **new_cols)
         row = runner.finish(d, run_id, dict(row, city_wall_s=wall), {**checks, **mchecks})
         row.pop("city_wall_s")   # in summary.json and controller.json, not in the results table
         rows.append(row)

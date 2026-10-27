@@ -23,6 +23,8 @@ model = "IDM"
 [network]
 net_file = "scenarios/city/bugis_all.net.xml"   # Task 1 main net (all road classes), v1 provisional
 tag = "bugis_all"
+# baseline_net_file = "scenarios/city/bugis_all.net.xml"   # planning variants only (T4-D2), in a copy with its own name and run_prefix:
+# variant = "closure_<road>"                                # N and destinations from the baseline, net_file = the variant; see scripts/city_sweep.py
 
 [sweep]
 densities_veh_km = [2.5, 5, 7.5, 10, 12.5, 15, 20, 25, 30, 40]   # veh/km: N / total lane length of normal lanes (task 3 settled sweep)

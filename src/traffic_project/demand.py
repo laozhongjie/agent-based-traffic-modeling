@@ -2,9 +2,10 @@
 TraCI controller that keeps the number of cars N exactly constant, so the density k = N / L
 is exact.
 
-Provisional rules (2026-10-27, C's rulings for the city network, awaiting the group):
+Rules (ruled by C 2026-10-27 for the city network and agreed by the group the same day):
   T4-D1   every car gets a random destination edge (uniform over the edges that allow passenger
-          cars) when it departs, again whenever it nears the end of its route, and as soon as
+          cars; for a planning variant, over the baseline's car edges that the variant still has,
+          T4-D2) when it departs, again whenever it nears the end of its route, and as soon as
           it is within guard_m (60 m) of its destination by road (rule 2 below); SUMO's
           rerouting device, set in the run's sumocfg, re-plans every route every 60 s on travel
           times averaged over the last 180 s.
@@ -64,6 +65,21 @@ def car_lanes(net_path):
         if lanes:
             out.append((e.getID(), e.getLength(), lanes))
     return out
+
+
+def baseline_destinations(baseline_lanes, variant_lanes):
+    """Destination edges of a planning variant (T4-D2): the baseline's car edges that the
+    variant still has, so a variant changes the roads but not the trips.
+
+    baseline_lanes, variant_lanes: car_lanes() of the two nets. Returns (destinations, dropped,
+    new), each sorted: dropped = baseline car edges missing from the variant (a closure), new =
+    variant car edges missing from the baseline (a new link), which are never destinations.
+    Edges are matched by id: a split keeps its first piece (same id) as a destination and its other
+    pieces count as new; a renamed edge counts as dropped and its replacement as new.
+    """
+    base = {e for e, *_ in baseline_lanes}
+    var = {e for e, *_ in variant_lanes}
+    return sorted(base & var), sorted(base - var), sorted(var - base)
 
 
 def initial_routes(lanes, n, vehicle, jitter_m, seed):

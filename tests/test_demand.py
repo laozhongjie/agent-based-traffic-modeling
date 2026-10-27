@@ -555,3 +555,13 @@ def test_city_sweep_config_checks():
     cfg = _cfg()
     cfg["settle"]["block_s"] = 2400
     assert cs.check_config(cfg) is False
+
+
+def test_baseline_destinations_keep_the_trips_of_the_baseline():
+    """T4-D2: a closed edge stops being a destination, and a new link never becomes one."""
+    base = [("a", 100.0, [0]), ("b", 50.0, [0, 1]), ("c", 80.0, [0])]
+    closure = [("a", 100.0, [0]), ("c", 80.0, [0])]
+    new_link = base + [("n", 40.0, [0])]
+    assert demand.baseline_destinations(base, closure) == (["a", "c"], ["b"], [])
+    assert demand.baseline_destinations(base, new_link) == (["a", "b", "c"], [], ["n"])
+    assert demand.baseline_destinations(base, base) == (["a", "b", "c"], [], [])
