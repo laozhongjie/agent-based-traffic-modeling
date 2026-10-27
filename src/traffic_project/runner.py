@@ -11,7 +11,11 @@ controller on the city network, calls run_traci(run_dir, controller) instead of
 run_sumo(run_dir). It returns the same log and checks.
 
 The checks that apply to every run (SUMO exit status, collisions, teleports) are
-computed here; scenario-specific checks are added by the caller.
+computed here; scenario-specific checks are added by the caller. A scenario whose config
+sets [run] allow_teleport = true (the city network, under T3-D11, agreed by the group
+2026-10-27: teleport a car stuck for 300 s) passes allow_teleport=True: the no_teleport check
+is then left out, and the caller reports the teleport count instead. Every other run keeps the
+no_teleport check.
 """
 import contextlib
 import io
@@ -39,20 +43,22 @@ def git_commit():
     return commit + ("-dirty" if dirty else "")
 
 
-def _common_checks(exit_ok, log):
-    return {
+def _common_checks(exit_ok, log, allow_teleport=False):
+    checks = {
         "sumo_exit_ok": exit_ok,
         "no_collision": "collision" not in log.lower(),
-        "no_teleport": "teleport" not in log.lower(),
     }
+    if not allow_teleport:
+        checks["no_teleport"] = "teleport" not in log.lower()
+    return checks
 
 
-def run_sumo(run_dir, sumocfg="run.sumocfg"):
+def run_sumo(run_dir, sumocfg="run.sumocfg", *, allow_teleport=False):
     """Run SUMO on run_dir/sumocfg, save log.txt and return (log, common checks)."""
     r = _sh("sumo", "-c", str(run_dir / sumocfg), "--no-step-log")
     log = r.stdout + r.stderr
     (run_dir / "log.txt").write_text(log)
-    return log, _common_checks(r.returncode == 0, log)
+    return log, _common_checks(r.returncode == 0, log, allow_teleport)
 
 
 def _import_traci():
@@ -67,7 +73,7 @@ def _import_traci():
     return traci, sumolib
 
 
-def run_traci(run_dir, controller, sumocfg="run.sumocfg"):
+def run_traci(run_dir, controller, sumocfg="run.sumocfg", *, allow_teleport=False):
     """Run SUMO on run_dir/sumocfg step by step and call controller after every step.
 
     controller(conn, time_s) receives the TraCI connection (conn.vehicle, conn.simulation, ...)
@@ -93,7 +99,7 @@ def run_traci(run_dir, controller, sumocfg="run.sumocfg"):
                 proc.kill()
             proc.wait()
             log = log_path.read_text()
-            return log, _common_checks(False, log)
+            return log, _common_checks(False, log, allow_teleport)
         sumo_failed = False
         try:
             end = conn.simulation.getEndTime()
@@ -115,7 +121,7 @@ def run_traci(run_dir, controller, sumocfg="run.sumocfg"):
                 proc.kill()
                 proc.wait()
     log = log_path.read_text()
-    return log, _common_checks(proc.returncode == 0 and not sumo_failed, log)
+    return log, _common_checks(proc.returncode == 0 and not sumo_failed, log, allow_teleport)
 
 
 def write_manifest(run_dir, run_id, cfg, parameters):

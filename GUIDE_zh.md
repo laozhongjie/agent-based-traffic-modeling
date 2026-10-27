@@ -195,7 +195,7 @@ git 忽略 `runs/`、`data/raw/`、`sandbox/` 和所有 `*.fcd.xml`，表中其�
 
 1. **新建分支**（见第 10 节）。
 2. **编写配置文件** `configs/<scenario>/<name>.toml`。以 `configs/ring/idm_sweep.toml` 为起点。顶层的 `name`、`scenario` 和 `model` 必须填写；`name` 同时决定结果文件的名称。每个数字都用注释写明单位。
-3. **生成场景输入。** 在 `scenarios/<scenario>/` 中编写脚本，参照 `scenarios/ring/build_run.py`。脚本读取配置文件，为每次运行写出一个 `runs/<run-id>/` 目录并输出运行编号。写出的 `.sumocfg` 使用相对路径，把 `time-to-teleport` 设为 `-1`，把 `collision.action` 设为 `warn`。
+3. **生成场景输入。** 在 `scenarios/<scenario>/` 中编写脚本，参照 `scenarios/ring/build_run.py`。脚本读取配置文件，为每次运行写出一个 `runs/<run-id>/` 目录并输出运行编号。写出的 `.sumocfg` 使用相对路径，把 `collision.action` 设为 `warn`；除非该场景保留 SUMO 的瞬移（见第 7 节），否则把 `time-to-teleport` 设为 `-1`。
 4. **添加测量函数。** 在 `src/traffic_project/measurements.py` 中加一个函数，参照 `ring_summary`。函数读取一次运行的输出，按第 6 节的格式返回 `(measurements, checks, timeseries)`。这一步修改了共用代码，PR 必须由 A 批准。
 5. **编写入口脚本** `scripts/<scenario>_sweep.py`，参照 `scripts/ring_sweep.py`。脚本接受 `--config` 参数，按扫描逐次运行，使用下方的共用调用，并用 `results.write_summary` 和 `results.write_timeseries` 写出汇总表和时间序列。
 6. **运行并检查输出。** 每次运行都会输出 `ok`，或输出 `INVALID` 和未通过的检查项。先排除每次无效运行的原因，再使用结果。
@@ -279,14 +279,14 @@ df = df[df.valid]                                                     # 只保�
 
 ## 7. 每次运行必须通过的检查
 
-有几类问题会悄悄改变实验，SUMO 却不会因此停止运行。所以每次运行都把下列检查结果写入 `summary.json`。前三项由 `runner.run_sumo` 检查，其余由场景的测量函数检查。无效的运行保留下来用于排查，但不得进入任何表格和图表。
+有几类问题会悄悄改变实验，SUMO 却不会因此停止运行。所以每次运行都把下列检查结果写入 `summary.json`。前三项由 `runner.run_sumo`（或 `runner.run_traci`）检查，其余由场景的测量函数检查。无效的运行保留下来用于排查，但不得进入任何表格和图表。
 
 | 检查项 | 发现什么问题 |
 | --- | --- |
 | `sumo_exit_ok` | SUMO 因错误而停止 |
-| `no_teleport` | SUMO 默认会把等待超过 300 秒的车移走，再放到前方。每次运行都把 `time-to-teleport` 设为 `-1`，关闭这一行为。 |
+| `no_teleport` | SUMO 默认会把等待超过 300 秒的车移走，再放到前方（瞬移，teleport）。环路和网格的运行都把 `time-to-teleport` 设为 `-1`，关闭这一行为。城市路网的运行保留 300 秒瞬移，因为不这样做城市路网会逐渐陷入死锁（T3-D11，小组于 2026-10-27 同意）：其配置设置 `[run] allow_teleport = true`，不做这项检查，改为每次运行报告每车每小时的瞬移次数。 |
 | `no_collision` | 车辆重叠。每次运行都把 `collision.action` 设为 `warn`，让碰撞记录在日志中。 |
-| `all_vehicles_present` | 车辆初始位置离其他车太近时，SUMO 会推迟插入这辆车，并且不报错。此时车辆数和密度都是错的。在环路上，`build_run.py` 还会直接拒绝放不下的车辆数。 |
+| `all_vehicles_present` | 车辆初始位置离其他车太近时，SUMO 会推迟插入这辆车，并且不报错。此时车辆数和密度都是错的。在环路上，`build_run.py` 还会直接拒绝放不下的车辆数。在路网上，车辆数取自 `summary.xml` 的 `running`，它把瞬移途中的车也算在内；FCD 输出则会漏掉这辆车。 |
 | `no_negative_speed` | 模型错误，尤其是新写的 OVM 代码 |
 
 环路还要遵守两条规则。每条边都显式设置 `length`，并用 `--no-internal-links` 生成路网，保证密度严格等于车辆数 ÷ 环路长度。模型有已知结果时，用它核对仿真：IDM 平衡速度、NaSch 在 $p = 0$ 时的结果、OVM 稳定性条件。NaSch 只有在格点上才能得到 $p = 0$ 的结果：环路长度是 7.5 m 格子的整数倍，车辆初始位置是 7.5 m 的整数倍，`speedDev` 为 0，`maxSpeed` 是 7.5 m/s 的整数倍且不超过路段限速。

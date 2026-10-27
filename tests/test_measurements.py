@@ -34,3 +34,25 @@ def test_ring_summary_checks_fail(tmp_path):
     _, checks, _ = measurements.ring_summary(fcd, 2, 100, warmup_s=0,
                                              jam_speed_mps=5, sample_every_s=1)
     assert checks == {"all_vehicles_present": False, "no_negative_speed": False}
+
+
+def write_summary(path, running):
+    """Minimal SUMO summary-output: running = {time_s: count}."""
+    steps = "".join(f'  <step time="{t:.2f}" running="{n}"/>\n' for t, n in running.items())
+    path.write_text(f"<summary>\n{steps}</summary>\n")
+    return path
+
+
+def test_network_summary_counts_teleporting_vehicles_from_summary_xml(tmp_path):
+    # vehicle "b" is in mid-teleport at t = 1: missing from the FCD output, still running
+    fcd = write_fcd(tmp_path / "fcd.xml", {0: [("a", 5.0), ("b", 5.0)], 1: [("a", 5.0)],
+                                          2: [("a", 5.0), ("b", 5.0)]})
+    args = (2, 100.0, 0, 1.0, 1.0)
+    _, from_fcd, _ = measurements.network_summary(fcd, *args)
+    assert not from_fcd["all_vehicles_present"]
+    full = write_summary(tmp_path / "summary.xml", {0: 2, 1: 2, 2: 2})
+    _, from_summary, _ = measurements.network_summary(fcd, *args, summary_xml=full)
+    assert from_summary["all_vehicles_present"]
+    delayed = write_summary(tmp_path / "late.xml", {0: 1, 1: 2, 2: 2})   # one insertion delayed
+    _, late, _ = measurements.network_summary(fcd, *args, summary_xml=delayed)
+    assert not late["all_vehicles_present"]

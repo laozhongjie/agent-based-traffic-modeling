@@ -158,7 +158,7 @@ source ~/.bashrc</code></pre>
     <ol>
       <li><strong>新建分支</strong>（见第 10 节）。</li>
       <li><strong>编写配置文件</strong> <code>configs/&lt;scenario&gt;/&lt;name&gt;.toml</code>。以 <code>configs/ring/idm_sweep.toml</code> 为起点。顶层的 <code>name</code>、<code>scenario</code> 和 <code>model</code> 必须填写；<code>name</code> 同时决定结果文件的名称。每个数字都用注释写明单位。</li>
-      <li><strong>生成场景输入。</strong>在 <code>scenarios/&lt;scenario&gt;/</code> 中编写脚本，参照 <code>scenarios/ring/build_run.py</code>。脚本读取配置文件，为每次运行写出一个 <code>runs/&lt;run-id&gt;/</code> 目录并输出运行编号。写出的 <code>.sumocfg</code> 使用相对路径，把 <code>time-to-teleport</code> 设为 <code>-1</code>，把 <code>collision.action</code> 设为 <code>warn</code>。</li>
+      <li><strong>生成场景输入。</strong>在 <code>scenarios/&lt;scenario&gt;/</code> 中编写脚本，参照 <code>scenarios/ring/build_run.py</code>。脚本读取配置文件，为每次运行写出一个 <code>runs/&lt;run-id&gt;/</code> 目录并输出运行编号。写出的 <code>.sumocfg</code> 使用相对路径，把 <code>collision.action</code> 设为 <code>warn</code>；除非该场景保留 SUMO 的瞬移（见第 7 节），否则把 <code>time-to-teleport</code> 设为 <code>-1</code>。</li>
       <li><strong>添加测量函数。</strong>在 <code>src/traffic_project/measurements.py</code> 中加一个函数，参照 <code>ring_summary</code>。函数读取一次运行的输出，按第 6 节的格式返回 <code>(measurements, checks, timeseries)</code>。这一步修改了共用代码，PR 必须由 A 批准。</li>
       <li><strong>编写入口脚本</strong> <code>scripts/&lt;scenario&gt;_sweep.py</code>，参照 <code>scripts/ring_sweep.py</code>。脚本接受 <code>--config</code> 参数，按扫描逐次运行，使用下方的共用调用，并用 <code>results.write_summary</code> 和 <code>results.write_timeseries</code> 写出汇总表和时间序列。</li>
       <li><strong>运行并检查输出。</strong>每次运行都会输出 <code>ok</code>，或输出 <code>INVALID</code> 和未通过的检查项。先排除每次无效运行的原因，再使用结果。</li>
@@ -234,15 +234,15 @@ df = df[df.valid]                                                     # 只保�
 
   "guide.checks": `
     <h2>7. 每次运行必须通过的检查</h2>
-    <p>有几类问题会悄悄改变实验，SUMO 却不会因此停止运行。所以每次运行都把下列检查结果写入 <code>summary.json</code>。前三项由 <code>runner.run_sumo</code> 检查，其余由场景的测量函数检查。无效的运行保留下来用于排查，但不得进入任何表格和图表。</p>
+    <p>有几类问题会悄悄改变实验，SUMO 却不会因此停止运行。所以每次运行都把下列检查结果写入 <code>summary.json</code>。前三项由 <code>runner.run_sumo</code>（或 <code>runner.run_traci</code>）检查，其余由场景的测量函数检查。无效的运行保留下来用于排查，但不得进入任何表格和图表。</p>
     <div class='table-wrap'>
       <table class='model-table'>
         <thead><tr><th>检查项</th><th>发现什么问题</th></tr></thead>
         <tbody>
           <tr><td><code>sumo_exit_ok</code></td><td>SUMO 因错误而停止</td></tr>
-          <tr><td><code>no_teleport</code></td><td>SUMO 默认会把等待超过 300 秒的车移走，再放到前方。每次运行都把 <code>time-to-teleport</code> 设为 <code>-1</code>，关闭这一行为。</td></tr>
+          <tr><td><code>no_teleport</code></td><td>SUMO 默认会把等待超过 300 秒的车移走，再放到前方（瞬移，teleport）。环路和网格的运行都把 <code>time-to-teleport</code> 设为 <code>-1</code>，关闭这一行为。城市路网的运行保留 300 秒瞬移，因为不这样做城市路网会逐渐陷入死锁（T3-D11，小组于 2026-10-27 同意）：其配置设置 <code>[run] allow_teleport = true</code>，不做这项检查，改为每次运行报告每车每小时的瞬移次数。</td></tr>
           <tr><td><code>no_collision</code></td><td>车辆重叠。每次运行都把 <code>collision.action</code> 设为 <code>warn</code>，让碰撞记录在日志中。</td></tr>
-          <tr><td><code>all_vehicles_present</code></td><td>车辆初始位置离其他车太近时，SUMO 会推迟插入这辆车，并且不报错。此时车辆数和密度都是错的。在环路上，<code>build_run.py</code> 还会直接拒绝放不下的车辆数。</td></tr>
+          <tr><td><code>all_vehicles_present</code></td><td>车辆初始位置离其他车太近时，SUMO 会推迟插入这辆车，并且不报错。此时车辆数和密度都是错的。在环路上，<code>build_run.py</code> 还会直接拒绝放不下的车辆数。在路网上，车辆数取自 <code>summary.xml</code> 的 <code>running</code>，它把瞬移途中的车也算在内；FCD 输出则会漏掉这辆车。</td></tr>
           <tr><td><code>no_negative_speed</code></td><td>模型错误，尤其是新写的 OVM 代码</td></tr>
         </tbody>
       </table>

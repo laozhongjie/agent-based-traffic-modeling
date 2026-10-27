@@ -194,7 +194,7 @@ source ~/.bashrc</code></pre>
       <ol>
         <li><strong>Create a branch</strong> for the experiment (section 10).</li>
         <li><strong>Write the config</strong> <code>configs/&lt;scenario&gt;/&lt;name&gt;.toml</code>. Start from <code>configs/ring/idm_sweep.toml</code>. The top-level keys <code>name</code>, <code>scenario</code> and <code>model</code> are required; <code>name</code> also names the result files. Give every number a comment with its unit.</li>
-        <li><strong>Build the scenario inputs</strong> with a script in <code>scenarios/&lt;scenario&gt;/</code>, like <code>scenarios/ring/build_run.py</code>. It reads the config, writes one folder <code>runs/&lt;run-id&gt;/</code> and prints the run ID. The <code>.sumocfg</code> it writes uses relative paths, sets <code>time-to-teleport</code> to <code>-1</code> and <code>collision.action</code> to <code>warn</code>.</li>
+        <li><strong>Build the scenario inputs</strong> with a script in <code>scenarios/&lt;scenario&gt;/</code>, like <code>scenarios/ring/build_run.py</code>. It reads the config, writes one folder <code>runs/&lt;run-id&gt;/</code> and prints the run ID. The <code>.sumocfg</code> it writes uses relative paths, sets <code>collision.action</code> to <code>warn</code>, and sets <code>time-to-teleport</code> to <code>-1</code> unless the scenario keeps SUMO's teleport (section 7).</li>
         <li><strong>Add the measurements</strong> as one function in <code>src/traffic_project/measurements.py</code>, like <code>ring_summary</code>. It reads one run's outputs and returns <code>(measurements, checks, timeseries)</code> in the format of section 6. This changes shared code, so A must approve the pull request.</li>
         <li><strong>Write the entry script</strong> <code>scripts/&lt;scenario&gt;_sweep.py</code>, like <code>scripts/ring_sweep.py</code>. It takes <code>--config</code>, loops over the sweep and uses the shared calls below. It writes the summary table and the time series with <code>results.write_summary</code> and <code>results.write_timeseries</code>.</li>
         <li><strong>Run it and read the output.</strong> Every run prints <code>ok</code> or <code>INVALID</code> with the failed checks. Fix the cause of every invalid run before using the results.</li>
@@ -273,15 +273,15 @@ df = df[df.valid]                                                     # keep run
 
     <section class="card model-section" id="checks" data-i18n="guide.checks">
       <h2>7. Checks every run must pass</h2>
-      <p>SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in <code>summary.json</code>. The first three come from <code>runner.run_sumo</code>, the others from the scenario's measurement function. Keep invalid runs for diagnosis, but leave them out of every table and figure.</p>
+      <p>SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in <code>summary.json</code>. The first three come from <code>runner.run_sumo</code> (or <code>runner.run_traci</code>), the others from the scenario's measurement function. Keep invalid runs for diagnosis, but leave them out of every table and figure.</p>
       <div class="table-wrap">
         <table class="model-table">
           <thead><tr><th>Check</th><th>What it catches</th></tr></thead>
           <tbody>
             <tr><td><code>sumo_exit_ok</code></td><td>SUMO stopped with an error</td></tr>
-            <tr><td><code>no_teleport</code></td><td>By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Every run sets <code>time-to-teleport</code> to <code>-1</code> to turn this off.</td></tr>
+            <tr><td><code>no_teleport</code></td><td>By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Ring and grid runs set <code>time-to-teleport</code> to <code>-1</code> to turn this off. City runs keep the 300 s teleport, because without it the city network drifts into gridlock (T3-D11, agreed by the group 2026-10-27): their config sets <code>[run] allow_teleport = true</code>, which leaves this check out, and every city run reports its teleports per car-hour instead.</td></tr>
             <tr><td><code>no_collision</code></td><td>Vehicles overlapping. Every run sets <code>collision.action</code> to <code>warn</code> so collisions appear in the log.</td></tr>
-            <tr><td><code>all_vehicles_present</code></td><td>SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, <code>build_run.py</code> also refuses a vehicle count that cannot fit.</td></tr>
+            <tr><td><code>all_vehicles_present</code></td><td>SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, <code>build_run.py</code> also refuses a vehicle count that cannot fit. On a network, the count comes from <code>summary.xml</code> (<code>running</code>), which still counts a vehicle in mid-teleport; the FCD output leaves that vehicle out.</td></tr>
             <tr><td><code>no_negative_speed</code></td><td>Model errors, especially in the new OVM code</td></tr>
           </tbody>
         </table>

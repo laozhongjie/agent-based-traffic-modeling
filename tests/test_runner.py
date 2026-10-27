@@ -144,3 +144,9 @@ def test_ring_example_reproduces_idm_equilibrium(tmp_root, monkeypatch):
     assert all({**checks, **ring_checks}.values())
     assert measured["mean_speed_mps"] == pytest.approx(16.6, abs=0.1)
     assert measured["congested_fraction"] == 0
+
+
+def test_allow_teleport_drops_only_the_no_teleport_check():
+    log = "Warning: Teleporting vehicle 'v1'; waited too long (jam), lane='e0_0', time=301.00.\n"
+    assert runner._common_checks(True, log) == {"sumo_exit_ok": True, "no_collision": True, "no_teleport": False}
+    assert runner._common_checks(True, log, allow_teleport=True) == {"sumo_exit_ok": True, "no_collision": True}

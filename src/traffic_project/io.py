@@ -18,6 +18,18 @@ def iter_fcd(path):
             el.clear()
 
 
+def iter_summary(path):
+    """Yield (time_s, running) for every step of a SUMO summary-output file.
+
+    running counts the vehicles inserted and not yet arrived, including a vehicle in
+    mid-teleport, which the FCD output leaves out until the teleport ends.
+    """
+    for _, el in ET.iterparse(path):
+        if el.tag == "step":
+            yield float(el.get("time")), int(el.get("running"))
+            el.clear()
+
+
 def write_csv(rows, path, columns):
     """Write rows (dicts) to a CSV file with the given column order."""
     path = Path(path)
