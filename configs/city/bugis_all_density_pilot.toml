@@ -8,7 +8,7 @@
 # of this config are pilot-grade checks.
 name = "bugis_all_density_pilot"
 scenario = "city"
-model = "idm"
+model = "IDM"
 
 [network]
 net_file = "scenarios/city/bugis_all.net.xml"   # Task 1 main net (all road classes)

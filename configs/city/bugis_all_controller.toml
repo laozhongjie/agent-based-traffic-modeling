@@ -18,7 +18,7 @@
 # Run folders runs/ctl_city_bugis_all_k<k>_s<seed>/ are git-ignored.
 name = "bugis_all_controller"
 scenario = "city"
-model = "idm"
+model = "IDM"
 
 [network]
 net_file = "scenarios/city/bugis_all.net.xml"   # Task 1 main net (all road classes), v1 provisional

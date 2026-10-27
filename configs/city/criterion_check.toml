@@ -4,7 +4,7 @@
 # Run: python scripts/city_measure.py --config configs/city/criterion_check.toml
 name = "criterion_check"
 scenario = "city"
-model = "idm"
+model = "IDM"
 
 [inputs]
 runs_glob = "sandbox/c/task3/runs/grid*_k*_s*"   # one folder per run
