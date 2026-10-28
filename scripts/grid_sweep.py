@@ -27,8 +27,10 @@ started in warmup_s-end_s, per car and hour; the number to quote) and
 grid_teleports_per_car_h_run (the same over 0-end_s).
 Before the first run the script stops when [controller] guard_m does not exceed the
 farthest a car drives in one step (maxSpeed x step_s), or when a variant has a car edge
-that cannot be reached from every other one: destinations are drawn uniformly over all
-car edges of the variant, so a car sent to such an edge could not be re-targeted.
+that cannot be reached from every other one: destinations are drawn uniformly over the
+base grid's car edges that the variant still has (T4-D2, as for city variants: a closure or
+a new link changes the roads, not the trips), so a car sent to such an edge could not be
+re-targeted.
 
 Usage (from the repository root):
     python scripts/grid_sweep.py --config configs/validation/grid_smoke.toml
@@ -79,15 +81,18 @@ def check_config(cfg):
 
 
 def net_routing(cfg, variant):
-    """Destination edges (all car edges) and near sets (guard_m) of the controller on one variant."""
+    """Destination edges (the base grid's car edges this variant has) and near sets (guard_m) on one variant."""
     net, guard = net_stem(cfg, variant).with_suffix(".net.xml"), cfg["controller"]["guard_m"]
     if (net, guard) not in ROUTING:
         outside = demand.outside_largest_scc(demand.car_successors(net))
         if outside:
             raise SystemExit(f"{net.name}: {len(outside)} car edges cannot be reached from every other car "
                              f"edge (e.g. {outside[:5]}); a car sent there could not be re-targeted and would arrive")
-        ROUTING[net, guard] = dict(dests=sorted(e for e, *_ in demand.car_lanes(net)),
-                                   near=demand.net_near_sets(net, guard))
+        # T4-D2, as for city variants: destinations are the base grid's car edges that this
+        # variant still has, so a closure or a new link changes the roads, not the trips.
+        base = net_stem(cfg, "base").with_suffix(".net.xml")
+        dests, _, _ = demand.baseline_destinations(demand.car_lanes(base), demand.car_lanes(net))
+        ROUTING[net, guard] = dict(dests=dests, near=demand.net_near_sets(net, guard))
     return ROUTING[net, guard]
 
 

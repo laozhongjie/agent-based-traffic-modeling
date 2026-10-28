@@ -44,7 +44,7 @@ def build_run(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("variant", VARIANTS)
 def test_grid_nets_meet_the_controller_assumptions(variant):
-    """No internal lanes, every car edge reachable from every other one (uniform destinations),
+    """No internal lanes, destinations from the base grid (T4-D2), every car edge reachable from every other one,
     and every edge longer than guard_m, so a near set holds only the destination itself and
     is exact (near_sets ignores internal lanes, of which these nets have none)."""
     cfg = _cfg()
@@ -53,7 +53,11 @@ def test_grid_nets_meet_the_controller_assumptions(variant):
     gs = _script("grid_sweep", "scripts/grid_sweep.py")
     routing = gs.net_routing(cfg, variant)
     lanes = demand.car_lanes(net)
-    assert routing["dests"] == sorted(e for e, *_ in lanes)
+    base = {e for e, *_ in demand.car_lanes(_net("base"))}
+    own = {e for e, *_ in lanes}
+    # T4-D2: destinations are the base grid's car edges this variant still has; a new link is never one
+    assert routing["dests"] == sorted(base & own)
+    assert not set(routing["dests"]) & (own - base)
     assert demand.outside_largest_scc(demand.car_successors(net)) == []
     assert min(length for _, length, _ in lanes) > cfg["controller"]["guard_m"]
     assert all(s == {d} for d, s in routing["near"].items())
