@@ -12,8 +12,9 @@ run_sumo(run_dir). It returns the same log and checks.
 
 The checks that apply to every run (SUMO exit status, collisions, teleports) are
 computed here; scenario-specific checks are added by the caller. A scenario whose config
-sets [run] allow_teleport = true (the city network and the grid, under T3-D11, agreed by the group
-2026-10-27 and for the grid by member D: teleport a car stuck for 300 s) passes allow_teleport=True: the no_teleport check
+sets [run] allow_teleport = true (the city network under T3-D11, agreed by the group
+2026-10-27, and the grid, agreed by member D: teleport a car stuck for 300 s) passes
+allow_teleport=True: the no_teleport check
 is then left out, and the caller reports the teleport count instead. Every other run keeps the
 no_teleport check.
 """

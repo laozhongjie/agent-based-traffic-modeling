@@ -240,7 +240,7 @@ df = df[df.valid]                                                     # 只保�
         <thead><tr><th>检查项</th><th>发现什么问题</th></tr></thead>
         <tbody>
           <tr><td><code>sumo_exit_ok</code></td><td>SUMO 因错误而停止</td></tr>
-          <tr><td><code>no_teleport</code></td><td>SUMO 默认会把等待超过 300 秒的车移走，再放到前方（瞬移，teleport）。环路的运行把 <code>time-to-teleport</code> 设为 <code>-1</code>，关闭这一行为。城市路网和网格的运行保留 300 秒瞬移，因为不这样做城市路网会逐渐陷入死锁（T3-D11，小组于 2026-10-27 同意；成员 D 同意网格也照此办理）：其配置设置 <code>[run] allow_teleport = true</code>，不做这项检查，改为每次运行报告每车每小时的瞬移次数。</td></tr>
+          <tr><td><code>no_teleport</code></td><td>SUMO 默认会把等待超过 300 秒的车移走，再放到前方（瞬移，teleport）。环路的运行把 <code>time-to-teleport</code> 设为 <code>-1</code>，关闭这一行为。城市路网的运行保留 300 秒瞬移，因为不这样做城市路网会逐渐陷入死锁（T3-D11，小组于 2026-10-27 同意）；网格的运行也保留，以便网格与城市的结果可以比较（成员 D 同意）：其配置设置 <code>[run] allow_teleport = true</code>，不做这项检查，改为每次运行报告每车每小时的瞬移次数。</td></tr>
           <tr><td><code>no_collision</code></td><td>车辆重叠。每次运行都把 <code>collision.action</code> 设为 <code>warn</code>，让碰撞记录在日志中。</td></tr>
           <tr><td><code>all_vehicles_present</code></td><td>车辆初始位置离其他车太近时，SUMO 会推迟插入这辆车，并且不报错。此时车辆数和密度都是错的。在环路上，<code>build_run.py</code> 还会直接拒绝放不下的车辆数。在路网上，车辆数取自 <code>summary.xml</code> 的 <code>running</code>，它把瞬移途中的车也算在内；FCD 输出则会漏掉这辆车。</td></tr>
           <tr><td><code>no_negative_speed</code></td><td>模型错误，尤其是新写的 OVM 代码</td></tr>
