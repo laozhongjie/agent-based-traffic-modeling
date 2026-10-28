@@ -284,7 +284,7 @@ SUMO does not stop on several problems that silently change the experiment. Ever
 | Check | What it catches |
 | --- | --- |
 | `sumo_exit_ok` | SUMO stopped with an error |
-| `no_teleport` | By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Ring and grid runs set `time-to-teleport` to `-1` to turn this off. City runs keep the 300 s teleport, because without it the city network drifts into gridlock (T3-D11, agreed by the group 2026-10-27): their config sets `[run] allow_teleport = true`, which leaves this check out, and every city run reports its teleports per car-hour instead. |
+| `no_teleport` | By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Ring runs set `time-to-teleport` to `-1` to turn this off. City and grid runs keep the 300 s teleport, because without it the city network drifts into gridlock (T3-D11, agreed by the group 2026-10-27; member D agreed the same for the grid): their config sets `[run] allow_teleport = true`, which leaves this check out, and every city and grid run reports its teleports per car-hour instead. |
 | `no_collision` | Vehicles overlapping. Every run sets `collision.action` to `warn` so collisions appear in the log. |
 | `all_vehicles_present` | SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, `build_run.py` also refuses a vehicle count that cannot fit. On a network, the count comes from `summary.xml` (`running`), which still counts a vehicle in mid-teleport; the FCD output leaves that vehicle out. |
 | `no_negative_speed` | Model errors, especially in the new OVM code |

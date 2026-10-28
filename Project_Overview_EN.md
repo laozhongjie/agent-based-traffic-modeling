@@ -274,7 +274,7 @@ Finite road length, finite observation time and random initial conditions all in
 - Does the network-average flow peak and then decline (the MFD peak)?
 - Does the fraction of stopped vehicles keep increasing?
 - Do slow links form a connected region that grows rapidly?
-- Does gridlock occur? City runs teleport a vehicle that has stood still for 300 s (T3-D11), so gridlock shows as a rising teleport rate and falling flow, not as vehicles stopped for good.
+- Does gridlock occur? City and grid runs teleport a vehicle that has stood still for 300 s (T3-D11), so gridlock shows as a rising teleport rate and falling flow, not as vehicles stopped for good.
 
 Candidate transition ranges are first located on a coarse density grid, then refined with extra points and more repeated runs nearby. The report gives means, the spread across repeated runs, the observation time, and the sensitivity of each criterion.
 
