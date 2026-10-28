@@ -22,6 +22,8 @@ model = "IDM"
 [grid]
 n = 4                     # needs scenarios/grid/grid<n>x<n>_L<block>_<variant>.net.xml
 block_m = 200
+max_dropped_edges = 5     # T4-D2: grid_sweep.py stops when more base grid car edges than this are
+                          # missing from a variant (a rebuilt net renames edges), as on the city network
 
 [run]
 end_s = 1800
@@ -35,7 +37,8 @@ time_to_teleport_s = 300  # s a car may stand still before SUMO teleports it (SU
 
 [controller]              # T4-D1, src/traffic_project/demand.py, as on the city network
 retarget_at_remaining_edges = 3  # edges: new random destination when a car is this close to its route end
-destination = "uniform_edge"     # destination edge drawn uniformly from the car edges of the variant
+destination = "uniform_edge"     # destination edge drawn uniformly from the base grid's car edges that
+                                 # the variant still has (T4-D2), so a new link is never a destination
 guard_m = 60              # m: re-target when the current edge ends less than this before the destination
                           # by any path, and never draw a destination that close; must exceed
                           # maxSpeed x step_s (30 m), checked by scripts/grid_sweep.py

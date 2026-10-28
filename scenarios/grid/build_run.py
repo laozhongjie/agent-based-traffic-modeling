@@ -6,13 +6,15 @@ small seeded offset. Each vehicle starts with a one-edge route on its start edge
 Route rule (T4-D1, agreed by the group 2026-10-27, as on C's city network): the
 constant-density controller (traffic_project.demand.ConstantDensity), which
 scripts/grid_sweep.py runs through TraCI, gives every vehicle a random destination
-edge (uniform over the car edges of the variant) when it departs, again whenever it
-nears the end of its route, and as soon as it is within [controller] guard_m of its
-destination by road. No vehicle arrives and leaves, which keeps N fixed for the whole
-run, as on the ring. SUMO's rerouting device ([rerouting] in the config, written into
-run.sumocfg) re-plans every route every 60 s on travel times averaged over the last
-180 s, so vehicles react to congestion, as a Braess test needs. Run with plain sumo
-instead, without the controller, every vehicle would arrive at the end of its first edge.
+edge (uniform over the base grid's car edges that the variant still has, T4-D2, so a
+new link is never a destination) when it departs, again whenever it nears the end of
+its route, and as soon as it is within [controller] guard_m of its destination by road.
+No vehicle arrives and leaves, which keeps N fixed for the whole run, as on the ring.
+SUMO's rerouting device ([rerouting] in the config, written into run.sumocfg) re-plans
+every route every 60 s on travel times averaged over the last 180 s, so vehicles react
+to congestion, as a Braess test needs. Run with plain sumo or sumo-gui instead, without
+the controller, every vehicle would arrive at the end of its first edge and leave; the
+written run.sumocfg says so in a comment at its top, and main() notes it on stderr.
 
 Teleports (T3-D11, agreed by member D for the grid): with [run] allow_teleport = true,
 SUMO teleports a vehicle stuck for [run] time_to_teleport_s (300 s), and
@@ -22,35 +24,33 @@ Usage (from the repository root):
     python scenarios/grid/build_run.py --config configs/validation/grid_smoke.toml \
         --variant base --vehicles 300 --seed 1
 Writes runs/<run-id>/vehicles.rou.xml and run.sumocfg, with
-run-id = grid<n>_<model>_<variant>_n<N>_s<seed>, and prints the run-id.
+run-id = grid<n>_<model>_<variant>_n<N>_s<seed>, and prints the run-id (alone on stdout,
+which grid_sweep.py reads; the note that the run needs the controller goes to stderr).
 The network scenarios/grid/grid<n>x<n>_L<block>_<variant>.net.xml must exist
 (see build_net.py).
 """
 import argparse
 import os
 import random
+import sys
 import xml.etree.ElementTree as ET
 
 from traffic_project import ROOT, config
 
+NEEDS_CONTROLLER = ("this run needs the constant-density controller of scripts/grid_sweep.py "
+                    "(T4-D1): plain sumo or sumo-gui would let every vehicle arrive at the end "
+                    "of its one-edge start route and leave")
+
 
 def read_net(path):
-    """Lanes per edge, edge lengths, speeds and edge-to-edge connections."""
-    root = ET.parse(path).getroot()
-    edges, nxt = {}, {}
-    for e in root.iter("edge"):
+    """{edge id: {"lanes": number of lanes, "length": m}} for the normal (non-internal) edges."""
+    edges = {}
+    for e in ET.parse(path).getroot().iter("edge"):
         if e.get("function") == "internal":
             continue
         lanes = e.findall("lane")
-        edges[e.get("id")] = {"from": e.get("from"), "to": e.get("to"),
-                              "lanes": len(lanes),
-                              "length": float(lanes[0].get("length")),
-                              "speed": max(float(l.get("speed")) for l in lanes)}
-        nxt[e.get("id")] = set()
-    for c in root.iter("connection"):
-        if c.get("from") in nxt and c.get("to") in nxt:
-            nxt[c.get("from")].add(c.get("to"))
-    return edges, {k: sorted(v) for k, v in nxt.items()}
+        edges[e.get("id")] = {"lanes": len(lanes), "length": float(lanes[0].get("length"))}
+    return edges
 
 
 def build(cfg, variant, n, seed):
@@ -59,12 +59,16 @@ def build(cfg, variant, n, seed):
     net = here / f"grid{grid['n']}x{grid['n']}_L{int(grid['block_m'])}_{variant}.net.xml"
     if not net.exists():
         raise SystemExit(f"missing {net.name}; run scenarios/grid/build_net.py first")
-    edges, _ = read_net(net)
+    edges = read_net(net)
 
     # Usable stretch of each lane for a vehicle's front: the rear must not reach back
-    # past the lane start (there is no unique previous edge on a grid), and a vehicle
-    # at the very end of one edge must still keep minGap to a vehicle at the start of
-    # the next edge on its route, or SUMO silently delays its insertion.
+    # past the lane start (there is no unique previous edge on a grid), and a further
+    # minGap at the lane start keeps a vehicle there at least minGap ahead of a vehicle
+    # standing at the very end of any edge that leads into this lane. At insertion every
+    # route is the one start edge, so no vehicle has a next edge yet; but the controller
+    # appends a path to every vehicle in the step it departs, and from then on a vehicle
+    # at the end of an edge may be routed onto this lane, where it must not start closer
+    # than minGap to the vehicle ahead.
     jitter, vlen, gap = run["jitter_m"], vtype["length"], vtype["minGap"]
     slots = [(eid, lane, vlen + gap + jitter, e["length"] - jitter)
              for eid, e in sorted(edges.items()) for lane in range(e["lanes"])]
@@ -103,7 +107,8 @@ def build(cfg, variant, n, seed):
     # c/city-network). Paths in a .sumocfg are resolved relative to the .sumocfg itself.
     rr = cfg["rerouting"]
     ttt = run["time_to_teleport_s"] if run.get("allow_teleport", False) else -1
-    (run_dir / "run.sumocfg").write_text(f"""<configuration>
+    (run_dir / "run.sumocfg").write_text(f"""<!-- Written by scenarios/grid/build_run.py: {NEEDS_CONTROLLER}. -->
+<configuration>
     <input>
         <net-file value="{os.path.relpath(net, run_dir)}"/>
         <route-files value="vehicles.rou.xml"/>
@@ -144,6 +149,7 @@ def main():
     ap.add_argument("--seed", type=int, required=True)
     args = ap.parse_args()
     run_id, _ = build(config.load(args.config), args.variant, args.vehicles, args.seed)
+    print(f"note: {NEEDS_CONTROLLER}", file=sys.stderr)   # stdout holds only the run id (grid_sweep.py reads it)
     print(run_id)
 
 

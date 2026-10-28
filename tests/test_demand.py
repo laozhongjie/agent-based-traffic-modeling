@@ -8,12 +8,16 @@ that move a car one edge per step out of sight. The SUMO tests at the end use th
 """
 import inspect
 import math
+import os
 import random
 
 import pytest
 
 from traffic_project import ROOT, demand, runner
 from conftest import needs_sumo
+
+if "SUMO_HOME" in os.environ:   # demand imports sumolib and traci from $SUMO_HOME/tools, as runner.run_traci does
+    runner._import_traci()
 
 
 class FakeTraCIException(Exception):

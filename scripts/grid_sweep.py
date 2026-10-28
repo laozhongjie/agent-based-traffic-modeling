@@ -30,13 +30,21 @@ farthest a car drives in one step (maxSpeed x step_s), or when a variant has a c
 that cannot be reached from every other one: destinations are drawn uniformly over the
 base grid's car edges that the variant still has (T4-D2, as for city variants: a closure or
 a new link changes the roads, not the trips), so a car sent to such an edge could not be
-re-targeted.
+re-targeted. As city_sweep.py does for T4-D2, it also stops when a variant or the base grid
+has lanes that ban passenger cars (close a road by deleting its edge), when a variant shares
+no car edge with the base grid, and when more than [grid] max_dropped_edges (default 5) base
+edges are missing from a variant (a rebuilt net renames edges). The controller columns are
+those of the city (grid_ instead of city_): N over the run (grid_n_min, grid_n_max,
+grid_n_short_steps), teleports, cars in mid-teleport (grid_mid_teleport_mean_window over
+warmup_s-end_s, grid_mid_teleport_max) and re-targets (grid_retargets, grid_guard_retargets,
+grid_retarget_failed, grid_reinserted).
 
 Usage (from the repository root):
     python scripts/grid_sweep.py --config configs/validation/grid_smoke.toml
 """
 import argparse
 import json
+import math
 import subprocess
 import sys
 import time
@@ -80,8 +88,15 @@ def check_config(cfg):
         raise SystemExit(f"[controller] destination = {c['destination']!r}: only 'uniform_edge' is implemented")
 
 
+def lane_length_m(net):
+    """Total length (m) of the lanes of the normal (non-internal) edges of a net."""
+    return sum(float(ln.get("length")) for e in ET.parse(net).getroot().iter("edge")
+               if e.get("function") != "internal" for ln in e.iter("lane"))
+
+
 def net_routing(cfg, variant):
     """Destination edges (the base grid's car edges this variant has) and near sets (guard_m) on one variant."""
+    runner._import_traci()   # demand imports sumolib and traci from $SUMO_HOME/tools (GUIDE section 1)
     net, guard = net_stem(cfg, variant).with_suffix(".net.xml"), cfg["controller"]["guard_m"]
     if (net, guard) not in ROUTING:
         outside = demand.outside_largest_scc(demand.car_successors(net))
@@ -91,7 +106,19 @@ def net_routing(cfg, variant):
         # T4-D2, as for city variants: destinations are the base grid's car edges that this
         # variant still has, so a closure or a new link changes the roads, not the trips.
         base = net_stem(cfg, "base").with_suffix(".net.xml")
-        dests, _, _ = demand.baseline_destinations(demand.car_lanes(base), demand.car_lanes(net))
+        lanes, base_lanes = demand.car_lanes(net), demand.car_lanes(base)
+        for path, car in ((net, lanes), (base, base_lanes)):   # the guards of city_sweep.load_network
+            banned = lane_length_m(path) - sum(length * len(idx) for _, length, idx in car)
+            if abs(banned) > 0.5:   # m
+                raise SystemExit(f"{path.name}: {banned:.1f} m of lanes ban passenger cars, so the lane length "
+                                 f"that sets N and k is not the car-lane length; close a road by deleting its edge")
+        dests, dropped, _ = demand.baseline_destinations(base_lanes, lanes)
+        if not dests:
+            raise SystemExit(f"{net.name} shares no car edge with the base grid {base.name}")
+        limit = cfg["grid"].get("max_dropped_edges", 5)
+        if len(dropped) > limit:
+            raise SystemExit(f"{len(dropped)} base grid car edges are missing from {net.name} (limit {limit}, "
+                             f"[grid] max_dropped_edges), e.g. {dropped[:5]}: was the variant rebuilt with other ids?")
         ROUTING[net, guard] = dict(dests=dests, near=demand.net_near_sets(net, guard))
     return ROUTING[net, guard]
 
@@ -107,11 +134,16 @@ def controller_outputs(cfg, run_dir, ctl, log, wall_s):
     (run_dir / "controller.json").write_text(json.dumps(
         dict(rec, wall_s=wall_s, log_teleports=demand.teleport_count(log), checks=checks, teleport_times=tt),
         indent=1) + "\n")
-    cols = dict(grid_n_min=rec["n_min"], grid_n_max=rec["n_max"], grid_teleports=rec["teleports"],
+    # cars in mid-teleport after each step, over the measurement window warmup_s-end_s, as city_sweep.py
+    mid_window = [s[2] for s in ctl.steps if s[0] >= r["warmup_s"]]
+    cols = dict(grid_n_min=rec["n_min"], grid_n_max=rec["n_max"], grid_n_short_steps=rec["n_short_steps"],
+                grid_teleports=rec["teleports"],
                 grid_teleports_per_car_h_window=demand.teleports_per_car_hour(tt, n, r["warmup_s"], r["end_s"]),
                 grid_teleports_per_car_h_run=demand.teleports_per_car_hour(tt, n, 0, r["end_s"]),
+                grid_mid_teleport_mean_window=sum(mid_window) / len(mid_window) if mid_window else math.nan,
+                grid_mid_teleport_max=rec["mid_teleport_max"],
                 grid_retargets=rec["retargets"], grid_guard_retargets=rec["guard_retargets"],
-                grid_reinserted=rec["reinserted"])
+                grid_retarget_failed=rec["retarget_failed"], grid_reinserted=rec["reinserted"])
     return cols, checks
 
 
@@ -150,7 +182,7 @@ def run_one(cfg, variant, n, seed):
         m["timeseries_every_s"], block_s=block_s,
         reference_length_m=meta["baseline_lane_length_m"], summary_xml=run_dir / "summary.xml")
     results.write_timeseries(run_id, series, cfg)
-    measured.update(ctl_cols)  # grid_ columns: N over the run, teleports (T3-D11), re-targets
+    measured.update(ctl_cols)  # grid_ columns: N over the run, teleports (T3-D11), mid-teleport, re-targets
     checks.update(ctl_checks)
     if not cfg["run"].get("keep_fcd", False):
         fcd.unlink()
@@ -165,8 +197,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True, help="configs/<group>/<name>.toml")
     args = ap.parse_args()
+    runner._import_traci()   # demand imports sumolib and traci from $SUMO_HOME/tools (GUIDE section 1)
     cfg = config.load(args.config)
     check_config(cfg)
+    for variant in cfg["sweep"]["variants"]:   # a broken net stops the sweep before any run
+        net_routing(cfg, variant)
 
     rows = []
     for variant in cfg["sweep"]["variants"]:
