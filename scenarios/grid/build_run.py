@@ -1,14 +1,22 @@
 """Place N vehicles on one grid variant and write one run's SUMO input files.
 
 Vehicles start at rest, spread evenly over every lane of the variant, with a
-small seeded offset. Each vehicle gets its own long route so that it never
-arrives and leaves, which keeps N fixed for the whole run, as on the ring.
+small seeded offset. Each vehicle starts with a one-edge route on its start edge.
 
-Route rule (PLACEHOLDER until agreed with C): a seeded random walk. At every
-junction the next edge is drawn uniformly from the reachable outgoing edges,
-excluding the U-turn unless it is the only option. Routes are fixed at the
-start, so vehicles do not react to congestion; a Braess test needs a rule
-where they do (see configs/validation/grid_smoke.toml).
+Route rule (T4-D1, agreed by the group 2026-10-27, as on C's city network): the
+constant-density controller (traffic_project.demand.ConstantDensity), which
+scripts/grid_sweep.py runs through TraCI, gives every vehicle a random destination
+edge (uniform over the car edges of the variant) when it departs, again whenever it
+nears the end of its route, and as soon as it is within [controller] guard_m of its
+destination by road. No vehicle arrives and leaves, which keeps N fixed for the whole
+run, as on the ring. SUMO's rerouting device ([rerouting] in the config, written into
+run.sumocfg) re-plans every route every 60 s on travel times averaged over the last
+180 s, so vehicles react to congestion, as a Braess test needs. Run with plain sumo
+instead, without the controller, every vehicle would arrive at the end of its first edge.
+
+Teleports (T3-D11, agreed by member D for the grid): with [run] allow_teleport = true,
+SUMO teleports a vehicle stuck for [run] time_to_teleport_s (300 s), and
+grid_sweep.py reports the teleports of every run; otherwise teleporting is off.
 
 Usage (from the repository root):
     python scenarios/grid/build_run.py --config configs/validation/grid_smoke.toml \
@@ -45,26 +53,13 @@ def read_net(path):
     return edges, {k: sorted(v) for k, v in nxt.items()}
 
 
-def random_walk(start, distance, edges, nxt, rng):
-    """Edge list from `start` that is at least `distance` m long."""
-    route, total = [start], 0.0
-    while total < distance:
-        cur = route[-1]
-        options = [e for e in nxt[cur] if edges[e]["to"] != edges[cur]["from"]] or nxt[cur]
-        if not options:
-            raise SystemExit(f"dead end at edge {cur}")
-        route.append(rng.choice(options))
-        total += edges[route[-1]]["length"]
-    return route
-
-
 def build(cfg, variant, n, seed):
     grid, run, vtype = cfg["grid"], cfg["run"], cfg["vtype"]
     here = ROOT / "scenarios" / "grid"
     net = here / f"grid{grid['n']}x{grid['n']}_L{int(grid['block_m'])}_{variant}.net.xml"
     if not net.exists():
         raise SystemExit(f"missing {net.name}; run scenarios/grid/build_net.py first")
-    edges, nxt = read_net(net)
+    edges, _ = read_net(net)
 
     # Usable stretch of each lane for a vehicle's front: the rear must not reach back
     # past the lane start (there is no unique previous edge on a grid), and a vehicle
@@ -85,10 +80,6 @@ def build(cfg, variant, n, seed):
     run_dir.mkdir(parents=True, exist_ok=True)
 
     rng = random.Random(seed)
-    # A vehicle cannot cover more than end_s at its top speed; add one block of margin.
-    top = min(vtype["maxSpeed"] * vtype.get("speedFactor", 1),
-              max(e["speed"] for e in edges.values()))
-    distance = run["end_s"] * top + max(e["length"] for e in edges.values())
 
     attrs = " ".join(f'{k}="{v}"' for k, v in vtype.items())
     lines = ["<routes>", f'    <vType id="car" {attrs}/>']
@@ -100,15 +91,18 @@ def build(cfg, variant, n, seed):
             slot += 1
         eid, lane, lo, _ = slots[slot]
         pos = lo + (s - slot_start)
-        route = random_walk(eid, distance, edges, nxt, rng)
+        # one-edge start: the controller gives the vehicle its destination when it departs
         lines.append(f'    <vehicle id="v{i}" type="car" depart="0" departLane="{lane}" '
                      f'departPos="{pos:.3f}" departSpeed="0">')
-        lines.append(f'        <route edges="{" ".join(route)}"/>')
+        lines.append(f'        <route edges="{eid}"/>')
         lines.append("    </vehicle>")
     lines.append("</routes>")
     (run_dir / "vehicles.rou.xml").write_text("\n".join(lines) + "\n")
 
-    # Paths in a .sumocfg are resolved relative to the .sumocfg itself.
+    # Teleport time and rerouting device as on C's city network (scripts/city_sweep.py on
+    # c/city-network). Paths in a .sumocfg are resolved relative to the .sumocfg itself.
+    rr = cfg["rerouting"]
+    ttt = run["time_to_teleport_s"] if run.get("allow_teleport", False) else -1
     (run_dir / "run.sumocfg").write_text(f"""<configuration>
     <input>
         <net-file value="{os.path.relpath(net, run_dir)}"/>
@@ -124,8 +118,14 @@ def build(cfg, variant, n, seed):
     </random_number>
     <processing>
         <collision.action value="warn"/>
-        <!-- never teleport vehicles stuck in a jam: it would change N and hide gridlock -->
-        <time-to-teleport value="-1"/>
+        <!-- T3-D11: teleport a vehicle stuck this many seconds (-1: never); a vehicle in
+             mid-teleport still counts in N, and grid_sweep.py reports every teleport -->
+        <time-to-teleport value="{ttt}"/>
+        <!-- T4-D1: every vehicle re-plans its route every period on recent travel times -->
+        <device.rerouting.probability value="{rr['probability']}"/>
+        <device.rerouting.period value="{rr['period_s']}"/>
+        <device.rerouting.adaptation-interval value="{rr['adaptation_interval_s']}"/>
+        <device.rerouting.adaptation-steps value="{rr['adaptation_steps']}"/>
     </processing>
     <output>
         <summary-output value="summary.xml"/>
