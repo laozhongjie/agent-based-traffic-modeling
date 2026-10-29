@@ -94,6 +94,9 @@ def parse_args():
     ap.add_argument("--verify-routes", action="store_true",
                     help="controller also reads every live route every step and counts cache misses (slow)")
     ap.add_argument("--measure-only", action="store_true", help="measure finished runs, run nothing")
+    ap.add_argument("--queue-output-s", type=float,
+                    help="task 6 proposal (not in the configs): also write SUMO's aggregated queue-output "
+                         "(max, median, 95th-percentile queue per edge) every this many s, to queue<s>.xml.gz")
     return ap.parse_args()
 
 
@@ -116,6 +119,8 @@ def apply_overrides(cfg, a):
         over["smoke_run"] = True
     if a.verify_routes:
         over["verify_routes"] = True
+    if getattr(a, "queue_output_s", None):
+        cfg["run"]["queue_output_s"] = over["run.queue_output_s"] = a.queue_output_s
     return over, smoke
 
 
@@ -200,6 +205,9 @@ def load_network(cfg):
 def sumocfg_text(cfg, run_dir, seed):
     r, rr = cfg["run"], cfg["rerouting"]
     ttt = r["time_to_teleport_s"] if r.get("allow_teleport", False) else -1
+    q = r.get("queue_output_s")   # task 6 proposal: aggregated queue-output, absent = no queue file
+    queue = (f'<queue-output value="queue{q:g}.xml.gz"/><queue-output.aggregation value="{q:g}"/>'
+             if q else "")
     return f"""<configuration>
     <input>
         <net-file value="{os.path.relpath(CTX['net_path'], run_dir)}"/>
@@ -216,7 +224,7 @@ def sumocfg_text(cfg, run_dir, seed):
         <device.rerouting.adaptation-interval value="{rr['adaptation_interval_s']}"/>
         <device.rerouting.adaptation-steps value="{rr['adaptation_steps']}"/>
     </processing>
-    <output><summary-output value="summary.xml"/></output>
+    <output><summary-output value="summary.xml"/>{queue}</output>
 </configuration>
 """
 
