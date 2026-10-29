@@ -18,7 +18,7 @@ Leave about 30 s of slack; aim for 1–1.5 min per content slide.
 
 ## Style
 
-- Use the layouts in the template (Home › Layout); don't change fonts, colours or the footer.
+- Use the layouts in the template (Home › Layout); don't change fonts, colours, the footer or the NUS logo (it is part of each layout).
 - The last slide, *Style kit*, has a figure box with caption, numbered points, a stat card and a key-message box to copy. Delete it in the merged deck.
 - Figures: export at 300 dpi with a white background; label axes with units (veh/km, veh/h).
 
