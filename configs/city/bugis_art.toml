@@ -25,5 +25,9 @@ tls_rebuild = true                        # T1-D10: rebuild signal plans in stag
 turnarounds = "deadend"                   # T1-D5: "deadend" | "default" | "none"
 internal_links = true                     # T1-D7: keep lanes inside junctions (cars can queue there)
 left_before_right = false                 # mirror right_before_left junctions (--junctions.left-before-right)
+osm_turn_lanes = "mirror"                 # T1-D13 B: "mirror" | "off" | "as_is" (see build_net.py). netconvert 1.28.0 applies
+                                          # OSM turn:lanes as their mirror image in a --lefthand net (lane order reversed,
+                                          # left and right swapped); "mirror" imports a temporary copy of the tiles with
+                                          # every turn:lanes value pre-mirrored, so the lanes come out as OSM tags them
 extra_netconvert_opts = []                # appended to stage 1, e.g. an edge patch file
-provisional_on = ["T1-D1", "T1-D2", "T1-D3", "T1-D4", "T1-D5", "T1-D6", "T1-D7", "T1-D9", "T1-D10", "T1-D12"]
+provisional_on = ["T1-D2", "T1-D3", "T1-D5", "T1-D6", "T1-D9", "T1-D13"]   # 2026-10-29: T1-D1, D4, D7, D10, D12 ruled; D2, D3, D5, D6 are task-1 defaults not yet ruled; D9 (freeze) and D13 (turn-lane import, option B) await the group

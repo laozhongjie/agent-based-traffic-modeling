@@ -10,6 +10,14 @@ turn restrictions and missing U-turns. Stage 2 reloads the stage-1 net with only
 those edges. With `tls_rebuild = true` (T1-D10), stage 2 also rebuilds every signal
 plan for the roads that remain, so no phase gives green only to a removed road.
 
+OSM lane arrows (turn:lanes) follow `osm_turn_lanes` (T1-D13). netconvert 1.28.0
+applies them as their mirror image in a --lefthand net (lane order reversed, left
+and right swapped), so with "mirror" stage 1 reads a temporary copy of the tiles
+in which every turn:lanes, turn:lanes:forward and turn:lanes:backward value is
+already mirrored; the two mirrors cancel and, where netconvert can apply the arrows, the lanes come out as
+OSM tags them.
+The raw tiles are never changed, so the net still builds from raw OSM.
+
 Writes, next to this script (or in --out-dir):
     <name>.net.xml    the network (committed)
     <name>.meta.json  counts, lane lengths, signal cycles, netconvert commands
@@ -27,9 +35,11 @@ Usage (from the repository root, SUMO_HOME set):
 """
 import argparse
 import datetime as dt
+import gzip
 import hashlib
 import json
 import os
+import re
 import shutil
 import shlex
 import subprocess
@@ -55,6 +65,21 @@ ROAD_CLASSES = {
 }
 TURNAROUNDS = {"deadend": ["--no-turnarounds.except-deadend"], "default": [], "none": ["--no-turnarounds"]}
 
+# OSM turn:lanes handling (T1-D13), [network] osm_turn_lanes:
+#   "mirror"  import a copy of the tiles with every turn:lanes value mirrored, which undoes
+#             netconvert's mirroring in a --lefthand net (verified on netconvert 1.28.0 only);
+#   "off"     no turn-lane import: netconvert guesses every lane's turns;
+#   "as_is"   import the tags unchanged: in a --lefthand net this builds their mirror image
+#             (the provisional nets of 2026-10-20); right only for a right-hand net.
+TURN_LANE_MODES = ("mirror", "off", "as_is")
+MIRROR_CHECKED_ON = "1.28.0"   # netconvert version whose left-hand mirroring "mirror" undoes
+TURN_SWAP = {"left": "right", "right": "left", "slight_left": "slight_right", "slight_right": "slight_left",
+             "sharp_left": "sharp_right", "sharp_right": "sharp_left",
+             "merge_to_left": "merge_to_right", "merge_to_right": "merge_to_left"}
+TURN_LANES_VALUE = re.compile(rb'(<tag k="turn:lanes(?::forward|:backward)?" v=")([^"]*)(")')
+TURN_LANES_KEY = re.compile(rb"""k=["']turn:lanes(?::forward|:backward)?["']""")
+MIRROR_DIR = "osm_turn_lanes_mirrored"   # inside the build's temporary directory
+
 
 def sha256(path):
     """Hex sha256 of a file."""
@@ -75,8 +100,70 @@ def logic_opts(net):
     return opts
 
 
+def mirror_turn_lanes(value):
+    """Mirror one OSM turn:lanes value: lanes in reverse order, left and right swapped in every token.
+
+    'left;through|through|through;right|right' -> 'left|through;left|through|right;through'.
+    through, reverse, none and empty lanes keep their token; the mirror is its own inverse.
+    """
+    return "|".join(";".join(TURN_SWAP.get(t.strip(), t.strip()) for t in lane.split(";"))
+                    for lane in reversed(value.split("|")))
+
+
+def turn_lane_opts(net, lefthand=True):
+    """["--osm.turn-lanes"] or [], per the required [network] osm_turn_lanes (TURN_LANE_MODES).
+
+    "mirror" corrects netconvert's left-hand reading only: a right-hand net reads turn:lanes
+    correctly, so there the mirror would build every arrow reversed. It is refused; use "as_is".
+    """
+    mode = net["osm_turn_lanes"]
+    if mode not in TURN_LANE_MODES:
+        raise ValueError(f"[network] osm_turn_lanes = {mode!r}: expected one of {TURN_LANE_MODES}")
+    if mode == "mirror" and not lefthand:
+        raise ValueError('osm_turn_lanes = "mirror" undoes netconvert\'s left-hand mirroring; '
+                         'a right-hand net reads turn:lanes correctly: use "as_is"')
+    return [] if mode == "off" else ["--osm.turn-lanes"]
+
+
+def osm_inputs(net, tiles, workdir):
+    """Stage-1 --osm-files entries and the number of turn:lanes values mirrored.
+
+    With osm_turn_lanes = "mirror", writes a copy of each tile to <workdir>/osm_turn_lanes_mirrored/
+    with every turn:lanes, turn:lanes:forward and turn:lanes:backward value mirrored
+    (mirror_turn_lanes) and returns those copies relative to workdir, where netconvert runs.
+    Otherwise returns the raw tiles. Raises if a tile holds a turn:lanes key this rewrite cannot reach.
+    """
+    if net["osm_turn_lanes"] != "mirror":
+        return [str(t) for t in tiles], 0
+    out = Path(workdir, MIRROR_DIR)
+    out.mkdir()
+    files, total = [], 0
+    for tile in tiles:
+        tile = Path(tile)
+        with (gzip.open(tile) if tile.suffix == ".gz" else open(tile, "rb")) as f:
+            raw = f.read()
+        text, n = TURN_LANES_VALUE.subn(
+            lambda m: m[1] + mirror_turn_lanes(m[2].decode("utf-8")).encode("utf-8") + m[3], raw)
+        keys = len(TURN_LANES_KEY.findall(raw))
+        if n != keys:
+            raise ValueError(f"{tile.name}: {keys} turn:lanes keys but {n} values in the form "
+                             '<tag k="turn:lanes..." v="...">; cannot mirror the rest')
+        with (gzip.open(out / tile.name, "wb", compresslevel=1) if tile.suffix == ".gz"
+              else open(out / tile.name, "wb")) as f:
+            f.write(text)
+        files.append(f"{MIRROR_DIR}/{tile.name}")
+        total += n
+    return files, total
+
+
+def stage1_args(net, tiles, workdir):
+    """Full stage-1 netconvert arguments (run in workdir) and the number of turn:lanes values mirrored."""
+    files, mirrored = osm_inputs(net, tiles, workdir)
+    return ["--osm-files", ",".join(files), *stage1_opts(net), "-o", "stage1.net.xml"], mirrored
+
+
 def stage1_opts(net):
-    """netconvert options for the raw-OSM pass, in the pilot's order."""
+    """netconvert options for the raw-OSM pass, in the pilot's order. Every net is left-hand."""
     w, s, e, n = net["study_box"]
     m = net["clip_margin_deg"]
     clip = ",".join(f"{v:.5f}" for v in (w - m, s - m, e + m, n + m))
@@ -93,7 +180,7 @@ def stage1_opts(net):
              "--remove-edges.isolated", "--geometry.remove", "--roundabouts.guess", "--ramps.guess",
              "--junctions.join", *tls, "--tls.default-type", "static",
              "--tls.cycle.time", str(int(net["tls_cycle_s"])),
-             "--osm.turn-lanes", "--output.street-names", "--output.original-names"]
+             *turn_lane_opts(net, lefthand=True), "--output.street-names", "--output.original-names"]
             + logic_opts(net) + [str(o) for o in net["extra_netconvert_opts"]])
 
 
@@ -194,12 +281,20 @@ def build(cfg, osm_dir, out_dir, run_dir):
     missing = [str(t) for t in tiles if not t.exists()]
     if missing:
         raise FileNotFoundError(f"OSM tiles missing (run scenarios/city/fetch_osm.py): {missing}")
+    version = subprocess.run(["netconvert", "--version"], capture_output=True, text=True).stdout.splitlines()[0]
+    turn_lanes = net_cfg["osm_turn_lanes"]
+    if turn_lanes == "mirror" and MIRROR_CHECKED_ON not in version.split():
+        raise RuntimeError(f'osm_turn_lanes = "mirror" undoes the left-hand turn:lanes mirroring of netconvert '
+                           f"{MIRROR_CHECKED_ON}; this is {version!r}. Check that it still mirrors before building.")
+    if turn_lanes == "as_is":
+        print('warning: osm_turn_lanes = "as_is" builds OSM lane arrows mirrored in this left-hand net',
+              file=sys.stderr)
     run_dir.mkdir(parents=True, exist_ok=True)
     out_dir.mkdir(parents=True, exist_ok=True)
-    s1 = ["--osm-files", ",".join(str(t) for t in tiles), *stage1_opts(net_cfg), "-o", "stage1.net.xml"]
     s2 = ["-s", "stage1.net.xml", "--keep-edges.input-file", "scc_edges.txt", *logic_opts(net_cfg),
           *stage2_tls_opts(net_cfg), "-o", f"{name}.net.xml"]
     with tempfile.TemporaryDirectory(prefix=f"city-{name}-") as tmp:
+        s1, mirrored = stage1_args(net_cfg, tiles, tmp)   # mirrored tiles, if any, die with tmp
         err1, warn1 = netconvert(s1, tmp, "stage1.log")
         stats1, big = net_stats(Path(tmp, "stage1.net.xml"))
         Path(tmp, "scc_edges.txt").write_text("\n".join(sorted(big)) + "\n")
@@ -211,7 +306,6 @@ def build(cfg, osm_dir, out_dir, run_dir):
     stats, _ = net_stats(final)
     counts, lefthand = xml_counts(final)
     lane_m, int_m = counts["length_m"]["normal"], counts["length_m"]["internal"]
-    version = subprocess.run(["netconvert", "--version"], capture_output=True, text=True).stdout.splitlines()[0]
     show = lambda args: shlex.join(["netconvert", *args]).replace(str(osm_dir), "<osm_dir>").replace(str(ROOT) + "/", "")  # noqa: E731
     meta = {
         "name": name,
@@ -223,6 +317,8 @@ def build(cfg, osm_dir, out_dir, run_dir):
         "netconvert_stage1": show(s1),
         "netconvert_stage2": show(s2),
         "osm_sha256": {t.name: sha256(t) for t in tiles},
+        "osm_turn_lanes": turn_lanes,
+        "osm_turn_lanes_mirrored_values": mirrored,   # stage 1 reads osm_turn_lanes_mirrored/ copies if > 0
         "lefthand": lefthand,
         "lane_length_m": round(lane_m, 2),
         "internal_lane_length_m": round(int_m, 2),
