@@ -13,3 +13,6 @@ data/raw/
 # Personal experiments; move code out before it produces a result
 sandbox/
 *.egg-info/
+
+# Presentation slides are shared on OneDrive, not in the repository
+slides/
