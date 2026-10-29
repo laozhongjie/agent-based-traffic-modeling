@@ -263,7 +263,7 @@ Scenario-specific columns come after these and start with the scenario name, for
 
 One file per run, with one row of instantaneous values every 10 s over the whole run, warm-up included. The columns are `time_s`, `density_veh_km`, `mean_speed_mps`, `flow_veh_h` and `congested_fraction`. E uses it to check the warm-up length and to estimate fluctuations and error bars. One run of 1800 s is about 8 KB.
 
-The definitions are the same on the ring and in the city network, so E can compare the highway and network critical densities directly.
+Density and flow are defined the same way on the ring and in the city network, so E can compare the highway and network critical densities directly. The congested fraction $\phi$ and its fluctuation $\chi$ are not: each scenario uses its own congestion criterion, and today they differ. On the ring a car counts as congested below a fixed speed; in the city a road segment counts as congested below half of its free-flow speed.
 
 ### Reading the results in Python or a notebook
 
@@ -302,7 +302,7 @@ Two more rules apply to the ring. Set each edge's `length` explicitly and build 
 | Flow $q$ | veh/h |
 | Warm-up | The first 600 s are discarded; measurements use 600–1800 s **(To decide)** |
 
-On the ring, the mean speed $\bar v$ is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as $q = k\,\bar v$. The congested fraction $\phi$ is the share of vehicles slower than a threshold, and its variance over time is the fluctuation $\chi$. City-network measurements are defined by C in the same way.
+On the ring, the mean speed $\bar v$ is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as $q = k\,\bar v$. The congested fraction $\phi$ is the share of vehicles slower than a threshold, and its variance over time is the fluctuation $\chi$. In the city network, $\bar v$ and $q$ are defined in the same way, but $\phi$ is the share of car-time spent on road segments slower than half of their free-flow speed (C's criterion), so its values do not compare with the ring's.
 
 ## 9. Still to decide
 

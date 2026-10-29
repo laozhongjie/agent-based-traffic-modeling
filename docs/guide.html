@@ -261,7 +261,7 @@ results.write_summary(rows, cfg)</code></pre>
       <p>Scenario-specific columns come after these and start with the scenario name, for example <code>ring_vehicles</code> or <code>city_largest_cluster</code>.</p>
       <h3>Time series: <code>results/&lt;scenario&gt;/&lt;name&gt;/&lt;run_id&gt;.csv</code></h3>
       <p>One file per run, with one row of instantaneous values every 10 s over the whole run, warm-up included. The columns are <code>time_s</code>, <code>density_veh_km</code>, <code>mean_speed_mps</code>, <code>flow_veh_h</code> and <code>congested_fraction</code>. E uses it to check the warm-up length and to estimate fluctuations and error bars. One run of 1800 s is about 8 KB.</p>
-      <p>The definitions are the same on the ring and in the city network, so E can compare the highway and network critical densities directly.</p>
+      <p>Density and flow are defined the same way on the ring and in the city network, so E can compare the highway and network critical densities directly. The congested fraction \(\phi\) and its fluctuation \(\chi\) are not: each scenario uses its own congestion criterion, and today they differ. On the ring a car counts as congested below a fixed speed; in the city a road segment counts as congested below half of its free-flow speed.</p>
       <h3>Reading the results in Python or a notebook</h3>
       <p>Both files read back as pandas tables, from any folder, with numbers as numbers and <code>valid</code> as <code>True</code>/<code>False</code>:</p>
 <pre><code>from traffic_project.results import load_summary, load_timeseries
@@ -304,7 +304,7 @@ df = df[df.valid]                                                     # keep run
           </tbody>
         </table>
       </div>
-      <p>On the ring, the mean speed \(\bar v\) is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as \(q = k\,\bar v\). The congested fraction \(\phi\) is the share of vehicles slower than a threshold, and its variance over time is the fluctuation \(\chi\). City-network measurements are defined by C in the same way.</p>
+      <p>On the ring, the mean speed \(\bar v\) is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as \(q = k\,\bar v\). The congested fraction \(\phi\) is the share of vehicles slower than a threshold, and its variance over time is the fluctuation \(\chi\). In the city network, \(\bar v\) and \(q\) are defined in the same way, but \(\phi\) is the share of car-time spent on road segments slower than half of their free-flow speed (C's criterion), so its values do not compare with the ring's.</p>
     </section>
 
     <section class="card model-section" id="decide" data-i18n="guide.decide">

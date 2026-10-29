@@ -223,7 +223,7 @@ results.write_summary(rows, cfg)</code></pre>
     <p>场景特有的列排在这些列之后，并以场景名开头，例如 <code>ring_vehicles</code>、<code>city_largest_cluster</code>。</p>
     <h3>时间序列：<code>results/&lt;scenario&gt;/&lt;name&gt;/&lt;run_id&gt;.csv</code></h3>
     <p>每次运行一个文件。覆盖整个运行过程（包括预热段），每 10 秒记录一行瞬时值，列为 <code>time_s</code>、<code>density_veh_km</code>、<code>mean_speed_mps</code>、<code>flow_veh_h</code> 和 <code>congested_fraction</code>。E 用它检查预热时长是否足够，并估计涨落和误差范围。一次 1800 秒的运行约 8 KB。</p>
-    <p>环路和城市路网使用相同的定义，所以 E 可以直接比较 highway 和路网的临界密度。</p>
+    <p>密度和流量在环路和城市路网中定义相同，所以 E 可以直接比较 highway 和路网的临界密度。拥堵比例 \\(\\phi\\) 及其涨落 \\(\\chi\\) 则不同：每个场景使用自己的拥堵判据，目前两者不一样。环路上车速低于固定阈值的车辆算作拥堵；城市路网中速度低于其自由流速度一半的路段算作拥堵。</p>
     <h3>在 Python 或 notebook 中读取结果</h3>
     <p>两种文件都能读成 pandas 表格，在任何文件夹下都能用；数字读出来就是数字，<code>valid</code> 是 <code>True</code>/<code>False</code>：</p>
 <pre><code>from traffic_project.results import load_summary, load_timeseries
@@ -264,7 +264,7 @@ df = df[df.valid]                                                     # 只保�
         </tbody>
       </table>
     </div>
-    <p>在环路上，平均速度 \\(\\bar v\\) 是每个时间步所有车辆速度的平均值，再在测量时段内取时间平均。环路上没有车辆进出，所以流量为 \\(q = k\\,\\bar v\\)。拥堵车辆比例 \\(\\phi\\) 是速度低于阈值的车辆所占比例，它随时间的方差即涨落 \\(\\chi\\)。城市路网的测量方法由 C 按同样的方式定义。</p>`,
+    <p>在环路上，平均速度 \\(\\bar v\\) 是每个时间步所有车辆速度的平均值，再在测量时段内取时间平均。环路上没有车辆进出，所以流量为 \\(q = k\\,\\bar v\\)。拥堵车辆比例 \\(\\phi\\) 是速度低于阈值的车辆所占比例，它随时间的方差即涨落 \\(\\chi\\)。城市路网中 \\(\\bar v\\) 和 \\(q\\) 的定义相同，但 \\(\\phi\\) 是车辆在速度低于自由流速度一半的路段上所花时间的比例（C 的判据），因此不能和环路的 \\(\\phi\\) 直接比较。</p>`,
 
   "guide.decide": `
     <h2>9. 待确定事项</h2>
