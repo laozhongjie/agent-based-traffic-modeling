@@ -5,7 +5,7 @@ Each scenario has one function that reads one run's outputs and returns
 traffic_project.results. Ring road (B): ring_summary. Networks with a fixed
 vehicle count (grid, city): network_summary.
 """
-from .io import iter_fcd
+from .io import iter_fcd, iter_summary
 
 
 def ring_summary(fcd, n_vehicles, length_m, warmup_s, jam_speed_mps, sample_every_s):
@@ -53,7 +53,7 @@ def ring_summary(fcd, n_vehicles, length_m, warmup_s, jam_speed_mps, sample_ever
 
 
 def network_summary(fcd, n_vehicles, lane_length_m, warmup_s, jam_speed_mps, sample_every_s,
-                    block_s=None, reference_length_m=None):
+                    block_s=None, reference_length_m=None, summary_xml=None):
     """Network-wide measurements with a fixed vehicle count, over t >= warmup_s.
 
     Same quantities as ring_summary, using Edie's definitions over the whole
@@ -76,6 +76,12 @@ def network_summary(fcd, n_vehicles, lane_length_m, warmup_s, jam_speed_mps, sam
 
     The time series holds instantaneous values every sample_every_s seconds over
     the whole run, including the warm-up.
+
+    all_vehicles_present counts the vehicles in summary_xml (SUMO's summary-output,
+    `running`) when it is given, else in the FCD output. Use summary_xml on any network
+    that may teleport: a vehicle in mid-teleport is missing from the FCD output but still
+    counted as running, so only the summary count tells a teleport from a vehicle that
+    SUMO never inserted (T3-D11).
     """
     k = 1000 * n_vehicles / lane_length_m
     counts, v_mean, phi, phi_t_list, series = [], [], [], [], []
@@ -126,6 +132,8 @@ def network_summary(fcd, n_vehicles, lane_length_m, warmup_s, jam_speed_mps, sam
     }
     if reference_length_m:
         measurements["density_ref_veh_km"] = 1000 * n_vehicles / reference_length_m
+    if summary_xml is not None:
+        counts = [running for _, running in iter_summary(summary_xml)]
     checks = {
         "all_vehicles_present": min(counts) == max(counts) == n_vehicles,
         "no_negative_speed": min_speed >= 0,

@@ -70,7 +70,7 @@ def run_one(cfg, variant, n, seed):
     measured, net_checks, series = measurements.network_summary(
         fcd, n, meta["lane_length_m"], cfg["run"]["warmup_s"], m["jam_speed_mps"],
         m["timeseries_every_s"], block_s=block_s,
-        reference_length_m=meta["baseline_lane_length_m"])
+        reference_length_m=meta["baseline_lane_length_m"], summary_xml=run_dir / "summary.xml")
     results.write_timeseries(run_id, series, cfg)
     if not cfg["run"].get("keep_fcd", False):
         fcd.unlink()

@@ -195,7 +195,7 @@ Follow these steps for every experiment, including a variation of an existing on
 
 1. **Create a branch** for the experiment (section 10).
 2. **Write the config** `configs/<scenario>/<name>.toml`. Start from `configs/ring/idm_sweep.toml`. The top-level keys `name`, `scenario` and `model` are required; `name` also names the result files. Give every number a comment with its unit.
-3. **Build the scenario inputs** with a script in `scenarios/<scenario>/`, like `scenarios/ring/build_run.py`. It reads the config, writes one folder `runs/<run-id>/` and prints the run ID. The `.sumocfg` it writes uses relative paths, sets `time-to-teleport` to `-1` and `collision.action` to `warn`.
+3. **Build the scenario inputs** with a script in `scenarios/<scenario>/`, like `scenarios/ring/build_run.py`. It reads the config, writes one folder `runs/<run-id>/` and prints the run ID. The `.sumocfg` it writes uses relative paths, sets `collision.action` to `warn`, and sets `time-to-teleport` to `-1` unless the scenario keeps SUMO's teleport (section 7).
 4. **Add the measurements** as one function in `src/traffic_project/measurements.py`, like `ring_summary`. It reads one run's outputs and returns `(measurements, checks, timeseries)` in the format of section 6. This changes shared code, so A must approve the pull request.
 5. **Write the entry script** `scripts/<scenario>_sweep.py`, like `scripts/ring_sweep.py`. It takes `--config`, loops over the sweep and uses the shared calls below. It writes the summary table and the time series with `results.write_summary` and `results.write_timeseries`.
 6. **Run it and read the output.** Every run prints `ok` or `INVALID` with the failed checks. Fix the cause of every invalid run before using the results.
@@ -279,14 +279,14 @@ df = df[df.valid]                                                     # keep run
 
 ## 7. Checks every run must pass
 
-SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in `summary.json`. The first three come from `runner.run_sumo`, the others from the scenario's measurement function. Keep invalid runs for diagnosis, but leave them out of every table and figure.
+SUMO does not stop on several problems that silently change the experiment. Every run therefore records these checks in `summary.json`. The first three come from `runner.run_sumo` (or `runner.run_traci`), the others from the scenario's measurement function. Keep invalid runs for diagnosis, but leave them out of every table and figure.
 
 | Check | What it catches |
 | --- | --- |
 | `sumo_exit_ok` | SUMO stopped with an error |
-| `no_teleport` | By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Every run sets `time-to-teleport` to `-1` to turn this off. |
+| `no_teleport` | By default SUMO removes a vehicle that waits more than 300 s and puts it back further on. Ring runs set `time-to-teleport` to `-1` to turn this off. City runs keep the 300 s teleport, because without it the city network drifts into gridlock (T3-D11, agreed by the group 2026-10-27), and grid runs keep it too, so that grid and city runs compare (member D agreed): their config sets `[run] allow_teleport = true`, which leaves this check out, and every city and grid run reports its teleports per car-hour instead. |
 | `no_collision` | Vehicles overlapping. Every run sets `collision.action` to `warn` so collisions appear in the log. |
-| `all_vehicles_present` | SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, `build_run.py` also refuses a vehicle count that cannot fit. |
+| `all_vehicles_present` | SUMO delays inserting a vehicle that would start too close to another, without an error. The vehicle count, and so the density, is then wrong. On the ring, `build_run.py` also refuses a vehicle count that cannot fit. On a network, the count comes from `summary.xml` (`running`), which still counts a vehicle in mid-teleport; the FCD output leaves that vehicle out. |
 | `no_negative_speed` | Model errors, especially in the new OVM code |
 
 Two more rules apply to the ring. Set each edge's `length` explicitly and build the network with `--no-internal-links`, so that density = vehicles ÷ ring length exactly. When a model has a known result, compare with it: the IDM equilibrium speed, the NaSch result at $p = 0$ and the OVM stability condition. NaSch reproduces the $p = 0$ result only on a lattice: the ring length is a whole number of 7.5 m cells, vehicles start at multiples of 7.5 m, `speedDev` is 0, and `maxSpeed` is a multiple of 7.5 m/s no higher than the edge's speed limit.
