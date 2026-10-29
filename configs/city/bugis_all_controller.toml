@@ -11,8 +11,8 @@
 #           city_teleports_per_car_h_window (warmup_s-end_s, the number to quote) and
 #           city_teleports_per_car_h_run (0-end_s, includes the unsettled first hour).
 #   T3-D9   (trial) 7,200 s runs measured over 3,600-7,200 s; settledness check on flow
-# Every number is provisional pending T3-D1, T3-D2, T3-D6, T3-D8 (criterion) and T1-D1, T1-D4,
-# T1-D7 (network).
+# Every number is provisional pending T3-D1, T3-D2, T3-D6, T3-D8 (criterion) and T1-D9, T1-D13
+# (network freeze; T1-D1, T1-D4, T1-D7 agreed by the group 2026-10-22).
 # Run and measure: python scripts/city_sweep.py --config configs/city/bugis_all_controller.toml
 # (a smoke run with shorter settings needs its own --prefix and --name; see the script)
 # Run folders runs/ctl_city_bugis_all_k<k>_s<seed>/ are git-ignored.
@@ -21,13 +21,13 @@ scenario = "city"
 model = "IDM"
 
 [network]
-net_file = "scenarios/city/bugis_all.net.xml"   # Task 1 main net (all road classes), v1 provisional
+net_file = "scenarios/city/bugis_all.net.xml"   # Task 1 main net (all road classes), v1 frozen 2026-10-29 (373a24c)
 tag = "bugis_all"
 # baseline_net_file = "scenarios/city/bugis_all.net.xml"   # planning variants only (T4-D2), in a copy with its own name and run_prefix:
 # variant = "closure_<road>"                                # N and destinations from the baseline, net_file = the variant; see scripts/city_sweep.py
 
 [sweep]
-densities_veh_km = [2.5, 5, 7.5, 10, 12.5, 15, 20, 25, 30, 40]   # veh/km: N / total lane length of normal lanes (task 3 settled sweep)
+densities_veh_km = [2.5, 5, 7.5, 10, 12.5, 15, 20, 25, 30, 35, 40]   # 35 added 2026-10-29 (Q18, frozen net); veh/km: N / total lane length of normal lanes (task 3 settled sweep)
 seeds = [1, 2, 3]
 jobs = 8                       # parallel worker processes, one SUMO run each (CPU cores)
 run_prefix = "ctl_city_bugis_all"   # run IDs <run_prefix>_k<k>_s<seed>
