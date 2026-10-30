@@ -302,13 +302,12 @@ Two more rules apply to the ring. Set each edge's `length` explicitly and build 
 | Flow $q$ | veh/h |
 | Warm-up | The first 600 s are discarded; measurements use 600–1800 s **(To decide)** |
 
-On the ring, the mean speed $\bar v$ is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as $q = k\,\bar v$. The congested fraction $\phi$ is the share of vehicles slower than a threshold, and its variance over time is the fluctuation $\chi$. In the city network, $\bar v$ and $q$ are defined in the same way, but $\phi$ is the share of car-time spent on road segments slower than half of their free-flow speed (C's criterion), so its values do not compare with the ring's.
+On the ring, the mean speed $\bar v$ is the average speed of all vehicles at each step, averaged over the measurement window. Because no vehicle enters or leaves, flow follows as $q = k\,\bar v$. The congested fraction $\phi$ is the share of vehicles slower than a threshold, and its variance over time is the fluctuation $\chi$. In the city network, $\bar v$ and $q$ are defined in the same way, but $\phi$ is the share of car-time spent on congested road segments, so its values do not compare with the ring's. In the city a road segment counts as congested from the second 90 s signal cycle in a row in which its mean speed stays below half of its free-flow speed, and as free again from the second cycle in a row above it. Its free-flow speed is its mean speed in a near-empty run (2 veh/km), red-light waits included; segments that run barely uses get an estimate from their speed limit (C's criterion, agreed by the group on 30 Oct 2026).
 
 ## 9. Still to decide
 
 - **IDM parameters** (B, with the group). The example uses placeholders: accel 1.0 m/s², decel 1.5 m/s², time headway 1.5 s, minimum gap 2 m, maximum speed 30 m/s, vehicle length 5 m.
 - **Ring congestion criterion** (B). The placeholder, speed below 5 m/s, counts uniformly slow traffic above 100 veh/km as fully congested although it has no stop-and-go waves. The criterion must separate the two.
-- **Network congestion criterion** (C).
 - **Density grid and number of seeds per point** (B and C, with E), so that E can estimate error bars.
 - **Step length and warm-up length** for the continuous models.
 - **Which runs keep `fcd.xml`.** One run of 30 vehicles for 1800 s writes about 7 MB, so a full sweep should keep trajectories only for representative runs.
