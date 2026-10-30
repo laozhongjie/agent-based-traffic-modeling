@@ -1,0 +1,33 @@
+# Bugis-Rochor-Lavender city network, arterials only (trunk, primary, secondary, tertiary and links).
+# Build: python -I scenarios/city/build_net.py --config configs/city/bugis_art.toml
+# Check: python -I scenarios/city/spotcheck.py --config configs/city/bugis_art.toml --rows 18
+# Writes scenarios/city/bugis_art.{net.xml,meta.json,spotcheck.csv}. Every choice below is
+# ruled (see `provisional_on`); the arterial-only robustness net (T1-D2), built with city network v1 on 2026-10-29.
+
+name = "bugis_art"        # net, meta and spot-check files are scenarios/city/<name>.*
+scenario = "city"
+model = "IDM"             # car-following model of the city experiments; the build does not use it
+
+[network]
+district = "bugis"                        # T1-D1: Bugis-Rochor-Lavender
+osm_dir = "data/raw/osm/bugis_api"        # raw OSM API tiles (git-ignored), fetched 2026-10-20 03:09 SGT
+osm_files = ["t0.osm.xml.gz", "t1.osm.xml.gz", "t2.osm.xml.gz", "t3.osm.xml.gz"]
+study_box = [103.84625, 1.29225, 103.86875, 1.31475]   # W, S, E, N in degrees (WGS84)
+clip_margin_deg = 0.0015                  # edges kept up to this far outside the study box
+download_margin_deg = 0.003               # fetch_osm.py downloads the box plus this margin
+road_classes = "art"                      # T1-D2: "all" | "art" | "allx" (see ROAD_CLASSES in build_net.py)
+type_file = "scenarios/city/sg_types.typ.xml"  # T1-D6: 50 km/h (13.89 m/s) where OSM has no maxspeed
+tls_cycle_s = 90                          # T1-D4: common fixed-time cycle, s (netconvert --tls.cycle.time)
+tls_guess_signals = true                  # merge OSM signal nodes around one junction into one signal
+tls_discard_simple = true                 # T1-D3: drop mid-block pedestrian signals
+tls_join = true                           # join signals within 20 m (dual carriageways)
+tls_rebuild = true                        # T1-D10: rebuild signal plans in stage 2, so no phase serves only removed roads
+turnarounds = "deadend"                   # T1-D5: "deadend" | "default" | "none"
+internal_links = true                     # T1-D7: keep lanes inside junctions (cars can queue there)
+left_before_right = false                 # mirror right_before_left junctions (--junctions.left-before-right)
+osm_turn_lanes = "mirror"                 # T1-D13 B: "mirror" | "off" | "as_is" (see build_net.py). netconvert 1.28.0 applies
+                                          # OSM turn:lanes as their mirror image in a --lefthand net (lane order reversed,
+                                          # left and right swapped); "mirror" imports a temporary copy of the tiles with
+                                          # every turn:lanes value pre-mirrored, so the lanes come out as OSM tags them
+extra_netconvert_opts = []                # appended to stage 1, e.g. an edge patch file
+provisional_on = []   # 2026-10-30: all ruled. T1-D4, D7, D10, D12 by the group (22 Oct, no objection by the deadline); T1-D1 (20 Oct) and D2, D3, D5, D6 (30 Oct, as built) by C; D9 (freeze) and D13 (turn-lane import, option B) by the group on member D's yes (30 Oct). The net's meta.json keeps the list as it was at the build (29 Oct)

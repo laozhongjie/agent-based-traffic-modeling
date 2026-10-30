@@ -1,0 +1,82 @@
+{
+ "name": "bugis_art",
+ "config": "configs/city/bugis_art.toml",
+ "config_sha256": "a38c9e43a9e7",
+ "built_utc": "2026-10-29T08:43:56Z",
+ "build_run_dir": "runs/city-build-bugis_art-20261029-164353",
+ "netconvert_version": "Eclipse SUMO netconvert 1.28.0",
+ "netconvert_stage1": "netconvert --osm-files osm_turn_lanes_mirrored/t0.osm.xml.gz,osm_turn_lanes_mirrored/t1.osm.xml.gz,osm_turn_lanes_mirrored/t2.osm.xml.gz,osm_turn_lanes_mirrored/t3.osm.xml.gz --type-files scenarios/city/sg_types.typ.xml --lefthand --keep-edges.in-geo-boundary 103.84475,1.29075,103.87025,1.31625 --keep-edges.by-vclass passenger --remove-edges.by-type highway.motorway,highway.motorway_link,highway.service,highway.residential,highway.unclassified,highway.living_street --remove-edges.isolated --geometry.remove --roundabouts.guess --ramps.guess --junctions.join --tls.guess-signals --tls.discard-simple --tls.join --tls.default-type static --tls.cycle.time 90 --osm.turn-lanes --output.street-names --output.original-names --no-turnarounds.except-deadend -o stage1.net.xml",
+ "netconvert_stage2": "netconvert -s stage1.net.xml --keep-edges.input-file scc_edges.txt --no-turnarounds.except-deadend --tls.rebuild --tls.default-type static --tls.cycle.time 90 -o bugis_art.net.xml",
+ "osm_sha256": {
+  "t0.osm.xml.gz": "c1b2b43194ae716a33733fe55f11dda93d69796f3a3d4f7758b1394f4f189ba9",
+  "t1.osm.xml.gz": "7a03c4dbff43f7b0d9d19ae1b763bc9856dc84901721b9d69d820c2037551eec",
+  "t2.osm.xml.gz": "6261e1a23e00e76980eea333788e775e402fbcd4e91b77e86748249abea36fdc",
+  "t3.osm.xml.gz": "366c152875f19489b813bdff9c39f38a4934e3ac1af35294c5946c7b25d61dc1"
+ },
+ "osm_turn_lanes": "mirror",
+ "osm_turn_lanes_mirrored_values": 2611,
+ "lefthand": true,
+ "lane_length_m": 128110.85,
+ "internal_lane_length_m": 21186.99,
+ "internal_lane_share": 0.1419,
+ "edges_normal": 375,
+ "lanes_normal": 1235,
+ "edges_internal": 532,
+ "lanes_internal": 1372,
+ "passenger_lane_length_m": 128110.85,
+ "junctions": 279,
+ "junction_types": {
+  "priority": 226,
+  "traffic_light": 53
+ },
+ "edges_passenger": 375,
+ "lane_km_passenger": 128.11,
+ "tls_count": 51,
+ "tls_cycle_lengths_s": {
+  "90": 51
+ },
+ "tls_types": {
+  "static": 51
+ },
+ "n_scc": 1,
+ "largest_scc_lane_km_by_type": {
+  "highway.primary": 61.37,
+  "highway.secondary": 29.77,
+  "highway.trunk": 20.51,
+  "highway.tertiary": 14.44,
+  "highway.trunk_link": 1.27,
+  "highway.primary_link": 0.69,
+  "highway.secondary_link": 0.03,
+  "highway.tertiary_link": 0.02
+ },
+ "tls_cycle_s": 90,
+ "tls_rebuild": true,
+ "stage1": {
+  "junctions": 412,
+  "edges_passenger": 558,
+  "lane_km_passenger": 181.52,
+  "tls_count": 56,
+  "n_scc": 184,
+  "scc_sizes_top5": [
+   375,
+   1,
+   1,
+   1,
+   1
+  ],
+  "largest_scc_lane_km_share": 0.699
+ },
+ "netconvert_warnings": {
+  "stage1": 187,
+  "stage2": 15
+ },
+ "netconvert_errors": [],
+ "provisional_on": [
+  "T1-D2",
+  "T1-D3",
+  "T1-D5",
+  "T1-D6",
+  "T1-D9",
+  "T1-D13"
+ ]
+}
