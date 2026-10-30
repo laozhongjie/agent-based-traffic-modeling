@@ -10,6 +10,7 @@ import inspect
 import math
 import os
 import random
+import sys
 
 import pytest
 
@@ -518,3 +519,41 @@ def test_baseline_destinations_keep_the_trips_of_the_baseline():
     assert demand.baseline_destinations(base, closure) == (["a", "c"], ["b"], [])
     assert demand.baseline_destinations(base, new_link) == (["a", "b", "c"], [], ["n"])
     assert demand.baseline_destinations(base, base) == (["a", "b", "c"], [], [])
+
+
+def _hide_sumo_modules(monkeypatch):
+    """Hide every sumolib and traci the process could load except $SUMO_HOME/tools (member D's setup):
+    drop path entries that hold either package and the modules already imported. Returns the
+    removed modules, to restore afterwards."""
+    monkeypatch.setattr(sys, "path", [p for p in sys.path if not any(
+        os.path.isdir(os.path.join(p, pkg)) for pkg in ("sumolib", "traci"))])
+    return {k: sys.modules.pop(k) for k in list(sys.modules) if k.split(".")[0] in ("sumolib", "traci")}
+
+
+def _restore_sumo_modules(saved):
+    for k in [k for k in sys.modules if k.split(".")[0] in ("sumolib", "traci")]:
+        del sys.modules[k]
+    sys.modules.update(saved)
+
+
+@needs_sumo
+def test_car_lanes_with_sumo_home_alone(monkeypatch):
+    """demand finds sumolib in $SUMO_HOME/tools when nothing else provides it (member D's report, 30 Oct:
+    with only SUMO_HOME set, `import sumolib` failed in demand.py before the runner had added that folder)."""
+    saved = _hide_sumo_modules(monkeypatch)
+    try:
+        lanes = demand.car_lanes(ROOT / "scenarios" / "ring" / "ring_1000.net.xml")
+    finally:
+        _restore_sumo_modules(saved)
+    assert [e for e, *_ in lanes] == ["e0", "e1", "e2", "e3"]
+
+
+@needs_sumo
+def test_controller_with_sumo_home_alone(monkeypatch):
+    """The controller's own traci import works with only SUMO_HOME set, too."""
+    saved = _hide_sumo_modules(monkeypatch)
+    try:
+        ctl = demand.ConstantDensity(10, ["e0"], 1)
+    finally:
+        _restore_sumo_modules(saved)
+    assert ctl.exc.__name__ == "TraCIException"

@@ -40,8 +40,10 @@ N counts the cars on a lane plus the cars in mid-teleport (SUMO keeps those out 
 vehicle.getIDList()). SUMO's summary output counts both as "running".
 """
 import heapq
+import os
 import random
 import re
+import sys
 
 VAR_ROUTE_ID = 0x53      # traci.constants.VAR_ROUTE_ID
 VAR_ROUTE_INDEX = 0x69   # traci.constants.VAR_ROUTE_INDEX
@@ -55,9 +57,27 @@ TELEPORT_END = re.compile(r"Vehicle '([^']+)' (?:ends teleporting on edge|telepo
 
 # --- network and initial placement -------------------------------------------------------------
 
+def _sumo_tools():
+    """Append $SUMO_HOME/tools to the import path before sumolib or traci is imported, as
+    runner._import_traci does, so both load with only SUMO_HOME set (member D's report, 30 Oct
+    2026). Appended, so a pip-installed sumolib or traci, if any, still takes precedence."""
+    home = os.environ.get("SUMO_HOME")
+    if home:
+        tools = os.path.join(home, "tools")
+        if tools not in sys.path:
+            sys.path.append(tools)
+
+
+def _sumolib():
+    """sumolib, after _sumo_tools()."""
+    _sumo_tools()
+    import sumolib
+    return sumolib
+
+
 def car_lanes(net_path):
     """[(edge id, length m, [lane indices allowing passenger cars])] for the normal edges."""
-    import sumolib  # from the SUMO installation (or the sumolib package); see docs/guide.html
+    sumolib = _sumolib()   # see docs/guide.html, section 1
 
     out = []
     for e in sumolib.net.readNet(str(net_path)).getEdges():
@@ -139,7 +159,7 @@ def near_sets(length, incoming, distance_m):
 
 def net_near_sets(net_path, distance_m):
     """near_sets() for a SUMO net, over all connections between normal edges."""
-    import sumolib
+    sumolib = _sumolib()
 
     net = sumolib.net.readNet(str(net_path))
     length = {e.getID(): e.getLength() for e in net.getEdges()}
@@ -149,7 +169,7 @@ def net_near_sets(net_path, distance_m):
 
 def car_successors(net_path):
     """{car edge: edges a passenger car can turn into from it} (connections between car lanes)."""
-    import sumolib
+    sumolib = _sumolib()
 
     out = {}
     for e in sumolib.net.readNet(str(net_path)).getEdges():
@@ -219,6 +239,7 @@ class ConstantDensity:
     def __init__(self, n_vehicles, dests, seed, remaining_edges=3, near=None, step_s=1.0,
                  verify_routes=False, traci_exception=None):
         if traci_exception is None:
+            _sumo_tools()
             from traci.exceptions import TraCIException as traci_exception
         self.exc = traci_exception
         self.n = n_vehicles
