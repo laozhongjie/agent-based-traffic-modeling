@@ -176,6 +176,63 @@ def test_onset_correlation_signs_and_censoring():
     assert out["rho_censored"] < -0.9 and out["tau_censored"] < -0.9
 
 
+def test_free_flow_time_takes_a_measured_speed():
+    net = make_net()
+    assert mm.free_flow_time(net.edges)["AC"] == pytest.approx(50.0)
+    v = pd.Series(10.0, index=net.edges.index)
+    v["AC"] = 50.0                                   # AC measured fast: 500 m / 50 m/s = 10 s
+    tt = mm.free_flow_time(net.edges, v)
+    assert tt["AC"] == pytest.approx(10.0) and tt["AB"] == pytest.approx(10.0)
+    # A -> C now goes by AC (10 s < 30 s): AC gains that path, AB keeps A->B and C->B only
+    b = mm.junction_betweenness(net, tt)
+    assert b["AC"] == pytest.approx(1 / 6) and b["AB"] == pytest.approx(2 / 6)
+    assert mm.turn_betweenness(net, tt)["AC"] > mm.turn_betweenness(net)["AC"]
+
+
+def test_per_lane_divides_by_lanes():
+    net = make_net()
+    b = mm.per_lane(pd.Series(0.5, index=net.edges.index), net.edges)
+    assert b["AB"] == pytest.approx(0.25) and b["BC"] == pytest.approx(0.5)
+
+
+def test_reference_load_counts_cars_leaving_after_warmup():
+    net = make_net()
+    d = edgedata([(0.0, "AB", 10, 9, 1, 0), (90.0, "AB", 10, 9, 1, 0), (180.0, "AB", 10, 9, 1, 0),
+                  (90.0, "BC", 10, 9, 1, 0)])
+    d["left"] = [5.0, 3.0, 4.0, 2.0]
+    load = mm.reference_load(d, net.edges, warmup_s=90.0)
+    assert load["AB"] == 7.0 and load["BC"] == 2.0 and load["AC"] == 0.0
+
+
+def test_partial_spearman_removes_a_shared_driver():
+    rng = np.random.default_rng(1)
+    z = np.arange(300.0)
+    x = z + rng.normal(0, 20, 300)
+    y = z + rng.normal(0, 20, 300)
+    assert stats_spearman(x, y) > 0.9
+    r, p = mm.partial_spearman(x, y, z)
+    assert abs(r) < 0.2 and p > 0.01                 # x and y agree only through z
+    e = rng.normal(0, 1, 300)
+    r2, p2 = mm.partial_spearman(z + 30 * e, e, z)   # a link that z does not explain survives
+    assert r2 > 0.8 and p2 < 1e-6
+
+
+def stats_spearman(a, b):
+    return pd.Series(a).corr(pd.Series(b), "spearman")
+
+
+def test_onset_correlation_partial_on_load_and_few_onsets():
+    idx = list("abcdef")
+    btw = pd.Series([0.6, 0.5, 0.4, 0.3, 0.2, 0.1], index=idx)
+    onset = pd.Series([5.0, 10.0, 15.0, 20.0, np.nan, np.nan], index=idx)
+    load = pd.Series([1.0, 2.0, 1.0, 2.0, 1.0, 2.0], index=idx)   # unrelated to the order
+    out = mm.onset_correlation(btw, onset, censor_at=50.0, load=load)
+    assert out["partial_onset_only"] < -0.9 and out["partial_censored"] < -0.8
+    assert "rho_btw_load" in out
+    few = mm.onset_correlation(btw, pd.Series([5.0] + [np.nan] * 5, index=idx), censor_at=50.0)
+    assert np.isnan(few["rho_onset_only"]) and np.isnan(few["p_onset_only"])
+
+
 # ---------------------------------------------------------------- proposed sweep output
 
 def test_city_sweep_queue_output_flag_is_opt_in():

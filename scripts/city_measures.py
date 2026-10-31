@@ -170,13 +170,13 @@ def figures(per_run, onset, btw, corr, heat, a, m):
     style(ax); fig.tight_layout(); fig.savefig(out / "03-g1-vs-density.png"); plt.close(fig)
 
     # 04 betweenness against onset density
-    fig, axs = plt.subplots(1, 2, figsize=(11, 3.8), dpi=130, sharey=False)
+    fig, axs = plt.subplots(1, 2, figsize=(11, 4.4), dpi=130, sharey=False)
     ks = sorted(onset.dropna().unique())
     cats = ks + [np.nan]
     labels = [f"{k:g}" for k in ks] + ["none\n(<= 40)"]
     rng = np.random.default_rng(0)
-    for ax, col, title in ((axs[0], "btw_junction", "junction graph (edge betweenness)"),
-                           (axs[1], "btw_turn", "turn graph (turn restrictions kept)")):
+    for ax, col, title in ((axs[0], "btw_junction_emp_lane", "junction graph (edge betweenness)"),
+                           (axs[1], "btw_turn_emp_lane", "turn graph (turn restrictions kept)")):
         floor = btw[col][btw[col] > 0].min() / 2
         for i, c in enumerate(cats):
             sel = onset.isna() if np.isnan(c) else onset == c
@@ -192,9 +192,11 @@ def figures(per_run, onset, btw, corr, heat, a, m):
         c = corr[(corr.graph == col) & (corr.threshold == a.onset_threshold)].iloc[0]
         ax.set(xlabel="onset density (veh/km per lane): first k with the edge congested > "
                       f"{a.onset_threshold:.0%} of cycles",
-               ylabel="betweenness (normalised, log)")
+               ylabel="betweenness per lane (measured free-flow times, log)")
         ax.set_title(f"{title}\nSpearman rho = {c.rho_censored:.2f} (all {int(c.n_edges)} edges, none ranked last); "
-                     f"{c.rho_onset_only:.2f} ({int(c.n_onset)} with onset)", fontsize=9)
+                     f"{c.rho_onset_only:.2f} ({int(c.n_onset)} with onset)\n"
+                     f"with the reference run's load removed: {c.partial_censored:.2f} and {c.partial_onset_only:.2f}",
+                     fontsize=9)
         style(ax)
     axs[0].scatter([], [], color=BLUE, s=10, label="edge"); axs[0].plot([], [], color=ORANGE, lw=2, label="median")
     axs[0].legend(frameon=False, fontsize=8, loc="lower left", bbox_to_anchor=(0, 0.05))
@@ -257,20 +259,34 @@ def main():
 
     # onset density and betweenness
     shares = mm.congested_shares({(o[0]["k"], o[0]["seed"]): o[1].congested_share for o in outs})
-    btw = pd.DataFrame(dict(btw_junction=mm.junction_betweenness(net), btw_turn=mm.turn_betweenness(net)))
+    # betweenness variants: graph (junction, turn) x weights (speed limit; measured near-empty
+    # speed vref, "emp") x raw or per lane ("lane"); *_emp_lane is task 3's design (T3-D7)
+    tt_emp = mm.free_flow_time(net.edges, vref)
+    btw = {}
+    for graph, fn in (("junction", mm.junction_betweenness), ("turn", mm.turn_betweenness)):
+        for tag, tt in (("", None), ("_emp", tt_emp)):
+            b = fn(net, tt)
+            btw[f"btw_{graph}{tag}"] = b
+            btw[f"btw_{graph}{tag}_lane"] = mm.per_lane(b, net.edges)
+    btw = pd.DataFrame(btw)
+    load = mm.reference_load(ref, net.edges, warmup)
     censor = float(shares.index.max()) * 1.25
     edges = net.edges[["length", "lanes", "limit"]].join(btw)
+    edges["vref"], edges["ref_load"] = vref, load
     rows = []
     for th in sorted({0.25, a.onset_threshold, 0.75}):
         on = cg.onset_density(shares, th)
         edges[f"onset_k_{th:g}"] = on
-        for col in ("btw_junction", "btw_turn"):
-            rows.append(dict(threshold=th, graph=col, **mm.onset_correlation(edges[col], on, censor)))
+        for col in btw.columns:
+            rows.append(dict(threshold=th, graph=col, **mm.onset_correlation(edges[col], on, censor, load)))
     corr = pd.DataFrame(rows)
     onset = edges[f"onset_k_{a.onset_threshold:g}"]
     # length as a confounder check: betweenness and onset against edge length
     conf = dict(rho_length_btw_junction=float(pd.Series(edges.length).corr(edges.btw_junction, "spearman")),
-                rho_length_onset=float(edges.length.corr(onset.fillna(censor), "spearman")))
+                rho_length_onset=float(edges.length.corr(onset.fillna(censor), "spearman")),
+                rho_load_btw_junction=float(edges.ref_load.corr(edges.btw_junction, "spearman")),
+                rho_load_btw_turn_emp_lane=float(edges.ref_load.corr(edges.btw_turn_emp_lane, "spearman")),
+                rho_load_onset=float(edges.ref_load.corr(onset.fillna(censor), "spearman")))
 
     tdir = Path(a.tables_dir); tdir.mkdir(parents=True, exist_ok=True)
     per_run.to_csv(tdir / "per-run.csv", index=False, float_format="%.6g")
