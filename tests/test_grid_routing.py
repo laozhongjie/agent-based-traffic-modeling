@@ -127,7 +127,7 @@ def test_check_config():
 def test_build_run_writes_one_edge_routes_rerouting_and_teleport_time(build_run):
     cfg = _cfg()
     run_id, run_dir = build_run.build(cfg, "closure", 100, 1)
-    assert run_id == "grid4_idm_closure_n100_s1"
+    assert run_id == "grid_smoke_closure_n100_s1"           # run_prefix defaults to the name
     routes = re.findall(r'<route edges="([^"]*)"/>', (run_dir / "vehicles.rou.xml").read_text())
     car_edges = {e for e, *_ in demand.car_lanes(_net("closure"))}
     assert len(routes) == 100 and all(r in car_edges for r in routes)   # one edge each
@@ -151,8 +151,26 @@ def test_build_run_main_prints_only_the_run_id_on_stdout(build_run, monkeypatch,
                                       "--variant", "newlink", "--vehicles", "50", "--seed", "3"])
     build_run.main()
     out, err = capsys.readouterr()
-    assert out == "grid4_idm_newlink_n50_s3\n"
+    assert out == "grid_smoke_newlink_n50_s3\n"
     assert "scripts/grid_sweep.py" in err
+
+
+def test_build_run_run_prefix_and_run_folder_guard(build_run):
+    """[sweep] run_prefix replaces the name in the run id; a run folder holding another config's
+    run (its manifest.json) stops the build, while the same config may overwrite its own run."""
+    cfg = _cfg()
+    cfg["sweep"]["run_prefix"] = "gridA"
+    run_id, run_dir = build_run.build(cfg, "base", 50, 2)
+    assert run_id == "gridA_base_n50_s2" and run_dir == build_run.ROOT / "runs" / run_id
+    (run_dir / "manifest.json").write_text(json.dumps({"run_id": run_id, "config": cfg["_path"]}))
+    assert build_run.build(cfg, "base", 50, 2)[0] == run_id     # the same config runs again
+    other = dict(cfg, _path="configs/validation/grid_copy.toml")
+    with pytest.raises(SystemExit, match="run_prefix"):
+        build_run.build(other, "base", 50, 2)
+    for bad in ("grid A", "../grid", ""):
+        cfg["sweep"]["run_prefix"] = bad
+        with pytest.raises(SystemExit, match="run prefix"):
+            build_run.build(cfg, "base", 50, 2)
 
 
 @needs_sumo

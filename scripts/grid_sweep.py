@@ -1,7 +1,9 @@
 """Grid density sweep: build, run, check and summarise every run in a config.
 
 For every variant, vehicle count and seed in the config this script
-  1. writes the run inputs with scenarios/grid/build_run.py,
+  1. writes the run inputs into runs/<run_prefix>_<variant>_n<N>_s<seed>/ with
+     scenarios/grid/build_run.py (run_prefix: [sweep] run_prefix, or the config's name when
+     that is not set; build_run.py stops instead of overwriting another config's run),
   2. runs SUMO through TraCI with the constant-density controller
      (traffic_project.demand.ConstantDensity: the T4-D1 route rule of [controller], so no
      car arrives and N stays exact), writes the run record (traffic_project.runner) and
