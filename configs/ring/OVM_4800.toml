@@ -1,0 +1,49 @@
+# Python/TraCI-controlled Bando OVM finite-size sweep on release SUMO.
+# Run: python scripts/ring_sweep.py --config configs/ring/OVM_4800.toml
+
+name = "OVM_4800"
+scenario = "ring"
+model = "OVM"
+implementation = "traci"
+variant = "traci-dt0p2"
+
+[ring]
+length_m = 4800
+
+[run]
+end_s = 1800
+step_s = 0.2
+warmup_s = 600
+fcd_every_s = 1.0
+fcd_begin_s = 0.0
+
+[initial]
+mode = "uniform_jitter"
+jitter_m = 0.5
+
+[sweep]
+# 20, 25, 30 and 40 vehicles/km.
+vehicles = [96, 120, 144, 192]
+seeds = [501, 502, 503]
+
+[vtype]
+# SUMO insertion placeholder; Python/TraCI controls longitudinal speeds.
+carFollowModel = "Krauss"
+length = 5.0
+minGap = 2.0
+accel = 1.0
+decel = 1.5
+sigma = 0.0
+tau = 1.0
+maxSpeed = 30.0
+speedDev = 0
+speedFactor = 1
+
+[ovm]
+alpha = 1.0
+h_c = 25.0
+h_scale = 5.0
+
+[measure]
+jam_speed_mps = 15.0
+timeseries_every_s = 10

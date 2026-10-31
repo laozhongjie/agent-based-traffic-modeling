@@ -51,6 +51,11 @@ def test_run_sumo(tmp_path, ring_net):
     assert fcd_body(run_dir).count("<timestep") == 120  # t = 0 ... 119; the end time is exclusive
 
 
+def test_sumo_model_probe():
+    assert runner.sumo_has_model("IDM") is True
+    assert runner.sumo_has_model("definitely-not-a-model") is False
+
+
 def test_run_traci_matches_run_sumo(tmp_path, ring_net):
     a = make_run(tmp_path / "a", ring_net)
     b = make_run(tmp_path / "b", ring_net)

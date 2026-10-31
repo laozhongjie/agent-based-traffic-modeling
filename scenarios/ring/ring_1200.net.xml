@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-10-14T09:27:01.850675+08:00 by Eclipse SUMO netconvert 1.28.0
+<netconvertConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <node-files value="/Users/astra/PC5253 Traffic Project Cloned/agent-based-traffic-modeling/scenarios/ring/ring_1200.nod.xml"/>
+        <edge-files value="/Users/astra/PC5253 Traffic Project Cloned/agent-based-traffic-modeling/scenarios/ring/ring_1200.edg.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/Users/astra/PC5253 Traffic Project Cloned/agent-based-traffic-modeling/scenarios/ring/ring_1200.net.xml"/>
+    </output>
+
+    <junctions>
+        <no-internal-links value="true"/>
+    </junctions>
+
+</netconvertConfiguration>
+-->
+
+<net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="190.99,190.99" convBoundary="0.00,0.00,381.97,381.97" origBoundary="-190.99,-190.99,190.99,190.99" projParameter="!"/>
+
+    <edge id="e0" from="n0" to="n1" priority="-1" length="300.00" shape="381.97,190.99 380.34,215.92 375.46,240.42 367.43,264.07 356.38,286.48 342.50,307.25 326.03,326.03 307.25,342.50 286.48,356.38 264.07,367.43 240.42,375.46 215.92,380.34 190.99,381.97">
+        <lane id="e0_0" index="0" speed="30.00" length="300.00" shape="383.57,191.09 381.93,216.13 377.01,240.84 368.91,264.68 357.77,287.28 343.77,308.23 327.16,327.16 308.23,343.77 287.28,357.77 264.68,368.91 240.84,377.01 216.13,381.93 191.09,383.57"/>
+    </edge>
+    <edge id="e1" from="n1" to="n2" priority="-1" length="300.00" shape="190.99,381.97 166.06,380.34 141.56,375.46 117.90,367.43 95.49,356.38 74.72,342.50 55.94,326.03 39.47,307.25 25.59,286.48 14.54,264.07 6.51,240.42 1.63,215.92 0.00,190.99">
+        <lane id="e1_0" index="0" speed="30.00" length="300.00" shape="190.89,383.57 165.85,381.93 141.14,377.01 117.29,368.91 94.69,357.77 73.74,343.77 54.81,327.16 38.20,308.23 24.20,287.28 13.06,264.68 4.96,240.84 0.04,216.13 -1.60,191.09"/>
+    </edge>
+    <edge id="e2" from="n2" to="n3" priority="-1" length="300.00" shape="0.00,190.99 1.63,166.06 6.51,141.56 14.54,117.90 25.59,95.49 39.47,74.72 55.94,55.94 74.72,39.47 95.49,25.59 117.90,14.54 141.56,6.51 166.06,1.63 190.99,0.00">
+        <lane id="e2_0" index="0" speed="30.00" length="300.00" shape="-1.60,190.89 0.04,165.85 4.96,141.14 13.06,117.29 24.20,94.69 38.20,73.74 54.81,54.81 73.74,38.20 94.69,24.20 117.29,13.06 141.14,4.96 165.85,0.04 190.89,-1.60"/>
+    </edge>
+    <edge id="e3" from="n3" to="n0" priority="-1" length="300.00" shape="190.99,0.00 215.92,1.63 240.42,6.51 264.07,14.54 286.48,25.59 307.25,39.47 326.03,55.94 342.50,74.72 356.38,95.49 367.43,117.90 375.46,141.56 380.34,166.06 381.97,190.99">
+        <lane id="e3_0" index="0" speed="30.00" length="300.00" shape="191.09,-1.60 216.13,0.04 240.84,4.96 264.68,13.06 287.28,24.20 308.23,38.20 327.16,54.81 343.77,73.74 357.77,94.69 368.91,117.29 377.01,141.14 381.93,165.85 383.57,190.89"/>
+    </edge>
+
+    <junction id="n0" type="priority" x="381.97" y="190.99" incLanes="e3_0" intLanes="" shape="385.16,190.78 381.97,190.99 385.16,191.20 385.17,191.04 385.17,190.99 385.17,190.87">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+    <junction id="n1" type="priority" x="190.99" y="381.97" incLanes="e0_0" intLanes="" shape="191.20,385.16 190.99,381.97 190.78,385.16 190.94,385.17 190.99,385.17 191.11,385.17">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+    <junction id="n2" type="priority" x="0.00" y="190.99" incLanes="e1_0" intLanes="" shape="-3.19,191.20 0.00,190.99 -3.19,190.78 -3.20,190.94 -3.20,190.99 -3.20,191.11">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+    <junction id="n3" type="priority" x="190.99" y="0.00" incLanes="e2_0" intLanes="" shape="190.99,-0.00 191.20,-3.19 191.04,-3.20 190.99,-3.20 190.87,-3.20">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+
+    <connection from="e0" to="e1" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from="e1" to="e2" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from="e2" to="e3" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from="e3" to="e0" fromLane="0" toLane="0" dir="s" state="M"/>
+
+</net>

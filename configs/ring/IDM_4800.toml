@@ -1,0 +1,43 @@
+# Ring-road density sweep with SUMO in-built IDM Model
+# Run:  python scripts/ring_sweep.py --config configs/ring/IDM_4800.toml
+# Plot: python scripts/plot_ring.py  --config configs/ring/IDM_4800.toml
+# Used the NaSch as the template to build this 
+
+name = "IDM_4800"
+scenario = "ring"
+model = "IDM"
+
+[ring]
+length_m = 4800 
+
+[run]
+end_s = 1800
+step_s = 1.0
+warmup_s = 600     
+
+[initial]
+mode = "uniform_jitter"
+jitter_m = 0.5  
+
+[sweep]
+# Corresponds to: 
+# 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65 veh/km
+vehicles = [48, 72, 96, 120, 144, 168, 192, 216, 240, 264, 288, 312]
+seeds = [501, 502, 503]
+
+[vtype]
+carFollowModel = "IDM"
+length = 5.0                
+minGap = 2   # Specific parameters              
+accel = 1.0               
+decel = 1.5               
+tau = 1.5                 
+delta = 4                 
+maxSpeed = 30             
+speedDev = 0              
+speedFactor = 1
+emergencyDecel = 9.0
+
+[measure]
+jam_speed_mps = 15.0      
+timeseries_every_s = 10

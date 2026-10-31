@@ -1,0 +1,57 @@
+# Ring-road density sweep with NaSch Model.
+# Run:  python scripts/ring_sweep.py --config configs/ring/NaSch_1200_removal.toml
+# Plot: python scripts/plot_ring.py  --config configs/ring/NaSch_1200_removal.toml
+# # Vehicles use lattice-aligned initial positions; dynamic randomness is controlled by sigma and seed.
+# Then this removes the vehicles during 900s and 1200s (3 vehicles)
+
+name = "NaSch_1200_removal"
+scenario = "ring"
+model = "NaSch"
+
+[ring]
+length_m = 1200 
+
+[run]
+end_s = 1800
+step_s = 1.0
+warmup_s = 600
+
+[initial]
+mode = "nasch_lattice"
+
+[sweep]
+# Corresponds to: 
+# 25, 30, 35, 40,  veh/km
+vehicles = [30, 36, 42, 48]
+seeds = [501, 502, 503]
+
+[vtype]
+carFollowModel = "NaSch"
+length = 7.5
+minGap = 0.0
+accel = 7.5
+decel = 30.0
+emergencyDecel = 30.0
+tau = 1.0
+
+maxSpeed = 30.0
+sigma = 0.2 # This is the random probability, fixed here first
+speedDev = 0
+speedFactor = 1
+
+# Modified here
+[measure]
+jam_speed_mps = 15.0       
+timeseries_every_s = 10   
+
+# This is for the removal 
+[removal]
+settle_s = 60
+
+[[removal.events]]
+time_s = 900
+count = 3
+
+[[removal.events]]
+time_s = 1200
+count = 3

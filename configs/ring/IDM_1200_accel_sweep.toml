@@ -1,0 +1,46 @@
+# IDM acceleration-response sweep at fixed density.
+# Run: python scripts/accel_sweep.py --config configs/ring/IDM_1200_accel_sweep.toml
+
+name = "IDM_1200_accel_sweep"
+scenario = "ring"
+model = "IDM"
+variant = "accel-base"
+
+[ring]
+length_m = 1200
+
+[run]
+end_s = 1800
+step_s = 1.0
+warmup_s = 600
+fcd_every_s = 1.0
+fcd_begin_s = 0.0
+
+[initial]
+mode = "uniform_jitter"
+jitter_m = 0.5
+
+[sweep]
+# 36 vehicles / 1.2 km = 35 vehicles/km.
+vehicles = [42]
+seeds = [501, 502, 503]
+
+[vtype]
+carFollowModel = "IDM"
+length = 5.0
+minGap = 2.0
+# accel is replaced by scripts/accel_sweep.py for each experiment.
+accel = 1.0
+decel = 1.5
+tau = 1.5
+delta = 4
+maxSpeed = 30.0
+speedDev = 0
+speedFactor = 1
+emergencyDecel = 9.0
+# Make SUMO's default IDM internal integration interval explicit.
+stepping = 0.25
+
+[measure]
+jam_speed_mps = 15.0
+timeseries_every_s = 10
