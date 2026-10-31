@@ -2,9 +2,16 @@
 # Build: python scenarios/grid/build_net.py
 # Run:   python scripts/grid_sweep.py --config configs/validation/grid_smoke.toml
 #
+# Run rules agreed by the group 2026-10-27, the same as on C's city network
+# (configs/city/bugis_all_controller.toml), so grid and city results compare:
+#  - T4-D1 route rule: every car gets a random destination edge when it departs, again
+#    near its route end and within guard_m of its destination, so none arrives and N stays
+#    exact ([controller], src/traffic_project/demand.py); SUMO's rerouting device re-plans
+#    every route every 60 s on travel times averaged over 180 s ([rerouting]).
+#  - T3-D11 (agreed by member D for the grid): SUMO teleports a car stuck for 300 s, and
+#    every run reports its teleports (grid_teleports, grid_teleports_per_car_h_window).
+#
 # Placeholders until agreed with C for the network experiment:
-#  - route rule: fixed random walks (see scenarios/grid/build_run.py). Vehicles do
-#    not reroute, so this config cannot test for a Braess effect yet.
 #  - junction control (traffic lights at 3- and 4-way junctions, set in build_net.py)
 #  - IDM instead of OVM, and the congestion threshold, as in configs/ring/idm_sweep.toml
 
@@ -15,6 +22,8 @@ model = "IDM"
 [grid]
 n = 4                     # needs scenarios/grid/grid<n>x<n>_L<block>_<variant>.net.xml
 block_m = 200
+max_dropped_edges = 5     # T4-D2: grid_sweep.py stops when more base grid car edges than this are
+                          # missing from a variant (a rebuilt net renames edges), as on the city network
 
 [run]
 end_s = 1800
@@ -22,6 +31,24 @@ step_s = 1.0
 warmup_s = 600            # discarded before measuring
 jitter_m = 0.5            # max seeded offset of each start position
 keep_fcd = false          # FCD is deleted after measuring (about 200 MB at 900 vehicles)
+allow_teleport = true     # T3-D11: report teleports instead of failing the no_teleport check
+time_to_teleport_s = 300  # s a car may stand still before SUMO teleports it (SUMO's default);
+                          # -1 is written instead when allow_teleport = false
+
+[controller]              # T4-D1, src/traffic_project/demand.py, as on the city network
+retarget_at_remaining_edges = 3  # edges: new random destination when a car is this close to its route end
+destination = "uniform_edge"     # destination edge drawn uniformly from the base grid's car edges that
+                                 # the variant still has (T4-D2), so a new link is never a destination
+guard_m = 60              # m: re-target when the current edge ends less than this before the destination
+                          # by any path, and never draw a destination that close; must exceed
+                          # maxSpeed x step_s (30 m), checked by scripts/grid_sweep.py
+seed_offset = 7919        # destination draws use the seed seed + seed_offset (as on the city network)
+
+[rerouting]               # SUMO rerouting device (T4-D1), written into run.sumocfg by build_run.py
+probability = 1           # share of cars with the device
+period_s = 60             # s between re-plans of each car
+adaptation_interval_s = 10  # s between travel-time samples
+adaptation_steps = 18     # samples averaged: 18 x 10 s = 180 s
 
 [sweep]
 variants = ["base", "closure", "newlink"]
