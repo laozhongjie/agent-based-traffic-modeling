@@ -170,7 +170,7 @@ def figures(per_run, onset, btw, corr, heat, a, m):
     style(ax); fig.tight_layout(); fig.savefig(out / "03-g1-vs-density.png"); plt.close(fig)
 
     # 04 betweenness against onset density
-    fig, axs = plt.subplots(1, 2, figsize=(11, 4.4), dpi=130, sharey=False)
+    fig, axs = plt.subplots(1, 2, figsize=(11, 4.8), dpi=130, sharey=False)
     ks = sorted(onset.dropna().unique())
     cats = ks + [np.nan]
     labels = [f"{k:g}" for k in ks] + ["none\n(<= 40)"]
@@ -195,8 +195,9 @@ def figures(per_run, onset, btw, corr, heat, a, m):
                ylabel="betweenness per lane (measured free-flow times, log)")
         ax.set_title(f"{title}\nSpearman rho = {c.rho_censored:.2f} (all {int(c.n_edges)} edges, none ranked last); "
                      f"{c.rho_onset_only:.2f} ({int(c.n_onset)} with onset)\n"
-                     f"with the reference run's load removed: {c.partial_censored:.2f} and {c.partial_onset_only:.2f}; "
-                     f"load and lane count removed: {c.partial_load_lanes_censored:.2f} and {c.partial_load_lanes_onset_only:.2f}",
+                     f"with the reference run's load removed: {c.partial_censored:.2f} and {c.partial_onset_only:.2f}\n"
+                     f"with the load and lane count removed: {c.partial_load_lanes_censored:.2f} and "
+                     f"{c.partial_load_lanes_onset_only:.2f}",
                      fontsize=9)
         style(ax)
     axs[0].scatter([], [], color=BLUE, s=10, label="edge"); axs[0].plot([], [], color=ORANGE, lw=2, label="median")
