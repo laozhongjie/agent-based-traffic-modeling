@@ -140,16 +140,52 @@ def queue_output_measures(q, state, spill, edges, warmup_s, spacing_m):
 
 # ---------------------------------------------------------------- betweenness and onset
 
-def free_flow_time(edges):
-    """Free-flow travel time per edge (s) = length / speed limit (the cars' desired speed:
-    speedFactor = 1, speedDev = 0, maxSpeed above every limit)."""
-    return edges.length / edges.limit
+def free_flow_time(edges, speed=None):
+    """Free-flow travel time per edge (s) = length / speed.
+
+    speed  per-edge Series (m/s), e.g. the measured near-empty speed vref of the reference
+           run (T3-D7's empirical weights); default the speed limit (the cars' desired speed:
+           speedFactor = 1, speedDev = 0, maxSpeed above every limit)."""
+    v = edges.limit if speed is None else speed.reindex(edges.index)
+    return edges.length / v
 
 
-def junction_betweenness(net):
+def per_lane(btw, edges):
+    """Betweenness divided by the edge's lane count (T3-D7: per lane)."""
+    return btw / edges.lanes.reindex(btw.index)
+
+
+def reference_load(ref, edges, warmup_s):
+    """Car passages per edge in the reference run: cars leaving the edge (edgeData `left`),
+    summed over intervals beginning at or after warmup_s; edges never left count 0."""
+    d = ref[ref.begin >= warmup_s]
+    return d.groupby("edge")["left"].sum().reindex(edges.index).fillna(0.0)
+
+
+def partial_spearman(x, y, z):
+    """Spearman partial correlation of x and y given z: the Pearson correlation of the
+    residuals of rank(x) and rank(y) after a straight-line fit on rank(z) (ties get mean
+    ranks). Returns (r, two-sided p from t with n - 3 degrees of freedom); NaN when either
+    residual is constant."""
+    rx, ry, rz = (pd.Series(np.asarray(v, dtype=float)).rank().to_numpy() for v in (x, y, z))
+    A = np.column_stack([np.ones_like(rz), rz])
+    ex = rx - A @ np.linalg.lstsq(A, rx, rcond=None)[0]
+    ey = ry - A @ np.linalg.lstsq(A, ry, rcond=None)[0]
+    if np.allclose(ex, 0) or np.allclose(ey, 0):
+        return np.nan, np.nan
+    r = float(np.corrcoef(ex, ey)[0, 1])
+    dof = len(rx) - 3
+    if dof < 1:
+        return r, np.nan
+    t = r * np.sqrt(dof / max(1e-300, 1 - r * r))
+    return r, float(2 * stats.t.sf(abs(t), dof))
+
+
+def junction_betweenness(net, tt=None):
     """Normalised edge betweenness of every SUMO edge on the directed junction graph
-    (parallel edges kept as separate arcs), weight = free-flow travel time."""
-    tt = free_flow_time(net.edges)
+    (parallel edges kept as separate arcs), weight = free-flow travel time `tt` (default
+    `free_flow_time(net.edges)`, length over speed limit)."""
+    tt = free_flow_time(net.edges) if tt is None else tt
     g = nx.MultiDiGraph()
     for e, row in net.edges.iterrows():
         g.add_edge(row.frm, row.to, key=e, tt=float(tt[e]))
@@ -157,10 +193,11 @@ def junction_betweenness(net):
     return pd.Series({k: v for (_, _, k), v in b.items()}).reindex(net.edges.index).fillna(0.0)
 
 
-def turn_betweenness(net):
+def turn_betweenness(net, tt=None):
     """Normalised node betweenness on the turn graph (SUMO edges as nodes, every lane
-    connection between normal edges as an arc, weight = free-flow time of the edge left)."""
-    tt = free_flow_time(net.edges)
+    connection between normal edges as an arc, weight = free-flow time `tt` of the edge left;
+    default length over speed limit)."""
+    tt = free_flow_time(net.edges) if tt is None else tt
     g = nx.DiGraph()
     g.add_nodes_from(net.edges.index)
     g.add_weighted_edges_from(((a, b, float(tt[a])) for a, b in net.connections
@@ -179,15 +216,20 @@ def congested_shares(per_run):
     return df.groupby(level="density").mean().sort_index()
 
 
-def onset_correlation(btw, onset, censor_at):
+def onset_correlation(btw, onset, censor_at, load=None):
     """Spearman rank correlation between betweenness and onset density.
 
     onset NaN = never past the threshold in the sweep (right-censored). Returns a dict:
-    rho/p on edges with an onset only, and rho/p and Kendall tau-b with censored edges
-    set to `censor_at` (above every swept density, so they tie for the highest rank)."""
+    rho/p on edges with an onset only (NaN with 2 or fewer onsets), and rho/p and Kendall
+    tau-b with censored edges set to `censor_at` (above every swept density, so they tie for
+    the highest rank). With `load` (per-edge car passages in the reference run, T3-D7) it
+    adds rho_btw_load and the partial correlations given the load, partial_onset_only and
+    partial_censored (with their p), which ask whether network position predicts onset
+    beyond the demand an edge carries."""
     b, o = btw.reindex(onset.index), onset
     has = o.notna()
-    out = dict(n_edges=int(len(o)), n_onset=int(has.sum()), n_censored=int((~has).sum()))
+    out = dict(n_edges=int(len(o)), n_onset=int(has.sum()), n_censored=int((~has).sum()),
+               rho_onset_only=np.nan, p_onset_only=np.nan)
     if has.sum() > 2:
         r = stats.spearmanr(b[has], o[has])
         out.update(rho_onset_only=float(r.statistic), p_onset_only=float(r.pvalue))
@@ -196,4 +238,11 @@ def onset_correlation(btw, onset, censor_at):
     t = stats.kendalltau(b, filled)
     out.update(rho_censored=float(r.statistic), p_censored=float(r.pvalue),
                tau_censored=float(t.statistic), p_tau_censored=float(t.pvalue))
+    if load is not None:
+        ld = load.reindex(onset.index)
+        out["rho_btw_load"] = float(stats.spearmanr(b, ld).statistic)
+        po = partial_spearman(b[has], o[has], ld[has]) if has.sum() > 3 else (np.nan, np.nan)
+        pc = partial_spearman(b, filled, ld)
+        out.update(partial_onset_only=po[0], p_partial_onset_only=po[1],
+                   partial_censored=pc[0], p_partial_censored=pc[1])
     return out
