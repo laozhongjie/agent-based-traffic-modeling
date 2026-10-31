@@ -233,6 +233,52 @@ def test_onset_correlation_partial_on_load_and_few_onsets():
     assert np.isnan(few["rho_onset_only"]) and np.isnan(few["p_onset_only"])
 
 
+def test_partial_spearman_several_controls_and_edge_cases():
+    rng = np.random.default_rng(2)
+    n = 400
+    lanes = rng.integers(1, 4, n).astype(float)
+    load = rng.normal(0, 1, n)
+    onset = -2.0 * load + 3.0 * lanes + rng.normal(0, 0.5, n)      # load and lanes drive onset
+    btw = (np.exp(load) / lanes) * np.exp(rng.normal(0, 0.1, n))   # per lane: carries both
+    r1, _ = mm.partial_spearman(btw, onset, load)
+    assert r1 < -0.3                                  # load alone leaves the lane-count link
+    r2, p2 = mm.partial_spearman(btw, onset, np.column_stack([load, lanes]))
+    assert abs(r2) < abs(r1)                          # removing lanes too weakens it
+    # exact: the partial Pearson correlation of the ranks, from the inverse correlation matrix
+    R = np.column_stack([pd.Series(v).rank().to_numpy() for v in (btw, onset, load, lanes)])
+    P = np.linalg.inv(np.corrcoef(R, rowvar=False))
+    assert r2 == pytest.approx(-P[0, 1] / np.sqrt(P[0, 0] * P[1, 1]), abs=1e-10)
+    t = r2 * np.sqrt((n - 4) / (1 - r2 ** 2))
+    assert p2 == pytest.approx(2 * __import__("scipy").stats.t.sf(abs(t), n - 4), rel=1e-9)
+    # edge cases: a residual that is constant, and too few points for the degrees of freedom
+    assert np.isnan(mm.partial_spearman([1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4])[0])
+    r, p = mm.partial_spearman([1, 2, 3], [3, 1, 2], [1, 3, 2])
+    assert np.isnan(p)
+    with pytest.raises(ValueError):
+        mm.partial_spearman([1.0, np.nan, 3.0, 4.0], [1, 2, 3, 4], [4, 3, 2, 1])
+
+
+def test_free_flow_time_rejects_non_positive_speed():
+    net = make_net()
+    v = pd.Series(10.0, index=net.edges.index)
+    v["AB"] = 0.0
+    with pytest.raises(ValueError):
+        mm.free_flow_time(net.edges, v)
+
+
+def test_onset_correlation_load_and_lanes():
+    idx = [f"e{i}" for i in range(8)]
+    btw = pd.Series([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2], index=idx)
+    onset = pd.Series([5.0, 10.0, 15.0, 20.0, 25.0, np.nan, np.nan, np.nan], index=idx)
+    load = pd.Series([2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0], index=idx)
+    lanes = pd.Series([1, 2, 1, 2, 1, 2, 1, 2], index=idx)
+    out = mm.onset_correlation(btw, onset, censor_at=50.0, load=load, lanes=lanes)
+    for k in ("partial_load_lanes_onset_only", "partial_load_lanes_censored", "p_partial_load_lanes_censored"):
+        assert k in out
+    with pytest.raises(ValueError):
+        mm.onset_correlation(btw, onset, censor_at=50.0, load=load.drop("e0"))
+
+
 # ---------------------------------------------------------------- proposed sweep output
 
 def test_city_sweep_queue_output_flag_is_opt_in():

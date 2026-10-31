@@ -195,7 +195,8 @@ def figures(per_run, onset, btw, corr, heat, a, m):
                ylabel="betweenness per lane (measured free-flow times, log)")
         ax.set_title(f"{title}\nSpearman rho = {c.rho_censored:.2f} (all {int(c.n_edges)} edges, none ranked last); "
                      f"{c.rho_onset_only:.2f} ({int(c.n_onset)} with onset)\n"
-                     f"with the reference run's load removed: {c.partial_censored:.2f} and {c.partial_onset_only:.2f}",
+                     f"with the reference run's load removed: {c.partial_censored:.2f} and {c.partial_onset_only:.2f}; "
+                     f"load and lane count removed: {c.partial_load_lanes_censored:.2f} and {c.partial_load_lanes_onset_only:.2f}",
                      fontsize=9)
         style(ax)
     axs[0].scatter([], [], color=BLUE, s=10, label="edge"); axs[0].plot([], [], color=ORANGE, lw=2, label="median")
@@ -278,7 +279,8 @@ def main():
         on = cg.onset_density(shares, th)
         edges[f"onset_k_{th:g}"] = on
         for col in btw.columns:
-            rows.append(dict(threshold=th, graph=col, **mm.onset_correlation(edges[col], on, censor, load)))
+            rows.append(dict(threshold=th, graph=col,
+                             **mm.onset_correlation(edges[col], on, censor, load, net.edges.lanes)))
     corr = pd.DataFrame(rows)
     onset = edges[f"onset_k_{a.onset_threshold:g}"]
     # length as a confounder check: betweenness and onset against edge length
@@ -286,7 +288,11 @@ def main():
                 rho_length_onset=float(edges.length.corr(onset.fillna(censor), "spearman")),
                 rho_load_btw_junction=float(edges.ref_load.corr(edges.btw_junction, "spearman")),
                 rho_load_btw_turn_emp_lane=float(edges.ref_load.corr(edges.btw_turn_emp_lane, "spearman")),
-                rho_load_onset=float(edges.ref_load.corr(onset.fillna(censor), "spearman")))
+                rho_load_onset=float(edges.ref_load.corr(onset.fillna(censor), "spearman")),
+                partial_inv_lanes_onset_given_load=mm.partial_spearman(
+                    1.0 / edges.lanes[onset.notna()], onset.dropna(), edges.ref_load[onset.notna()])[0],
+                partial_inv_lanes_censored_given_load=mm.partial_spearman(
+                    1.0 / edges.lanes, onset.fillna(censor), edges.ref_load)[0])
 
     tdir = Path(a.tables_dir); tdir.mkdir(parents=True, exist_ok=True)
     per_run.to_csv(tdir / "per-run.csv", index=False, float_format="%.6g")

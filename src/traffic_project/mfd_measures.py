@@ -17,10 +17,14 @@ spillback       congestion.spillback (T3-D8): congested (T3-D1) and occupancy >=
                 occ_jam for 2 consecutive intervals, occ_jam = l / (l + minGap).
 onset density   congestion.onset_density (T3-D3): lowest swept density at which the edge's
                 seed-mean congested share of the measured intervals exceeds a threshold.
-betweenness     junction graph: SUMO edges as arcs between junctions, weight = free-flow
-                travel time length / speed limit; turn graph: SUMO edges as nodes, lane
-                connections as arcs (turn restrictions kept), arc weight = travel time of
-                the edge left.
+betweenness     junction graph: SUMO edges as arcs between junctions; turn graph: SUMO edges
+                as nodes, lane connections as arcs (turn restrictions kept), arc weight =
+                travel time of the edge left. Weights are free-flow travel times, length /
+                speed limit, or length / vref, the edge's measured near-empty speed (task
+                3's design, T3-D7); per_lane divides by the lane count.
+reference load  car passages per edge in the 2 veh/km reference run (cars leaving it after
+                warm-up); partial correlations remove it, and with it the lane count, since
+                per-lane betweenness carries 1/lanes and single-lane edges congest earlier.
 """
 import gzip
 import xml.etree.ElementTree as ET
@@ -147,6 +151,8 @@ def free_flow_time(edges, speed=None):
            run (T3-D7's empirical weights); default the speed limit (the cars' desired speed:
            speedFactor = 1, speedDev = 0, maxSpeed above every limit)."""
     v = edges.limit if speed is None else speed.reindex(edges.index)
+    if v.isna().any() or (v <= 0).any():
+        raise ValueError("free_flow_time: every edge needs a speed above 0")
     return edges.length / v
 
 
@@ -163,18 +169,29 @@ def reference_load(ref, edges, warmup_s):
 
 
 def partial_spearman(x, y, z):
-    """Spearman partial correlation of x and y given z: the Pearson correlation of the
-    residuals of rank(x) and rank(y) after a straight-line fit on rank(z) (ties get mean
-    ranks). Returns (r, two-sided p from t with n - 3 degrees of freedom); NaN when either
-    residual is constant."""
-    rx, ry, rz = (pd.Series(np.asarray(v, dtype=float)).rank().to_numpy() for v in (x, y, z))
-    A = np.column_stack([np.ones_like(rz), rz])
-    ex = rx - A @ np.linalg.lstsq(A, rx, rcond=None)[0]
-    ey = ry - A @ np.linalg.lstsq(A, ry, rcond=None)[0]
+    """Spearman partial correlation of x and y given the control(s) z: the Pearson
+    correlation of the residuals of rank(x) and rank(y) after a least-squares fit on an
+    intercept and the ranks of every control (ties get mean ranks).
+
+    z  shape (n,) for one control or (n, k) for k controls.
+    Returns (r, two-sided p from t with n - 2 - k degrees of freedom); r is NaN when either
+    residual is constant, p is NaN when there are no degrees of freedom left. Raises
+    ValueError on NaN input or mismatched lengths."""
+    x, y, z = (np.asarray(v, dtype=float) for v in (x, y, z))
+    z = z[:, None] if z.ndim == 1 else z
+    n = len(x)
+    if len(y) != n or z.shape[0] != n:
+        raise ValueError("partial_spearman: x, y and z need the same length")
+    if np.isnan(x).any() or np.isnan(y).any() or np.isnan(z).any():
+        raise ValueError("partial_spearman: NaN in the input")
+    rank = lambda v: pd.Series(v).rank().to_numpy()
+    A = np.column_stack([np.ones(n)] + [rank(z[:, j]) for j in range(z.shape[1])])
+    ex = rank(x) - A @ np.linalg.lstsq(A, rank(x), rcond=None)[0]
+    ey = rank(y) - A @ np.linalg.lstsq(A, rank(y), rcond=None)[0]
     if np.allclose(ex, 0) or np.allclose(ey, 0):
         return np.nan, np.nan
     r = float(np.corrcoef(ex, ey)[0, 1])
-    dof = len(rx) - 3
+    dof = n - 2 - z.shape[1]
     if dof < 1:
         return r, np.nan
     t = r * np.sqrt(dof / max(1e-300, 1 - r * r))
@@ -216,7 +233,7 @@ def congested_shares(per_run):
     return df.groupby(level="density").mean().sort_index()
 
 
-def onset_correlation(btw, onset, censor_at, load=None):
+def onset_correlation(btw, onset, censor_at, load=None, lanes=None):
     """Spearman rank correlation between betweenness and onset density.
 
     onset NaN = never past the threshold in the sweep (right-censored). Returns a dict:
@@ -225,7 +242,10 @@ def onset_correlation(btw, onset, censor_at, load=None):
     the highest rank). With `load` (per-edge car passages in the reference run, T3-D7) it
     adds rho_btw_load and the partial correlations given the load, partial_onset_only and
     partial_censored (with their p), which ask whether network position predicts onset
-    beyond the demand an edge carries."""
+    beyond the demand an edge carries. With `lanes` as well it adds the same partials with
+    the load and the lane count removed, partial_load_lanes_onset_only and
+    partial_load_lanes_censored: per-lane betweenness carries 1/lanes, and lane count
+    alone predicts onset at a given load."""
     b, o = btw.reindex(onset.index), onset
     has = o.notna()
     out = dict(n_edges=int(len(o)), n_onset=int(has.sum()), n_censored=int((~has).sum()),
@@ -240,9 +260,20 @@ def onset_correlation(btw, onset, censor_at, load=None):
                tau_censored=float(t.statistic), p_tau_censored=float(t.pvalue))
     if load is not None:
         ld = load.reindex(onset.index)
+        if ld.isna().any():
+            raise ValueError("onset_correlation: load is missing for some edges")
         out["rho_btw_load"] = float(stats.spearmanr(b, ld).statistic)
         po = partial_spearman(b[has], o[has], ld[has]) if has.sum() > 3 else (np.nan, np.nan)
         pc = partial_spearman(b, filled, ld)
         out.update(partial_onset_only=po[0], p_partial_onset_only=po[1],
                    partial_censored=pc[0], p_partial_censored=pc[1])
+        if lanes is not None:
+            ln = lanes.reindex(onset.index).astype(float)
+            if ln.isna().any():
+                raise ValueError("onset_correlation: lanes is missing for some edges")
+            zc = np.column_stack([ld, ln])
+            po = partial_spearman(b[has], o[has], zc[has.to_numpy()]) if has.sum() > 4 else (np.nan, np.nan)
+            pc = partial_spearman(b, filled, zc)
+            out.update(partial_load_lanes_onset_only=po[0], p_partial_load_lanes_onset_only=po[1],
+                       partial_load_lanes_censored=pc[0], p_partial_load_lanes_censored=pc[1])
     return out
