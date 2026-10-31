@@ -1,0 +1,10 @@
+{
+  "variant": "base",
+  "source_net": "bugis_all.net.xml",
+  "net": "bugis_all_base.net.xml",
+  "why": "netconvert rebuilds the inside of some junctions differently from the source net; roads, road-to-road turns and signal programs are identical. Use this file as the planning baseline so that variants differ from it only by their patch.",
+  "junctions_rebuilt": [
+    "cluster_206837678_233432823_235067702_240646291"
+  ],
+  "internal_edges_changed": 6
+}

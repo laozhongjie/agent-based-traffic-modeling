@@ -1,0 +1,412 @@
+{
+  "variant": "newlink",
+  "base_net": "bugis_all_base.net.xml",
+  "net": "bugis_all_newlink.net.xml",
+  "patch": [
+    "bugis_all_newlink.patch.xml",
+    "bugis_all_newlink.con.xml"
+  ],
+  "lane_length_m": 179945.81,
+  "baseline_lane_length_m": 179695.86,
+  "change": {
+    "type": "add",
+    "edges": [
+      "newlink_2015359629_cluster_240661028_240661099",
+      "newlink_cluster_240661028_240661099_2015359629"
+    ],
+    "from": "2015359629",
+    "to": "cluster_240661028_240661099",
+    "length_m": 148.021,
+    "speed_mps": 13.89,
+    "lanes": 1,
+    "rule": "largest cut in summed all-pairs free-flow time; both ends unsignalised; 20-200 m straight line; ties to smallest ids"
+  },
+  "build_check": {
+    "all_car_edges_reachable": true,
+    "normal_edges": {
+      "removed": [],
+      "added": [
+        "newlink_2015359629_cluster_240661028_240661099",
+        "newlink_cluster_240661028_240661099_2015359629"
+      ],
+      "changed": [
+        "190945734#1",
+        "190945738",
+        "480428601#0",
+        "538223034",
+        "711295367",
+        "75141904"
+      ]
+    },
+    "junctions_changed": [
+      "2015359629",
+      "cluster_240661028_240661099",
+      ":cluster_240661028_240661099_10_0"
+    ],
+    "signal_programs_changed": [],
+    "connections_removed": [],
+    "connections_added": [
+      "<connection from=\"190945738\" to=\"newlink_2015359629_cluster_240661028_240661099\" fromLane=\"0\" toLane=\"0\"/>",
+      "<connection from=\"711295367\" to=\"newlink_cluster_240661028_240661099_2015359629\" fromLane=\"0\" toLane=\"0\"/>",
+      "<connection from=\"75141904\" to=\"newlink_cluster_240661028_240661099_2015359629\" fromLane=\"3\" toLane=\"0\"/>",
+      "<connection from=\"newlink_2015359629_cluster_240661028_240661099\" to=\"480428601#0\" fromLane=\"0\" toLane=\"2\"/>",
+      "<connection from=\"newlink_2015359629_cluster_240661028_240661099\" to=\"538223034\" fromLane=\"0\" toLane=\"0\"/>",
+      "<connection from=\"newlink_cluster_240661028_240661099_2015359629\" to=\"190945734#1\" fromLane=\"0\" toLane=\"0\"/>"
+    ]
+  },
+  "ranking": [
+    {
+      "from": "2015359629",
+      "to": "cluster_240661028_240661099",
+      "from_at": {
+        "streets": [
+          "Republic Avenue"
+        ],
+        "lat_lon": [
+          1.30065,
+          103.86346
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.30178,
+          103.86275
+        ]
+      },
+      "length_m": 148.021,
+      "gain_s": 414333.174,
+      "gain_share": 0.009143,
+      "free_flow_time_now_s": [
+        106.3,
+        78.4
+      ]
+    },
+    {
+      "from": "2015359560",
+      "to": "cluster_240661028_240661099",
+      "from_at": {
+        "streets": [],
+        "lat_lon": [
+          1.30042,
+          103.86379
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.30178,
+          103.86275
+        ]
+      },
+      "length_m": 190.056,
+      "gain_s": 385889.452,
+      "gain_share": 0.008515,
+      "free_flow_time_now_s": [
+        109.4,
+        75.3
+      ]
+    },
+    {
+      "from": "2015359629",
+      "to": "6511980257",
+      "from_at": {
+        "streets": [
+          "Republic Avenue"
+        ],
+        "lat_lon": [
+          1.30065,
+          103.86346
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.30184,
+          103.86297
+        ]
+      },
+      "length_m": 141.925,
+      "gain_s": 326850.719,
+      "gain_share": 0.007213,
+      "free_flow_time_now_s": [
+        163.5,
+        77.5
+      ]
+    },
+    {
+      "from": "2015359296",
+      "to": "4734390171",
+      "from_at": {
+        "streets": [
+          "Nicoll Highway",
+          "Republic Avenue"
+        ],
+        "lat_lon": [
+          1.29977,
+          103.86212
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.30113,
+          103.86127
+        ]
+      },
+      "length_m": 178.498,
+      "gain_s": 322141.871,
+      "gain_share": 0.007109,
+      "free_flow_time_now_s": [
+        85.1,
+        99.4
+      ]
+    },
+    {
+      "from": "2015359629",
+      "to": "6687709521",
+      "from_at": {
+        "streets": [
+          "Republic Avenue"
+        ],
+        "lat_lon": [
+          1.30065,
+          103.86346
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.3019,
+          103.86307
+        ]
+      },
+      "length_m": 144.972,
+      "gain_s": 321341.566,
+      "gain_share": 0.007091,
+      "free_flow_time_now_s": [
+        162.8,
+        78.1
+      ]
+    },
+    {
+      "from": "2015359296",
+      "to": "245383652",
+      "from_at": {
+        "streets": [
+          "Nicoll Highway",
+          "Republic Avenue"
+        ],
+        "lat_lon": [
+          1.29977,
+          103.86212
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road",
+          "Sultan Gate"
+        ],
+        "lat_lon": [
+          1.30102,
+          103.86105
+        ]
+      },
+      "length_m": 182.918,
+      "gain_s": 320915.298,
+      "gain_share": 0.007082,
+      "free_flow_time_now_s": [
+        83.8,
+        100.7
+      ]
+    },
+    {
+      "from": "2015359296",
+      "to": "245383578",
+      "from_at": {
+        "streets": [
+          "Nicoll Highway",
+          "Republic Avenue"
+        ],
+        "lat_lon": [
+          1.29977,
+          103.86212
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Aliwal Street",
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.3013,
+          103.86164
+        ]
+      },
+      "length_m": 177.851,
+      "gain_s": 312273.387,
+      "gain_share": 0.006891,
+      "free_flow_time_now_s": [
+        87.3,
+        97.4
+      ]
+    },
+    {
+      "from": "2015359560",
+      "to": "6511980257",
+      "from_at": {
+        "streets": [],
+        "lat_lon": [
+          1.30042,
+          103.86379
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.30184,
+          103.86297
+        ]
+      },
+      "length_m": 181.245,
+      "gain_s": 291044.509,
+      "gain_share": 0.006422,
+      "free_flow_time_now_s": [
+        166.6,
+        74.4
+      ]
+    },
+    {
+      "from": "2015359560",
+      "to": "6687709521",
+      "from_at": {
+        "streets": [],
+        "lat_lon": [
+          1.30042,
+          103.86379
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Beach Road"
+        ],
+        "lat_lon": [
+          1.3019,
+          103.86307
+        ]
+      },
+      "length_m": 182.565,
+      "gain_s": 287390.452,
+      "gain_share": 0.006342,
+      "free_flow_time_now_s": [
+        165.9,
+        75.0
+      ]
+    },
+    {
+      "from": "2015359296",
+      "to": "6246189431",
+      "from_at": {
+        "streets": [
+          "Nicoll Highway",
+          "Republic Avenue"
+        ],
+        "lat_lon": [
+          1.29977,
+          103.86212
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Aliwal Street"
+        ],
+        "lat_lon": [
+          1.30144,
+          103.86158
+        ]
+      },
+      "length_m": 194.271,
+      "gain_s": 285280.448,
+      "gain_share": 0.006295,
+      "free_flow_time_now_s": [
+        98.1,
+        97.6
+      ]
+    },
+    {
+      "from": "574458676",
+      "to": "cluster_13503436872_4737040981",
+      "from_at": {
+        "streets": [
+          "Dorset Road",
+          "Truro Road"
+        ],
+        "lat_lon": [
+          1.31339,
+          103.85032
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Farrer Park Road",
+          "Gloucester Road"
+        ],
+        "lat_lon": [
+          1.31289,
+          103.85202
+        ]
+      },
+      "length_m": 197.504,
+      "gain_s": 269542.95,
+      "gain_share": 0.005948,
+      "free_flow_time_now_s": [
+        92.2,
+        16.6
+      ]
+    },
+    {
+      "from": "3786038513",
+      "to": "410926262",
+      "from_at": {
+        "streets": [
+          "Bukit Timah Road",
+          "Tekka Lane"
+        ],
+        "lat_lon": [
+          1.30674,
+          103.84885
+        ]
+      },
+      "to_at": {
+        "streets": [
+          "Bukit Timah Road",
+          "Mayne Road"
+        ],
+        "lat_lon": [
+          1.30623,
+          103.84917
+        ]
+      },
+      "length_m": 66.528,
+      "gain_s": 253080.685,
+      "gain_share": 0.005585,
+      "free_flow_time_now_s": [
+        60.4,
+        59.3
+      ]
+    }
+  ],
+  "baseline_all_pairs_free_flow_time_s": 45317012.3
+}

@@ -1,0 +1,169 @@
+{
+  "variant": "lanecut",
+  "base_net": "bugis_all_base.net.xml",
+  "net": "bugis_all_lanecut.net.xml",
+  "patch": [
+    "bugis_all_lanecut.patch.xml"
+  ],
+  "lane_length_m": 179518.26,
+  "baseline_lane_length_m": 179695.86,
+  "change": {
+    "type": "lanecut",
+    "segment": "538223044#0~630437927#0",
+    "edges": [
+      "538223044#0",
+      "630437927#0"
+    ],
+    "street": "Victoria Street",
+    "lanes_before": [
+      4,
+      3
+    ],
+    "lanes_after": [
+      3,
+      2
+    ],
+    "rule": "the closure's segment, 1 lane(s) removed per direction"
+  },
+  "build_check": {
+    "all_car_edges_reachable": true,
+    "normal_edges": {
+      "removed": [],
+      "added": [],
+      "changed": [
+        "538223044#0",
+        "630437927#0"
+      ]
+    },
+    "junctions_changed": [
+      "cluster_206833833_233432607",
+      "cluster_206833848_233432633",
+      ":cluster_206833833_233432607_13_0",
+      ":cluster_206833833_233432607_13_1",
+      ":cluster_206833848_233432633_11_0"
+    ],
+    "signal_programs_changed": [
+      "cluster_206833833_233432607",
+      "cluster_206833848_233432633"
+    ],
+    "connections_removed": [
+      "<connection from=\"538223044#0\" to=\"75561429#0\" fromLane=\"3\" toLane=\"3\"/>",
+      "<connection from=\"630437927#0\" to=\"630439201#0\" fromLane=\"2\" toLane=\"2\"/>",
+      "<connection from=\"667070844#0\" to=\"630437927#0\" fromLane=\"1\" toLane=\"2\"/>",
+      "<connection from=\"781728499#0\" to=\"630437927#0\" fromLane=\"2\" toLane=\"2\"/>"
+    ],
+    "connections_added": []
+  },
+  "ranking": [
+    {
+      "segment": "539844638",
+      "edges": [
+        "539844638"
+      ],
+      "betweenness": 65646.0,
+      "keeps_connected": false,
+      "cut_off_edges": 6
+    },
+    {
+      "segment": "538223044#0~630437927#0",
+      "edges": [
+        "538223044#0",
+        "630437927#0"
+      ],
+      "betweenness": 59741.0,
+      "keeps_connected": true,
+      "cut_off_edges": 0
+    },
+    {
+      "segment": "481102416",
+      "edges": [
+        "481102416"
+      ],
+      "betweenness": 56815.0,
+      "keeps_connected": false,
+      "cut_off_edges": 22
+    },
+    {
+      "segment": "829560362",
+      "edges": [
+        "829560362"
+      ],
+      "betweenness": 56147.0,
+      "keeps_connected": false,
+      "cut_off_edges": 9
+    },
+    {
+      "segment": "829565054",
+      "edges": [
+        "829565054"
+      ],
+      "betweenness": 50234.0,
+      "keeps_connected": false,
+      "cut_off_edges": 1
+    },
+    {
+      "segment": "396336423#0~585630264#0",
+      "edges": [
+        "396336423#0",
+        "585630264#0"
+      ],
+      "betweenness": 49209.0,
+      "keeps_connected": false,
+      "cut_off_edges": 7
+    },
+    {
+      "segment": "74628574#0",
+      "edges": [
+        "74628574#0"
+      ],
+      "betweenness": 47718.0,
+      "keeps_connected": true,
+      "cut_off_edges": 0
+    },
+    {
+      "segment": "654982348",
+      "edges": [
+        "654982348"
+      ],
+      "betweenness": 47155.0,
+      "keeps_connected": false,
+      "cut_off_edges": 10
+    },
+    {
+      "segment": "654982349",
+      "edges": [
+        "654982349"
+      ],
+      "betweenness": 47155.0,
+      "keeps_connected": false,
+      "cut_off_edges": 10
+    },
+    {
+      "segment": "539844639",
+      "edges": [
+        "539844639"
+      ],
+      "betweenness": 46487.0,
+      "keeps_connected": false,
+      "cut_off_edges": 2
+    },
+    {
+      "segment": "176174561#0",
+      "edges": [
+        "176174561#0"
+      ],
+      "betweenness": 45333.0,
+      "keeps_connected": false,
+      "cut_off_edges": 1
+    },
+    {
+      "segment": "480488531#0",
+      "edges": [
+        "480488531#0"
+      ],
+      "betweenness": 45333.0,
+      "keeps_connected": false,
+      "cut_off_edges": 1
+    }
+  ]
+}
