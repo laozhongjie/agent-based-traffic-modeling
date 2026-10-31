@@ -51,6 +51,8 @@ adaptation_interval_s = 10  # s between travel-time samples
 adaptation_steps = 18     # samples averaged: 18 x 10 s = 180 s
 
 [sweep]
+# run_prefix is not set, so runs go to runs/grid_smoke_<variant>_n<N>_s<seed>/ (the name);
+# a copied config with a new name gets its own run folders without setting it.
 variants = ["base", "closure", "newlink"]
 vehicles = [50, 150, 300, 450, 600, 750, 900]
 seeds = [1, 2]

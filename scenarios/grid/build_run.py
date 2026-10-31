@@ -24,14 +24,21 @@ Usage (from the repository root):
     python scenarios/grid/build_run.py --config configs/validation/grid_smoke.toml \
         --variant base --vehicles 300 --seed 1
 Writes runs/<run-id>/vehicles.rou.xml and run.sumocfg, with
-run-id = grid<n>_<model>_<variant>_n<N>_s<seed>, and prints the run-id (alone on stdout,
+run-id = <run_prefix>_<variant>_n<N>_s<seed>, and prints the run-id (alone on stdout,
 which grid_sweep.py reads; the note that the run needs the controller goes to stderr).
+run_prefix is [sweep] run_prefix of the config, or the config's name when that is not set
+(as [sweep] run_prefix on the city network, scripts/city_sweep.py), so two grid configs
+never share run folders by accident. A run folder that already holds a run of another
+config (its manifest.json names another config file) stops the build instead of being
+overwritten; running the same config again overwrites its own runs.
 The network scenarios/grid/grid<n>x<n>_L<block>_<variant>.net.xml must exist
 (see build_net.py).
 """
 import argparse
+import json
 import os
 import random
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -40,6 +47,26 @@ from traffic_project import ROOT, config
 NEEDS_CONTROLLER = ("this run needs the constant-density controller of scripts/grid_sweep.py "
                     "(T4-D1): plain sumo or sumo-gui would let every vehicle arrive at the end "
                     "of its one-edge start route and leave")
+
+
+def run_prefix(cfg):
+    """[sweep] run_prefix, or the config's name when it is not set."""
+    prefix = cfg.get("sweep", {}).get("run_prefix", cfg["name"])
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", prefix):
+        raise SystemExit(f"run prefix {prefix!r} ([sweep] run_prefix, or name) may hold only "
+                         "letters, digits, '_', '.' and '-': it names folders under runs/")
+    return prefix
+
+
+def check_run_dir(run_dir, cfg):
+    """Stop when run_dir holds a run of another config, which this build would overwrite."""
+    manifest = run_dir / "manifest.json"
+    if not manifest.exists():
+        return
+    old = json.loads(manifest.read_text()).get("config")
+    if old != cfg["_path"]:
+        raise SystemExit(f"{run_dir} holds a run of {old}, not of {cfg['_path']}: give this config its own "
+                         "name, or its own [sweep] run_prefix, so it does not overwrite that run")
 
 
 def read_net(path):
@@ -79,8 +106,9 @@ def build(cfg, variant, n, seed):
         raise SystemExit(f"{n} vehicles do not fit: spacing {spacing:.2f} m, "
                          f"jitter {jitter} m, need {need} m + 2 * jitter")
 
-    run_id = f"grid{grid['n']}_{cfg['model'].lower()}_{variant}_n{n}_s{seed}"
+    run_id = f"{run_prefix(cfg)}_{variant}_n{n}_s{seed}"
     run_dir = ROOT / "runs" / run_id
+    check_run_dir(run_dir, cfg)
     run_dir.mkdir(parents=True, exist_ok=True)
 
     rng = random.Random(seed)
