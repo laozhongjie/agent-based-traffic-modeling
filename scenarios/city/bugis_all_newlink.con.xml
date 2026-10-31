@@ -1,0 +1,8 @@
+<connections>
+    <connection from="190945738" to="newlink_2015359629_cluster_240661028_240661099" fromLane="0" toLane="0"/>
+    <connection from="newlink_cluster_240661028_240661099_2015359629" to="190945734#1" fromLane="0" toLane="0"/>
+    <connection from="711295367" to="newlink_cluster_240661028_240661099_2015359629" fromLane="0" toLane="0"/>
+    <connection from="75141904" to="newlink_cluster_240661028_240661099_2015359629" fromLane="3" toLane="0"/>
+    <connection from="newlink_2015359629_cluster_240661028_240661099" to="480428601#0" fromLane="0" toLane="2"/>
+    <connection from="newlink_2015359629_cluster_240661028_240661099" to="538223034" fromLane="0" toLane="0"/>
+</connections>

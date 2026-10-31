@@ -1,0 +1,4 @@
+<edges>
+    <edge id="newlink_2015359629_cluster_240661028_240661099" from="2015359629" to="cluster_240661028_240661099" numLanes="1" speed="13.89" length="148.021"/>
+    <edge id="newlink_cluster_240661028_240661099_2015359629" from="cluster_240661028_240661099" to="2015359629" numLanes="1" speed="13.89" length="148.021"/>
+</edges>
