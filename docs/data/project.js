@@ -423,13 +423,13 @@ window.PROJECT = {
           detail: {
             en: [
               "Choose a district, preferably in Singapore with several arterial roads, so it can be compared with LTA data",
-              "Import it from OpenStreetMap with OSMnx and netconvert",
-              "Spot-check lane counts and speed limits on main roads; OSM errors would carry into every result"
+              "Import raw OpenStreetMap data with netconvert (OSMnx's export loses turn restrictions and lane tags)",
+              "Spot-check: the network matches OSM's lane counts and speed limits on 18 of 18 main roads; whether OSM matches the street is an optional Street View check"
             ],
             zh: [
               "选定城区，优先新加坡并包含若干条主干道，便于和 LTA 数据对照",
-              "用 OSMnx 和 netconvert 从 OpenStreetMap 导入 SUMO",
-              "抽查主要道路的车道数和限速；OSM 数据如有错误，会影响后续所有结果"
+              "用 netconvert 导入 OpenStreetMap 原始数据（OSMnx 导出时会丢失转向限制和车道标签）",
+              "抽查：路网中 18 条主要道路的车道数和限速全部与 OSM 一致；OSM 与实际道路是否一致，可选用街景核对"
             ]
           }
         },
@@ -468,12 +468,12 @@ window.PROJECT = {
           text: { en: "Implement the TraCI controller for constant network density", zh: "实现保持网络密度恒定的 TraCI 控制器" },
           detail: {
             en: [
-              "With TraCI, give a vehicle that reaches its destination a new random destination",
+              "With TraCI, give a vehicle nearing the end of its route a new random destination, so none arrives; every car re-plans its route every 60 s",
               "This keeps the number of vehicles in the network constant",
               "Network density = vehicles in the network ÷ total lane length; controlling only the inflow gives no well-defined density"
             ],
             zh: [
-              "用 TraCI 给到达终点的车辆分配新的随机目的地",
+              "用 TraCI 给接近路线终点的车辆分配新的随机目的地，使车辆不会到达终点；每辆车每 60 秒重新规划一次路线",
               "使路网内车辆数保持不变",
               "网络密度 = 路网内车辆数 ÷ 车道总长度；只控制进入需求，就得不到确定的网络密度"
             ]
@@ -487,13 +487,13 @@ window.PROJECT = {
               "Validate on D's 4×4 grid first",
               "Sweep network density from low to high, several seeds per density",
               "Export trajectory clips of a few representative runs for replay on the site",
-              "The peak of the MFD gives the network critical density (RQ2)"
+              "The top of the MFD gives the maximum flow and the critical density; in the city the top is flat from 20 to 35 veh/km, so the critical density is a range (RQ2)"
             ],
             zh: [
               "先在 D 的 4×4 网格上验证",
               "由低到高扫描网络密度，每个密度多个随机种子",
               "导出少量代表性运行的车辆轨迹片段，供网站回放",
-              "宏观基本图的峰值给出网络临界密度（RQ2）"
+              "宏观基本图的顶部给出最大流量和临界密度；在城市路网中，这一顶部在 20–35 veh/km 之间是平的，因此临界密度是一个区间（RQ2）"
             ]
           }
         },
