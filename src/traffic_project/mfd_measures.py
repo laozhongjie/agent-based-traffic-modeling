@@ -258,6 +258,8 @@ def onset_correlation(btw, onset, censor_at, load=None, lanes=None):
     t = stats.kendalltau(b, filled)
     out.update(rho_censored=float(r.statistic), p_censored=float(r.pvalue),
                tau_censored=float(t.statistic), p_tau_censored=float(t.pvalue))
+    if lanes is not None and load is None:
+        raise ValueError("onset_correlation: lanes needs load (the lane count is removed with it)")
     if load is not None:
         ld = load.reindex(onset.index)
         if ld.isna().any():

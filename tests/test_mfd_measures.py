@@ -267,16 +267,30 @@ def test_free_flow_time_rejects_non_positive_speed():
 
 
 def test_onset_correlation_load_and_lanes():
-    idx = [f"e{i}" for i in range(8)]
-    btw = pd.Series([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2], index=idx)
-    onset = pd.Series([5.0, 10.0, 15.0, 20.0, 25.0, np.nan, np.nan, np.nan], index=idx)
-    load = pd.Series([2.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0], index=idx)
-    lanes = pd.Series([1, 2, 1, 2, 1, 2, 1, 2], index=idx)
+    idx = [f"e{i}" for i in range(10)]
+    btw = pd.Series([0.9, 0.85, 0.7, 0.65, 0.5, 0.45, 0.3, 0.25, 0.2, 0.1], index=idx)
+    onset = pd.Series([5.0, 10.0, 7.5, 20.0, 15.0, 25.0, np.nan, 30.0, np.nan, np.nan], index=idx)
+    load = pd.Series([3.0, 1.0, 4.0, 2.0, 6.0, 5.0, 2.5, 7.0, 1.5, 8.0], index=idx)
+    lanes = pd.Series([1, 2, 1, 3, 2, 1, 3, 2, 1, 2], index=idx)          # not collinear with load
     out = mm.onset_correlation(btw, onset, censor_at=50.0, load=load, lanes=lanes)
-    for k in ("partial_load_lanes_onset_only", "partial_load_lanes_censored", "p_partial_load_lanes_censored"):
-        assert k in out
+    filled = onset.fillna(50.0)
+    R = np.column_stack([v.rank().to_numpy() for v in (btw, filled, load, lanes.astype(float))])
+    P = np.linalg.inv(np.corrcoef(R, rowvar=False))
+    assert out["partial_load_lanes_censored"] == pytest.approx(-P[0, 1] / np.sqrt(P[0, 0] * P[1, 1]), abs=1e-10)
+    assert np.isfinite(out["partial_load_lanes_onset_only"])
     with pytest.raises(ValueError):
         mm.onset_correlation(btw, onset, censor_at=50.0, load=load.drop("e0"))
+    with pytest.raises(ValueError):
+        mm.onset_correlation(btw, onset, censor_at=50.0, load=load, lanes=lanes.drop("e0"))
+    with pytest.raises(ValueError):
+        mm.onset_correlation(btw, onset, censor_at=50.0, lanes=lanes)          # lanes without load
+    # too few onsets for the partials: 3 onsets with load, 4 with load and lanes
+    three = pd.Series([5.0, 10.0, 15.0] + [np.nan] * 7, index=idx)
+    few = mm.onset_correlation(btw, three, censor_at=50.0, load=load, lanes=lanes)
+    assert np.isnan(few["partial_onset_only"]) and np.isnan(few["partial_load_lanes_onset_only"])
+    four = pd.Series([5.0, 10.0, 15.0, 20.0] + [np.nan] * 6, index=idx)
+    f4 = mm.onset_correlation(btw, four, censor_at=50.0, load=load, lanes=lanes)
+    assert np.isfinite(f4["partial_onset_only"]) and np.isnan(f4["partial_load_lanes_onset_only"])
 
 
 # ---------------------------------------------------------------- proposed sweep output
