@@ -202,8 +202,7 @@ def city_summary(edgedata_file, ref_edgedata_file, net_path, summary_xml, measur
     occ_jam = m["veh_length_m"] / (m["veh_length_m"] + m["min_gap_m"])
     spill = cg.spillback(state, cg.wide(runm, "occupancy", net.edges), occ_jam,
                          m["spillback_occ_frac"], m["persist_m"])
-    rises = np.diff(np.vstack([np.zeros((1, spill.shape[1])), spill.to_numpy()]), axis=0) == 1
-    spill_events = int(rises[keep].sum())
+    spill_events = int(cg.rises(spill.to_numpy())[keep].sum())
     outflow = runm.groupby("begin").left.sum().reindex(state.index).to_numpy()
     s_run = read_summary_xml(summary_xml)
     w_run = s_run[:, 0] >= warmup_s

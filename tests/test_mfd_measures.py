@@ -50,12 +50,6 @@ def test_queue_table_halted_metres_and_ratio():
     assert halted.loc[0, "AC"] == 0.0
 
 
-def test_rises_counts_first_row_and_transitions():
-    x = np.array([[1, 0], [1, 1], [0, 1], [1, 0]])
-    # column 0: rise at row 0 and row 3; column 1: rise at row 1
-    assert mm.rises(x).tolist() == [1, 1, 0, 1]
-
-
 def test_run_measures_on_two_cycle_window():
     net = make_net()
     E = net.edges

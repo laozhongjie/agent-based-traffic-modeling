@@ -52,14 +52,6 @@ def queue_table(df, edges, period_s, veh_length_m, min_gap_m):
     return halted, queue_m, ratio
 
 
-def rises(state01):
-    """Number of 0 -> 1 transitions per row of a 0/1 table, counting a 1 in the first row
-    as a rise (as measurements.city_summary counts spillback events)."""
-    x = np.asarray(state01, dtype=np.int8)
-    prev = np.vstack([np.zeros((1, x.shape[1]), dtype=np.int8), x[:-1]])
-    return ((x == 1) & (prev == 0)).sum(axis=1)
-
-
 def run_measures(run, state, edges, warmup_s, period_s, n_vehicles, m):
     """Per-run queue, spillback and flow cross-checks over intervals beginning >= warmup_s.
 
@@ -78,6 +70,7 @@ def run_measures(run, state, edges, warmup_s, period_s, n_vehicles, m):
     sp, st = spill.to_numpy()[keep], state.to_numpy()[keep]
     n_int = len(win)
     hours = n_int * period_s / 3600
+    n_events = int(cg.rises(spill.to_numpy())[keep].sum())   # counted as city_summary does
     w = run[run.begin >= warmup_s]
     vkt_m = float((w.sampledSeconds * w.speed.fillna(0.0)).sum())   # vehicle-metres on normal edges
     summary = dict(
@@ -91,8 +84,8 @@ def run_measures(run, state, edges, warmup_s, period_s, n_vehicles, m):
         queue_ratio_p95=float(np.percentile(r, 95)),
         spill_edge_share=float(sp.mean()),
         spill_len_share=float((sp * lane_len).sum(axis=1).mean() / lane_len.sum()),
-        spill_events=int(rises(spill.to_numpy())[keep].sum()),
-        spill_events_per_h=float(rises(spill.to_numpy())[keep].sum() / hours),
+        spill_events=n_events,
+        spill_events_per_h=float(n_events / hours),
         spill_edges_ever=int(sp.any(axis=0).sum()),
         spill_given_congested=float(sp.sum() / st.sum()) if st.sum() else np.nan,
         edgedata_flow_veh_h=vkt_m / (lane_len.sum() * n_int * period_s) * 3600,
