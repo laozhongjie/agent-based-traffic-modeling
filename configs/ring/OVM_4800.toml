@@ -22,9 +22,9 @@ mode = "uniform_jitter"
 jitter_m = 0.5
 
 [sweep]
-# 20, 25, 30 and 40 vehicles/km.
-vehicles = [96, 120, 144, 192]
-seeds = [501, 502, 503]
+# For reproducibility to rerun entire pannel
+vehicles = [48, 72, 96, 120, 144, 168, 192, 216, 240, 264, 288, 312]
+seeds = [501] # One run should be find as patterns are almost similar
 
 [vtype]
 # SUMO insertion placeholder; Python/TraCI controls longitudinal speeds.

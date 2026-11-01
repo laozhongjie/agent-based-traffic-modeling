@@ -26,7 +26,7 @@ jitter_m = 0.5
 
 [sweep]
 # 20, 25, 30 and 40 vehicles/km.
-vehicles = [12, 15, 18, 24]
+vehicles = [6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39]
 seeds = [501, 502, 503]
 
 [vtype]
