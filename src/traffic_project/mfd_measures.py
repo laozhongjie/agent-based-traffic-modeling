@@ -13,8 +13,11 @@ queue (per edge e and interval t, from edgeData)
     queue_ratio  = queue_m / edge length. A cycle mean: the queue at the end of red is
                    longer (SUMO's aggregated queue-output gives that maximum; see
                    read_queue_output).
-spillback       congestion.spillback (T3-D8): congested (T3-D1) and occupancy >= 0.8 x
-                occ_jam for 2 consecutive intervals, occ_jam = l / (l + minGap).
+spillback       congestion.spillback: congested and occupancy >= 0.8 x occ_jam, occ_jam =
+                l / (l + minGap), for 2 consecutive intervals. The congested state is itself
+                debounced over 2 intervals, so from free flow an edge enters spillback in the
+                third slow interval in a row (occupancy high in the second and third), as the
+                sweep's city_spillback_events counts it.
 onset density   congestion.onset_density (T3-D3): lowest swept density at which the edge's
                 seed-mean congested share of the measured intervals exceeds a threshold.
 betweenness     junction graph: SUMO edges as arcs between junctions; turn graph: SUMO edges
