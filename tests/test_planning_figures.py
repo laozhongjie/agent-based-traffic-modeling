@@ -167,3 +167,29 @@ def test_critical_density_comes_from_the_seed_mean_curve():
     t = pf.compare(runs, 3.25, ["base", "closure"])[0].set_index("variant")
     assert t.loc["base", "k_half"] == pytest.approx(expect)
     assert t.loc["closure", "d_k_half"] == pytest.approx(t.loc["closure", "k_half"] - expect)
+
+
+def test_extra_seed_tables_join_the_main_sweep(tmp_path):
+    _sweep_csv(tmp_path, "base", 1800)
+    _sweep_csv(tmp_path, "closure", 1800)
+    extra = pd.read_csv(tmp_path / "t_base.csv").assign(seed=4, run_id="p_base_k10_s4")
+    extra.to_csv(tmp_path / "t_base_more.csv", index=False)
+    names = {"base": ["t_base", "t_base_more"], "closure": "t_closure"}
+    runs, _ = pf.load_sweeps(names, {v: tmp_path for v in names})
+    assert sorted(runs[runs.variant == "base"].seed) == [1, 4]
+    assert set(runs.table) == {"t_base", "t_base_more", "t_closure"}
+    extra.assign(seed=1).to_csv(tmp_path / "t_base_more.csv", index=False)   # same density and seed again
+    with pytest.raises(SystemExit, match="in two tables"):
+        pf.load_sweeps(names, {v: tmp_path for v in names})
+
+
+def test_extra_tables_must_share_the_run_settings():
+    main = {"run": {"end_s": 7200, "time_to_teleport_s": 300}, "vehicle": {"tau": 1.5},
+            "controller": {}, "rerouting": {}, "network": {"net_file": "a", "baseline_net_file": "b"},
+            "sweep": {"seeds": [1, 2, 3]}}
+    seeds = dict(main, sweep={"seeds": [4, 5]})                     # other seeds and densities: fine
+    assert pf.check_same_settings(main, seeds) == {}
+    tp = dict(main, run={"end_s": 7200, "time_to_teleport_s": 1200})  # a teleport-sensitivity set
+    assert pf.check_same_settings(main, tp) == {"run.time_to_teleport_s": (300, 1200)}
+    other_net = dict(main, network={"net_file": "c", "baseline_net_file": "b"})
+    assert "network.net_file" in pf.check_same_settings(main, other_net)

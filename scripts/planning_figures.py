@@ -54,8 +54,15 @@ traffic_project.export_web (see export_site). Export the four sweeps themselves 
 scripts/export_web.py first (on the computer that ran them), so planning.js can name their
 provenance; the maps stay figures (PNG) for the report.
 
+Extra seeds: --extra VARIANT=NAME joins another sweep table of a variant (e.g. more seeds at some
+densities) to its main sweep; repeatable. Its config, if present in the config folder, must match
+the main config in [run], [vehicle], [controller], [rerouting] and the nets (so a teleport
+sensitivity set is refused), and a density and seed in both tables stops the script. Means and
+ranges then run over all seeds a density has, and paired comparisons over the seeds both sides have.
+
 Usage (from the repository root), after the four planning sweeps:
     python scripts/planning_figures.py
+    python scripts/planning_figures.py --extra base=<base extra seeds> --extra newlink=<new link extra seeds>
 On a smoke sweep (city_sweep.py --prefix/--name, tables in runs/<prefix>_results/):
     python scripts/planning_figures.py --name-pattern figtest_{variant} \\
         --results-dir runs/figtest_{variant}_results --out runs/figtest_planning --no-site
@@ -87,25 +94,37 @@ BETTER, WORSE, NEUTRAL = "#2a78d6", "#e34948", "#f0efec"   # diverging pair, gre
 
 # ---------------------------------------------------------------- inputs
 
+def _names(x):
+    return [x] if isinstance(x, str) else list(x)
+
+
 def load_sweeps(names, results_dirs, include_invalid=False):
     """One table of every swept run of every variant, with k per km of baseline lane.
 
-    names, results_dirs: {variant: config name}, {variant: folder holding <name>.csv}.
-    Returns (runs, notes): runs has variant, seed, k_target, k, v, q, run_id, valid and the
-    teleport rate; notes lists what was left out.
+    names, results_dirs: {variant: table name, or a list of table names}, {variant: folder holding
+    <name>.csv}. Several tables of one variant (the main sweep and extra seeds) are joined; the
+    same density and seed in two of them stops the script.
+    Returns (runs, notes): runs has variant, seed, k_target, k, v, q, run_id, valid, the teleport
+    rate and table (the table each run came from); notes lists what was left out.
     """
     frames, notes = [], []
-    for variant, name in names.items():
-        path = Path(results_dirs[variant]) / f"{name}.csv"
-        if not path.exists():
-            raise SystemExit(f"missing {path}: run the {variant} sweep first (scripts/city_sweep.py)")
-        d = pd.read_csv(path, dtype={"run_id": str, "variant": str})
-        given = set(d["variant"].dropna()) - {""}
-        if given and given != {variant}:
-            raise SystemExit(f"{path} holds variant {sorted(given)}, not {variant!r}")
-        d["variant"] = variant
-        frames.append(d)
+    for variant, vnames in names.items():
+        for name in _names(vnames):
+            path = Path(results_dirs[variant]) / f"{name}.csv"
+            if not path.exists():
+                raise SystemExit(f"missing {path}: run the {variant} sweep first (scripts/city_sweep.py)")
+            d = pd.read_csv(path, dtype={"run_id": str, "variant": str})
+            given = set(d["variant"].dropna()) - {""}
+            if given and given != {variant}:
+                raise SystemExit(f"{path} holds variant {sorted(given)}, not {variant!r}")
+            d["variant"], d["table"] = variant, name
+            frames.append(d)
     d = pd.concat(frames, ignore_index=True)
+    dup = d[d.duplicated(["variant", "city_k_target", "seed"], keep=False)]
+    if len(dup):
+        r = dup.iloc[0]
+        raise SystemExit(f"{r.variant} at {r.city_k_target:g} veh/km, seed {r.seed} is in two tables "
+                         f"({', '.join(sorted(set(dup.table)))}): extra tables must add new seeds or densities")
     if "city_baseline_lane_length_m" in d:
         base_len = d["city_baseline_lane_length_m"].fillna(d["city_lane_length_m"])
     else:
@@ -124,13 +143,35 @@ def load_sweeps(names, results_dirs, include_invalid=False):
         if not include_invalid:
             d = d[d["valid"].astype(bool)]
     keep = ["variant", "seed", "k_target", "k", "v", "q", "run_id", "valid",
-            "city_teleports_per_car_h_window"]
+            "city_teleports_per_car_h_window", "table"]
     out = d[[c for c in keep if c in d]].sort_values(["variant", "seed", "k"]).reset_index(drop=True)
     out.attrs["excluded_invalid"] = 0 if include_invalid else len(bad)
     return out, notes
 
 
 # ---------------------------------------------------------------- critical point and capacity
+
+SAME_SETTINGS = ("run", "vehicle", "controller", "rerouting")
+
+
+def check_same_settings(main_cfg, extra_cfg):
+    """Differences between an extra sweep's config and its variant's main config in the settings
+    that must match for its runs to join the main ones ([run], [vehicle], [controller],
+    [rerouting], and the nets), as {key: (main, extra)}; empty when they match. Run length,
+    teleport time and the like must be the same, or the runs measure something else (e.g. a
+    teleport-sensitivity set must not be joined)."""
+    diff = {}
+    for table in SAME_SETTINGS:
+        a, b = main_cfg.get(table, {}), extra_cfg.get(table, {})
+        for key in sorted(set(a) | set(b)):
+            if a.get(key) != b.get(key):
+                diff[f"{table}.{key}"] = (a.get(key), b.get(key))
+    for key in ("net_file", "baseline_net_file"):
+        a, b = main_cfg.get("network", {}).get(key), extra_cfg.get("network", {}).get(key)
+        if a != b:
+            diff[f"network.{key}"] = (a, b)
+    return diff
+
 
 def near_empty_speed(runs, base="base"):
     """(v0, lowest density): the baseline's mean speed at its lowest sweep density, mean over seeds."""
@@ -600,7 +641,8 @@ def export_site(site_dir, summary, mfd, change, v0, v_star, k_low, names, model,
     scripts/export_web.py for the four configs first, on the computer that ran them); draft is
     true when a sweep is not exported or its export is a draft. No timestamp, as in export_web,
     so the same results give the same file."""
-    sources = [_source(site_dir, n) for n in names.values()]
+    flat = [n for v in names.values() for n in _names(v)]
+    sources = [_source(site_dir, n) for n in flat]
     data = dict(
         scenario="city", name="planning", model=model, sources=sources,
         draft=any(s is None or s.get("draft") for s in sources),
@@ -616,7 +658,7 @@ def export_site(site_dir, summary, mfd, change, v0, v_star, k_low, names, model,
         excluded_invalid=int(excluded_invalid))
     out = Path(site_dir) / "planning.js"
     out.parent.mkdir(parents=True, exist_ok=True)
-    srcs = ", ".join(f"results/city/{n}.csv" for n in names.values())
+    srcs = ", ".join(f"results/city/{n}.csv" for n in flat)
     out.write_text(f"// Generated by scripts/planning_figures.py from {srcs}; do not edit.\n"
                    "window.RESULTS = window.RESULTS || {};\n"
                    f'window.RESULTS["city/planning"] = {json.dumps(data, ensure_ascii=False, separators=(",", ":"))};\n')
@@ -639,6 +681,9 @@ def parse_args():
     ap.add_argument("--change-min", type=float, default=0.05, help="smallest change in congested share drawn in colour")
     ap.add_argument("--skip-edges", action="store_true", help="draw the maps from <out>/planning_edges.csv, read no runs/")
     ap.add_argument("--include-invalid", action="store_true", help="keep runs whose checks failed")
+    ap.add_argument("--extra", action="append", default=[], metavar="VARIANT=NAME",
+                    help="another table of the same variant and settings (e.g. extra seeds), "
+                         "results-dir/NAME.csv; repeatable, e.g. --extra base=bugis_all_base_braess_controller")
     return ap.parse_args()
 
 
@@ -647,13 +692,32 @@ def main():
     variants = a.variants.split(",")
     base = variants[0]
     cfgs = {v: config.load(ROOT / a.config_pattern.format(variant=v)) for v in variants}
-    names = {v: (a.name_pattern.format(variant=v) if a.name_pattern else cfgs[v]["name"]) for v in variants}
+    names = {v: [a.name_pattern.format(variant=v) if a.name_pattern else cfgs[v]["name"]] for v in variants}
+    for item in a.extra:
+        variant, _, name = item.partition("=")
+        if variant not in names or not name:
+            raise SystemExit(f"--extra {item!r}: expected VARIANT=NAME with VARIANT one of {variants}")
+        extra_cfg = ROOT / Path(a.config_pattern).parent / f"{name}.toml"
+        if extra_cfg.exists():
+            diff = check_same_settings(cfgs[variant], config.load(extra_cfg))
+            if diff:
+                raise SystemExit(f"{extra_cfg.name} differs from the {variant} config in "
+                                 + "; ".join(f"{k}: {m!r} vs {e!r}" for k, (m, e) in diff.items())
+                                 + ": its runs cannot join the main sweep")
+        else:
+            print(f"note: {extra_cfg.relative_to(ROOT)} not found, so its settings are not checked "
+                  f"against the {variant} config; join only tables with the same settings")
+        names[variant].append(name)
     dirs = {v: ROOT / a.results_dir.format(variant=v) for v in variants}
     out = ROOT / a.out
     figs = out / "figures"
     figs.mkdir(parents=True, exist_ok=True)
 
     runs, notes = load_sweeps(names, dirs, a.include_invalid)
+    for v, vn in names.items():
+        if len(vn) > 1:
+            print(f"{v}: " + "; ".join(f"{n} ({(runs.table == n).sum()} runs, seeds "
+                                         f"{sorted(int(x) for x in runs[runs.table == n].seed.unique())})" for n in vn))
     for n in notes:
         print("note:", n)
     v0, k_low = near_empty_speed(runs, base)
