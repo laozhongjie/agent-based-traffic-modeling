@@ -85,7 +85,7 @@ def style(ax):
     ax.tick_params(colors="#52514e", labelsize=9)
 
 
-def seeds_and_mean(ax, df, col, color, label, peak):
+def seeds_and_mean(ax, df, col, color, label):
     ax.scatter(df.k, df[col], s=14, color=color, alpha=0.45, lw=0)
     g = df.groupby("k")[col].mean()
     ax.plot(g.index, g.values, color=color, lw=2, marker="o", ms=4, label=label)
@@ -103,7 +103,7 @@ def peak_text(peak, rng=None, sep=" "):
     return f"flow plateau{sep}{rng[0]:g}-{rng[1]:g} veh/km" if rng else f"flow peak{sep}{peak:g} veh/km"
 
 
-def figures(per_run, onset, btw, corr, heat, a, m):
+def figures(per_run, onset, btw, corr, heat, a):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -114,14 +114,14 @@ def figures(per_run, onset, btw, corr, heat, a, m):
 
     # 01 MFD inputs: flow, speed, halting share
     fig, axs = plt.subplots(1, 3, figsize=(11, 3.4), dpi=130)
-    seeds_and_mean(axs[0], per_run, "flow_veh_h", BLUE, r"$k \cdot \bar v$ (summary output)", peak)
-    seeds_and_mean(axs[0], per_run, "edgedata_flow_veh_h", ORANGE, "edgeData distance / (lane length x time)", peak)
+    seeds_and_mean(axs[0], per_run, "flow_veh_h", BLUE, r"$k \cdot \bar v$ (summary output)")
+    seeds_and_mean(axs[0], per_run, "edgedata_flow_veh_h", ORANGE, "edgeData distance / (lane length x time)")
     axs[0].set(xlabel="density k (veh/km per lane)", ylabel="flow q (veh/h per lane)", title="Flow")
     axs[0].legend(frameon=False, fontsize=8, loc="lower right")
-    seeds_and_mean(axs[1], per_run, "mean_speed_mps", BLUE, "", peak)
+    seeds_and_mean(axs[1], per_run, "mean_speed_mps", BLUE, "")
     axs[1].set(xlabel="density k (veh/km per lane)", ylabel=r"mean speed $\bar v$ (m/s)", title="Speed")
-    seeds_and_mean(axs[2], per_run, "city_halting_share", BLUE, "summary output: halting / running", peak)
-    seeds_and_mean(axs[2], per_run, "halted_share", ORANGE, "edgeData: waitingTime / (P x N)", peak)
+    seeds_and_mean(axs[2], per_run, "city_halting_share", BLUE, "summary output: halting / running")
+    seeds_and_mean(axs[2], per_run, "halted_share", ORANGE, "edgeData: waitingTime / (P x N)")
     axs[2].set(xlabel="density k (veh/km per lane)", ylabel="stopped-car share", title="Stopped cars",
                ylim=(0, 1))
     axs[2].legend(frameon=False, fontsize=8, loc="lower right")
@@ -137,13 +137,13 @@ def figures(per_run, onset, btw, corr, heat, a, m):
 
     # 02 queues and spillback
     fig, axs = plt.subplots(1, 2, figsize=(9.5, 3.4), dpi=130)
-    seeds_and_mean(axs[0], per_run, "city_congested_length_fraction", GREY, r"congested ($\phi_{len}$, T3-D1)", peak)
-    seeds_and_mean(axs[0], per_run, "queued_lane_share", BLUE, "standing queue (cycle mean)", peak)
-    seeds_and_mean(axs[0], per_run, "spill_len_share", ORANGE, "in spillback (T3-D8)", peak)
+    seeds_and_mean(axs[0], per_run, "city_congested_length_fraction", GREY, r"congested ($\phi_{len}$, T3-D1)")
+    seeds_and_mean(axs[0], per_run, "queued_lane_share", BLUE, "standing queue (cycle mean)")
+    seeds_and_mean(axs[0], per_run, "spill_len_share", ORANGE, "in spillback (T3-D8)")
     axs[0].set(xlabel="density k (veh/km per lane)", ylabel="share of total lane length",
                title="Queued and spilled-back length", ylim=(0, None))
     axs[0].legend(frameon=False, fontsize=8, loc="upper left")
-    seeds_and_mean(axs[1], per_run, "spill_events_per_h", ORANGE, "", peak)
+    seeds_and_mean(axs[1], per_run, "spill_events_per_h", ORANGE, "")
     axs[1].set(xlabel="density k (veh/km per lane)", ylabel="spillback onsets per hour (network)",
                title="Spillback events", ylim=(0, None))
     for ax in axs:
@@ -152,9 +152,9 @@ def figures(per_run, onset, btw, corr, heat, a, m):
 
     # 03 G1 and G2 against density
     fig, ax = plt.subplots(figsize=(6.2, 3.8), dpi=130)
-    seeds_and_mean(ax, per_run, "city_congested_length_fraction", GREY, r"all congested length $\phi_{len}$", peak)
-    seeds_and_mean(ax, per_run, "city_largest_cluster", BLUE, r"largest cluster $G_1$", peak)
-    g2 = seeds_and_mean(ax, per_run, "city_second_cluster", ORANGE, r"second cluster $G_2$", peak)
+    seeds_and_mean(ax, per_run, "city_congested_length_fraction", GREY, r"all congested length $\phi_{len}$")
+    seeds_and_mean(ax, per_run, "city_largest_cluster", BLUE, r"largest cluster $G_1$")
+    g2 = seeds_and_mean(ax, per_run, "city_second_cluster", ORANGE, r"second cluster $G_2$")
     peak_line(ax, peak, a.peak_range)
     if a.peak_range:
         ax.text(sum(a.peak_range) / 2, 0.98, peak_text(peak, a.peak_range, "\n"), transform=ax.get_xaxis_transform(),
@@ -305,7 +305,7 @@ def main():
     edges.to_csv(tdir / "edges-betweenness-onset.csv", float_format="%.6g")
     shares.T.to_csv(tdir / "edge-congested-share-by-density.csv", float_format="%.4g")
     corr.to_csv(tdir / "betweenness-onset-correlation.csv", index=False, float_format="%.6g")
-    figures(per_run, onset, btw, corr, heat, a, m)
+    figures(per_run, onset, btw, corr, heat, a)
 
     chk = dict(
         vref_coverage=info["coverage"], n_runs=len(per_run), n_invalid_skipped=0 if a.include_invalid else n_invalid,
