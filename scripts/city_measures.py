@@ -1,7 +1,7 @@
 """Task 6: queues, spillback, largest cluster and betweenness-vs-onset on a finished city sweep.
 
 Reads a sweep's results table and run folders read-only (edge<P>.xml.gz, meta.json) and the
-reference run's edgeData; classifies every edge with the config's [measure] criterion (T3-D1);
+reference run's edgeData; classifies every edge with the config's [measure] congestion criterion;
 writes tables (CSV) and figures. Nothing is re-simulated. checks.json compares G1, phi_len
 and the spillback count with the sweep's own columns; both come from the same criterion
 code, so that comparison checks the files and windows read, not the criterion.
@@ -153,9 +153,9 @@ def figures(per_run, onset, btw, corr, heat, a):
 
     # 02 queues and spillback
     fig, axs = plt.subplots(1, 2, figsize=(9.5, 3.4), dpi=130)
-    seeds_and_mean(axs[0], per_run, "city_congested_length_fraction", GREY, r"congested ($\phi_{len}$, T3-D1)")
+    seeds_and_mean(axs[0], per_run, "city_congested_length_fraction", GREY, r"congested ($\phi_{len}$)")
     seeds_and_mean(axs[0], per_run, "queued_lane_share", BLUE, "standing queue (cycle mean)")
-    seeds_and_mean(axs[0], per_run, "spill_len_share", ORANGE, "in spillback (T3-D8)")
+    seeds_and_mean(axs[0], per_run, "spill_len_share", ORANGE, "in spillback")
     axs[0].set(xlabel="density k (veh/km per lane)", ylabel="share of total lane length",
                title="Queued and spilled-back length", ylim=(0, None))
     axs[0].legend(frameon=False, fontsize=8, loc="upper left")
@@ -291,7 +291,7 @@ def main():
     # onset density and betweenness
     shares = mm.congested_shares({(o[0]["k"], o[0]["seed"]): o[1].congested_share for o in outs})
     # betweenness variants: graph (junction, turn) x weights (speed limit; measured near-empty
-    # speed vref, "emp") x raw or per lane ("lane"); *_emp_lane is task 3's design (T3-D7)
+    # speed vref, "emp") x raw or per lane ("lane"); *_emp_lane is task 3's design
     tt_emp = mm.free_flow_time(net.edges, vref)
     btw = {}
     for graph, fn in (("junction", mm.junction_betweenness), ("turn", mm.turn_betweenness)):

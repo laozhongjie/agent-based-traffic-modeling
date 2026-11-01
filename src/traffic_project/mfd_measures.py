@@ -18,13 +18,13 @@ spillback       congestion.spillback: congested and occupancy >= 0.8 x occ_jam, 
                 debounced over 2 intervals, so from free flow an edge enters spillback in the
                 third slow interval in a row (occupancy high in the second and third), as the
                 sweep's city_spillback_events counts it.
-onset density   congestion.onset_density (T3-D3): lowest swept density at which the edge's
+onset density   congestion.onset_density: lowest swept density at which the edge's
                 seed-mean congested share of the measured intervals exceeds a threshold.
 betweenness     junction graph: SUMO edges as arcs between junctions; turn graph: SUMO edges
                 as nodes, lane connections as arcs (turn restrictions kept), arc weight =
                 travel time of the edge left. Weights are free-flow travel times, length /
                 speed limit, or length / vref, the edge's measured near-empty speed (task
-                3's design, T3-D7); per_lane divides by the lane count.
+                3's design); per_lane divides by the lane count.
 reference load  car passages per edge in the 2 veh/km reference run (cars leaving it after
                 warm-up); partial correlations remove it, and with it the lane count, since
                 per-lane betweenness carries 1/lanes and single-lane edges congest earlier.
@@ -124,8 +124,8 @@ def queue_output_measures(q, state, spill, edges, warmup_s, spacing_m, period_s)
              and max_veh >= 1. queue-output counts cars slower than its speed threshold
              (SUMO default 1.39 m/s) from the lane end to the back of the last such car.
     Returns a dict: qo_queue_share (edge-cycles with any queue), qo_full_share,
-    qo_full_also_spill (share of full edge-cycles that are T3-D8 spillback),
-    qo_spill_also_full (share of T3-D8 spillback edge-cycles that are full), qo_max_m_mean."""
+    qo_full_also_spill (share of full edge-cycles that are in spillback),
+    qo_spill_also_full (share of spillback edge-cycles that are full), qo_max_m_mean."""
     lengths = (q.end - q.begin).unique()
     if len(q) and not np.allclose(lengths, period_s):
         raise ValueError(f"queue-output intervals last {sorted(lengths)} s, the criterion period is {period_s:g} s")
@@ -151,7 +151,7 @@ def free_flow_time(edges, speed=None):
     """Free-flow travel time per edge (s) = length / speed.
 
     speed  per-edge Series (m/s), e.g. the measured near-empty speed vref of the reference
-           run (T3-D7's empirical weights); default the speed limit (the cars' desired speed:
+           run (task 3's measured weights); default the speed limit (the cars' desired speed:
            speedFactor = 1, speedDev = 0, maxSpeed above every limit)."""
     v = edges.limit if speed is None else speed.reindex(edges.index)
     if v.isna().any() or (v <= 0).any():
@@ -160,7 +160,7 @@ def free_flow_time(edges, speed=None):
 
 
 def per_lane(btw, edges):
-    """Betweenness divided by the edge's lane count (T3-D7: per lane)."""
+    """Betweenness divided by the edge's lane count (task 3's design: per lane)."""
     return btw / edges.lanes.reindex(btw.index)
 
 
@@ -242,7 +242,7 @@ def onset_correlation(btw, onset, censor_at, load=None, lanes=None):
     onset NaN = never past the threshold in the sweep (right-censored). Returns a dict:
     rho/p on edges with an onset only (NaN with 2 or fewer onsets), and rho/p and Kendall
     tau-b with censored edges set to `censor_at` (above every swept density, so they tie for
-    the highest rank). With `load` (per-edge car passages in the reference run, T3-D7) it
+    the highest rank). With `load` (per-edge car passages in the reference run) it
     adds rho_btw_load and the partial correlations given the load, partial_onset_only and
     partial_censored (with their p), which ask whether network position predicts onset
     beyond the demand an edge carries. With `lanes` as well it adds the same partials with
