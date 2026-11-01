@@ -1,8 +1,8 @@
 # Braess test, more seeds (member D's ask, 2 Nov: "Could you run seeds 4-10 for base and new link only, at 25, 30
-# and 35 veh/km (42 runs)"; operator Q90, 2026-11-02: "q90 q91 q92 as rec"). With a seed SD of about 2.9 %, the
-# new link's 2.5-3 % effect needs about 10 seeds (D). A copy of bugis_all_newlink_controller.toml (member D, RQ3) with
+# and 35 veh/km (42 runs)"; operator Q90, 2026-11-02: "q90 q91 q92 as rec"). With C's seed SD of about 2.9 % (paired
+# new link minus base speed, 20-35 veh/km), the new link's 2.5-3 % effect needs about 10 seeds (D). A copy of bugis_all_newlink_controller.toml (member D, RQ3) with
 # only the name, run prefix, densities, seeds and jobs changed; pool its rows with bugis_all_newlink_controller.csv
-# (seeds 1-3) by density. Its own 2 veh/km reference run (seed 99) repeats the newlink sweep's under this run prefix.
+# (seeds 1-3, on team branch c/planning-runs 1069dc4) by density. Its own 2 veh/km reference run (seed 99) should repeat the newlink sweep's under this run prefix.
 # Run and measure: python scripts/city_sweep.py --config configs/city/bugis_all_newlink_controller_seeds4to10.toml
 # Run folders runs/seeds4to10_city_bugis_all_newlink_k<k>_s<seed>/ are git-ignored.
 name = "bugis_all_newlink_controller_seeds4to10"
