@@ -6,7 +6,7 @@ Modules:
     runner        run SUMO for one run folder, write the run record and checks
     measurements  turn SUMO outputs into measured quantities
     results       result data format: writers for experiments, readers for analysis
-    export_web    export validated results to the website (docs/data/<scenario>/)
+    export_web    export validated results to the website (docs/data/<page>/)
     nasch         NaSch theory at p = 0 and a reference automaton (checks of SUMO's NaSch)
     ovm           OVM theory and a reference integrator (checks of SUMO's OVM)
 

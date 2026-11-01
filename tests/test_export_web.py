@@ -92,3 +92,53 @@ def test_export_refuses_no_valid_runs(tmp_root):
     cfg = setup_experiment(tmp_root, valid=(False, False))
     with pytest.raises(ValueError, match="no valid runs"):
         export_web.export(cfg)
+
+
+def setup_city(root, variant=None):
+    """A city config (a planning variant if variant is given) and one valid run with text and true/false columns."""
+    path = root / "configs" / "city" / "c.toml"
+    path.parent.mkdir(parents=True)
+    net = f'[network]\nvariant = "{variant}"\n' if variant else ""
+    path.write_text(f'name = "c"\nscenario = "city"\nmodel = "IDM"\n{net}')
+    cfg = config.load(path)
+    run_id = "ctl_city_t_k25_s1"
+    row = {"run_id": run_id, "scenario": "city", "model": "IDM", "variant": variant or "", "seed": 1,
+           "density_veh_km": 25.0, "mean_speed_mps": 2.0, "flow_veh_h": 180.0, "congested_fraction": 0.4,
+           "congested_fraction_var": 0.01, "valid": True, "city_net": "bugis_all",
+           "city_baseline_net": "scenarios/city/bugis_all_base.net.xml", "city_settled": True,
+           "city_vref_coverage_ok": False, "city_largest_cluster": 0.25,
+           "city_second_cluster": "", "city_largest_cluster_var": float("nan")}
+    (root / "runs" / run_id).mkdir(parents=True)
+    (root / "runs" / run_id / "manifest.json").write_text(json.dumps(
+        {"config_sha256": cfg["_sha256"], "sumo_version": "Eclipse SUMO sumo 1.28.0", "git_commit": "abc1234"}))
+    results.write_summary([row], cfg)
+    return cfg
+
+
+def read_any(path):
+    line = path.read_text().splitlines()[-1]
+    key, _, body = line.partition(" = ")
+    return key, json.loads(body[:-1])
+
+
+def test_export_city_text_and_boolean_columns(tmp_root):
+    cfg = setup_city(tmp_root)
+    out = export_web.export(cfg)
+    assert out == tmp_root / "docs" / "data" / "network" / "c.js"
+    key, data = read_any(out)
+    assert key == 'window.RESULTS["network/c"]'
+    assert data["scenario"] == "city" and data["page"] == "network"
+    rec = dict(zip(data["columns"], data["rows"][0]))
+    assert rec["city_net"] == "bugis_all"
+    assert rec["city_baseline_net"] == "scenarios/city/bugis_all_base.net.xml"
+    assert rec["city_settled"] is True and rec["city_vref_coverage_ok"] is False
+    assert rec["city_largest_cluster"] == 0.25 and rec["seed"] == 1
+    assert rec["city_second_cluster"] is None and rec["city_largest_cluster_var"] is None   # empty, NaN
+
+
+def test_export_page_folder(tmp_root):
+    cfg = setup_city(tmp_root, variant="newlink")
+    assert export_web.export(cfg) == tmp_root / "docs" / "data" / "planning" / "c.js"   # a planning variant
+    out = export_web.export(cfg, page="network")                                        # override
+    assert out == tmp_root / "docs" / "data" / "network" / "c.js"
+    assert read_any(out)[0] == 'window.RESULTS["network/c"]'

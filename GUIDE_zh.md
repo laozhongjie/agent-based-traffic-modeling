@@ -101,7 +101,7 @@
 | `runs/<run-id>/` | 每次运行一个目录，由脚本写出，不手工修改 | — |
 | `sandbox/<your-name>/` | 个人试验代码和 notebook | 本人 |
 | `notebooks/<your-name>/` | 供组员阅读的只读 notebook 副本，按日期发布（规则 6） | 本人 |
-| `docs/data/<scenario>/` | 导出到网站的结果，由 `scripts/export_web.py` 写出，不手工修改 | — |
+| `docs/data/<page>/` | 网站显示的结果，每个页面一个文件夹（`ring`、`network`、`planning`），格式见第 6 节“网站文件”；由脚本写出，不手工修改 | — |
 | `docs/` | 项目网站 | A |
 
 ### `scenarios/` 中的路网文件
@@ -181,7 +181,7 @@ git 忽略 `runs/`、`data/raw/`、`sandbox/` 和所有 `*.fcd.xml`，表中其�
    python scripts/plot_ring.py --config configs/ring/idm_sweep.toml
    ```
 
-6. 把通过检查的运行导出到网站。命令会写出 `docs/data/ring/idm_sweep.js`，其中包含每次运行的配置哈希值、SUMO 版本和 git commit。运行来自未提交的代码，或运行之后配置文件改动过时，命令会报错停止；加 `--allow-dirty` 可以写出供预览的草稿。导出要读取 `runs/` 中的运行记录，所以在运行扫描的那台电脑上执行。
+6. 把通过检查的运行导出到网站。命令会写出 `docs/data/ring/idm_sweep.js`（格式见第 6 节“网站文件”），其中包含每次运行的配置哈希值、SUMO 版本和 git commit。运行来自未提交的代码，或运行之后配置文件改动过时，命令会报错停止；加 `--allow-dirty` 可以写出供预览的草稿。导出要读取 `runs/` 中的运行记录，所以在运行扫描的那台电脑上执行。
 
    ```bash
    python scripts/export_web.py --config configs/ring/idm_sweep.toml
@@ -276,6 +276,32 @@ df = load_summary("ring", "idm_sweep")                               # 每次运
 ts = load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")   # 单次运行的时间序列
 df = df[df.valid]                                                     # 只保留通过全部检查的运行
 ```
+
+### 网站文件：`docs/data/<page>/<name>.js`
+
+网站只从 `docs/data/` 中按下述格式写出的文件读取结果；其他形式的表格无法出现在页面上。这些文件一律由脚本写出，不手工修改；由运行得到的文件只使用有效运行。
+
+每个文件都要遵守的规定：
+
+- 一个文件只放一组数据，放在 `docs/data/<page>/` 中，`<page>` 是显示它的页面：`ring`（`docs/lab/ring.html`）、`network`（`docs/lab/network.html`）或 `planning`（`docs/lab/planning.html`）。
+- 第一行是注释，写明生成它的脚本和数据来源，并以“do not edit”结尾；第二行是 `window.<KIND> = window.<KIND> || {};`；第三行只设置该对象中的一项：`window.<KIND>["<key>"] = {...};`。页面用 `<script defer>` 标签载入文件，所以网站不需要服务器。新增文件的 PR 同时在页面上加上它的标签，让 A 一次审阅两者。
+- 同样的输入得到同样的文件：文件中不写时间戳。
+- 由运行得到的文件写明数字的来源：`config`、`config_sha256`、`git_commit`、`sumo_version` 和运行编号（第 5 节）。`git_commit` 以 `-dirty` 结尾表示草稿。由路网得到的文件写明路网文件（`net`）。
+- 单位按第 8 节，并在 `units` 字段中写明；唯一的例外是 `NETWORK` 的 `speed_kmh`，即以 km/h 表示的限速。数字保留 6 位有效数字；位置取整到 1 m。
+- 每个文件不超过 2 MB：`docs/` 原样发布，访问者打开哪个页面就要下载该页面的全部文件。
+
+文件的种类：
+
+| 种类和键 | 一项包含的内容 | 写出者 | 显示位置 |
+| --- | --- | --- | --- |
+| `RESULTS["<page>/<name>"]` | 一个实验的有效运行：`columns`，即汇总表的全部列（含场景专用列，去掉 `scenario` 和 `valid`）；`rows`，每次运行一个数组，顺序与 `columns` 相同；`units`，上表中有单位的各列的单位；以及 `scenario`、`page`、`name`、`model`、`config`、`config_sha256`、`sumo_version`、`git_commit`、`draft` 和 `excluded_invalid` | `scripts/export_web.py` | ring：基本图、序参量与涨落；network：宏观基本图、最大拥堵连通区域；planning：宏观基本图叠加 |
+| `NETWORK["roads_<tag>"]` | 路网文件的路径（`net`）、`units`、路网的 `boundary`，以及 `edges`：每条路段（普通 edge）一项，含 `id`、`lanes`、`speed_kmh` 和 `shape`，即 0 号车道的轮廓，以路网坐标（m）中的 `[x, y]` 点表示 | `scripts/city_clips.py`（PR #12） | 所有地图的底图 |
+| `CLIPS["<tag>_k<k>"]` | 一次运行的短回放：`car_ids` 只写一次，然后是 `frames`，从 `begin_s` 起每 `step_s` 一帧；每帧按 `car_ids` 的顺序列出每辆车的 `dx, dy`：它相对上一个已知位置的位移，单位为 m，所以每辆车第一对不为 `null` 的值就是它的绝对位置（几乎所有车都在第一帧），`null, null` 表示该车在这一步缺席（正在瞬移）。回放的 `net` 是标签：它的路段在 `NETWORK["roads_" + net]` 中 | `scripts/city_clips.py`（PR #12） | 路网地图上的回放 |
+| `EDGES["<name>_k<k>_s<seed>"]`（待建） | 一次运行的各条路段，顺序与其 `roads_<tag>` 文件相同：`v_ref_mps`（近空载速度，第 8 节），然后从 0 s 起（含预热段）每个测量区间（`period_s`，区间长度，单位 s；Bugis 为 90）的 `speed_mps`（精确到 0.1 m/s）、`congested` 和 `largest_cluster`（0 或 1） | 城市路网由 C 写出，规划方案由 D 写出 | network：路网地图的颜色和突出显示的连通区域、路段拥堵热图；planning：并排地图、拥堵变化地图 |
+| `EDGES["<name>"]`（待建） | 一次扫描的各条路段，顺序相同：`betweenness`，以及 `onset_k`：该路段处于拥堵的已测信号周期比例（按种子取平均）超过 `[measure] onset_share`（0.5）时的最低扫描密度，按 PR #13 中 `scripts/city_measures.py` 的算法计算（在所有扫描密度下都达不到时为 `null`） | C | network：边介数与拥堵开始时刻 |
+| `CRITICAL["<page>/<name>"]`（待建） | 每个环路、路网或方案一项：`k_c` 及其范围 `k_c_low`、`k_c_high`；`q_max` 及 `q_max_low`、`q_max_high`；所用方法 `method`；运行编号 | E 的估计程序（在它完成前，城市路网由 C 按 E 的方法填写） | ring：临界密度汇总；network：网络临界密度汇总、路网与高速公路对照；planning：各方案临界密度汇总、各方案的临界密度与最大流量 |
+
+`scripts/export_web.py` 自动选择页面文件夹：环路运行进 `ring`，城市路网运行进 `network`，规划方案（配置中有 `[network] variant`）进 `planning`；可用 `--page` 另行指定。网格运行进 `docs/data/grid/`，没有页面读取它；路网页面临界密度汇总中测试网格那一行来自网格的 `CRITICAL["network/<name>"]` 项。导出时文本列保持为文本，`True` 和 `False` 写成 `true` 和 `false`，空单元格或 NaN 写成 `null`；`run_id`、`model` 和 `variant` 三列除外，按原样保留。环路页面画出 `scenario` 为 `ring` 的每一项 `RESULTS`（`docs/assets/ring-results.js`）。路网和规划页面还没有载入程序（A）；这两个页面的 `RESULTS` 项的 `scenario` 都是 `city`，所以它们的载入程序按 `page` 选取。环路页面第 3-5 项还没有对应的文件种类；与 LTA 速度数据的对照（路网页面第 6 项）也没有，用哪种文件，等 SUMO edge 到 LTA 路段的查找表完成后再定。
 
 ## 7. 每次运行必须通过的检查
 
