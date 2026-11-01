@@ -113,10 +113,12 @@ def read_queue_output(path):
     return pd.DataFrame(rows, columns=("begin", "end", "edge") + tuple(c for c, _ in cols))
 
 
-def queue_output_measures(q, state, spill, edges, warmup_s, spacing_m):
+def queue_output_measures(q, state, spill, edges, warmup_s, spacing_m, period_s):
     """Per-run measures from SUMO's aggregated queue-output (proposed for the reruns).
 
-    q        read_queue_output table (junction-internal ids ':...' are dropped)
+    q        read_queue_output table (junction-internal ids ':...' are dropped); its intervals
+             must be the criterion intervals of `state`: each period_s long and starting at
+             one of state's interval starts (ValueError otherwise)
     full     an edge-cycle whose maximum queue reaches within one car spacing (spacing_m =
              veh length + minGap) of the edge's upstream end: max_m >= length - spacing_m
              and max_veh >= 1. queue-output counts cars slower than its speed threshold
@@ -124,6 +126,11 @@ def queue_output_measures(q, state, spill, edges, warmup_s, spacing_m):
     Returns a dict: qo_queue_share (edge-cycles with any queue), qo_full_share,
     qo_full_also_spill (share of full edge-cycles that are T3-D8 spillback),
     qo_spill_also_full (share of T3-D8 spillback edge-cycles that are full), qo_max_m_mean."""
+    lengths = (q.end - q.begin).unique()
+    if len(q) and not np.allclose(lengths, period_s):
+        raise ValueError(f"queue-output intervals last {sorted(lengths)} s, the criterion period is {period_s:g} s")
+    if not set(q.begin) <= set(state.index):
+        raise ValueError("queue-output intervals do not start where the criterion intervals start")
     keep = state.index >= warmup_s
     win = state.index[keep]
     qn = q[q.edge.isin(edges.index)]

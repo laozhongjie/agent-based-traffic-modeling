@@ -115,12 +115,25 @@ def test_queue_output_measures(tmp_path):
     state = pd.DataFrame(0, index=idx, columns=E.index)
     spill = state.copy()
     spill.loc[0.0, "AB"] = 1
-    out = mm.queue_output_measures(q, state, spill, E, warmup_s=0, spacing_m=7.0)
+    out = mm.queue_output_measures(q, state, spill, E, warmup_s=0, spacing_m=7.0, period_s=P)
     # full: AB at t = 0 (98 m >= 100 - 7); BC (7 m < 193) and AB at t = 90 are not; ':B_0' dropped
     assert out["qo_full_share"] == pytest.approx(1 / 10)
     assert out["qo_queue_share"] == pytest.approx(3 / 10)
     assert out["qo_full_also_spill"] == 1.0 and out["qo_spill_also_full"] == 1.0
     assert out["qo_max_m_mean"] == pytest.approx((98 + 7 + 14) / 10)
+
+
+def test_queue_output_measures_refuse_another_period(tmp_path):
+    f = tmp_path / "queue90.xml"
+    f.write_text(QUEUE_XML)
+    q = mm.read_queue_output(f)
+    E = make_net().edges
+    state = pd.DataFrame(0, index=pd.Index([0.0, 90.0], name="begin"), columns=E.index)
+    with pytest.raises(ValueError, match="criterion period is 60 s"):   # file in 90 s intervals
+        mm.queue_output_measures(q, state, state.copy(), E, warmup_s=0, spacing_m=7.0, period_s=60.0)
+    shifted = q.assign(begin=q.begin + 45, end=q.end + 45)   # 90 s long, but off the cycle grid
+    with pytest.raises(ValueError, match="do not start"):
+        mm.queue_output_measures(shifted, state, state.copy(), E, warmup_s=0, spacing_m=7.0, period_s=P)
 
 
 # ---------------------------------------------------------------- betweenness and onset

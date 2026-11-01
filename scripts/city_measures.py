@@ -69,7 +69,7 @@ def measure_one(job):
     qfile = G["runs"] / run_id / G["qfile"] if G["qfile"] else None   # runs made with [run] queue_output_s
     if qfile is not None and qfile.exists():
         summ.update(mm.queue_output_measures(mm.read_queue_output(qfile), state, spill, net.edges,
-                                             G["warmup"], m["veh_length_m"] + m["min_gap_m"]))
+                                             G["warmup"], m["veh_length_m"] + m["min_gap_m"], G["P"]))
     summ.update(run_id=run_id, k=k, seed=seed, G1_recomputed=float(ser.G1.mean()),
                 G2_recomputed=float(ser.G2.mean()), phi_len_recomputed=float(ser.phi_len.mean()))
     heat = None
@@ -251,6 +251,9 @@ def main():
     if m.get("period_mult", 1) != 1:
         sys.exit("period_mult != 1 is not supported here")
     edfile = cfg["inputs"]["edgedata_file"].format(period=P)
+    q_s = cfg["run"].get("queue_output_s")
+    if q_s and float(q_s) != P:
+        sys.exit(f"[run] queue_output_s = {q_s:g} s, but the queue measures need the criterion period {P:g} s")
     res = pd.read_csv(a.results_csv or root / "results" / cfg["scenario"] / f"{cfg['name']}.csv")
     n_invalid = int((~res["valid"].astype(bool)).sum()) if "valid" in res else 0
     if n_invalid and not a.include_invalid:
