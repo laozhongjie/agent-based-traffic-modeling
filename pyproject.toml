@@ -16,3 +16,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Import this checkout's src/ first, so pytest in a second worktree tests its own code
+# rather than the checkout the editable install points to.
+pythonpath = ["src"]
