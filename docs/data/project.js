@@ -487,13 +487,13 @@ window.PROJECT = {
               "Validate on D's 4×4 grid first",
               "Sweep network density from low to high, several seeds per density",
               "Export trajectory clips of a few representative runs for replay on the site",
-              "The top of the MFD gives the maximum flow and the critical density; in the city the top is flat from 20 to 35 veh/km, so the critical density is a range (RQ2)"
+              "The critical point is the density at which the network's mean speed falls to half of its near-empty speed (its speed at the lowest tested density, 2.5 veh/km): 13.3 veh/km per lane on the city network (version 1, frozen 29 Oct). The top of the MFD gives the capacity, about 171 veh/h per lane (RQ2)"
             ],
             zh: [
               "先在 D 的 4×4 网格上验证",
               "由低到高扫描网络密度，每个密度多个随机种子",
               "导出少量代表性运行的车辆轨迹片段，供网站回放",
-              "宏观基本图的顶部给出最大流量和临界密度；在城市路网中，这一顶部在 20–35 veh/km 之间是平的，因此临界密度是一个区间（RQ2）"
+              "临界点是路网平均速度降到接近空网时速度（即最低测试密度 2.5 veh/km 时的速度）的一半时的密度：在城市路网（10 月 29 日冻结的第 1 版）上为每车道 13.3 veh/km。宏观基本图的顶部给出通行能力，约为每车道 171 veh/h（RQ2）"
             ]
           }
         },
