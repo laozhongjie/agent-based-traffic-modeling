@@ -2,7 +2,9 @@
 
 Reads a sweep's results table and run folders read-only (edge<P>.xml.gz, meta.json) and the
 reference run's edgeData; classifies every edge with the config's [measure] criterion (T3-D1);
-writes tables (CSV) and figures. Nothing is re-simulated.
+writes tables (CSV) and figures. Nothing is re-simulated. checks.json compares G1, phi_len
+and the spillback count with the sweep's own columns; both come from the same criterion
+code, so that comparison checks the files and windows read, not the criterion.
 
     python scripts/city_measures.py --config configs/city/bugis_all_controller.toml \
         --root ../agent-based-traffic-modeling --tables-dir OUT/tables --figures-dir OUT/figures
@@ -57,6 +59,9 @@ def measure_one(job):
     run = cg.read_edgedata(G["runs"] / run_id / G["edfile"])
     state = cg.classify(cg.relative_speed(run, vref), r_on=m["r_on"], persist_m=m["persist_m"])
     keep = state.index >= G["warmup"]
+    # G1, G2 and phi_len again, with the criterion code the sweep itself uses (congestion.py):
+    # comparing them with the sweep's columns checks the files, window and net read here,
+    # not the criterion
     ser = cg.order_parameters(state[keep], run, net.edges, adj, m.get("weight", "lane_length"))
     summ, per_edge, spill = mm.run_measures(run, state, net.edges, G["warmup"], G["P"], n, m)
     qfile = G["runs"] / run_id / f"queue{G['P']:g}.xml.gz"   # only in runs made with --queue-output-s
@@ -310,6 +315,7 @@ def main():
     chk = dict(
         vref_coverage=info["coverage"], n_runs=len(per_run), n_invalid_skipped=0 if a.include_invalid else n_invalid,
         censor_at=censor, **conf,
+        # against the sweep's columns, from the same criterion code: a check of the plumbing
         max_abs_G1_diff=float((per_run.G1_recomputed - per_run.city_largest_cluster).abs().max()),
         max_abs_phi_diff=float((per_run.phi_len_recomputed - per_run.city_congested_length_fraction).abs().max()),
         spill_events_equal=bool((per_run.spill_events == per_run.city_spillback_events).all()),
