@@ -163,6 +163,17 @@ def test_turn_betweenness_respects_turn_restrictions():
     assert b_full["X2"] == 0.0 and b_full["X1"] > 0.0
 
 
+def test_turn_betweenness_values_on_a_chain():
+    # the restricted turns leave one chain X2 -> AB -> BC -> X1 -> AC (and AC -> X1), so every
+    # shortest path is unique; count the ordered pairs each edge lies inside of:
+    # AB on X2->BC, X2->X1, X2->AC; BC on X2->X1, X2->AC, AB->X1, AB->AC; X1 on X2->AC, AB->AC, BC->AC
+    conns = {("AB", "BC"), ("BC", "X1"), ("AC", "X1"), ("X1", "AC"), ("X2", "AB")}
+    b = mm.turn_betweenness(make_net(conns))
+    scale = 1 / ((5 - 1) * (5 - 2))   # NetworkX normalisation on a directed graph of 5 nodes
+    assert b.to_dict() == pytest.approx({"AB": 3 * scale, "BC": 4 * scale, "AC": 0.0,
+                                         "X1": 3 * scale, "X2": 0.0})
+
+
 def test_congested_shares_mean_over_seeds():
     per_run = {(10.0, 1): pd.Series({"a": 0.2, "b": 0.0}), (10.0, 2): pd.Series({"a": 0.6, "b": 0.0}),
                (5.0, 1): pd.Series({"a": 0.1, "b": 0.0})}
@@ -318,3 +329,58 @@ def test_city_sweep_queue_output_is_opt_in_from_the_config():
     text = cs.sumocfg_text(cfg, ROOT / "runs" / "x", 1)
     q = '<queue-output value="queue90.xml.gz"/><queue-output.aggregation value="90"/>'
     assert q in text and text.replace(q, "") == plain
+
+
+def city_measures_script():
+    import importlib.util
+    from traffic_project import ROOT
+    spec = importlib.util.spec_from_file_location("city_measures", ROOT / "scripts" / "city_measures.py")
+    cm = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cm)
+    return cm
+
+
+def test_city_measures_skips_invalid_runs():
+    cm = city_measures_script()
+    res = pd.DataFrame(dict(run_id=["a", "b", "c"], valid=[True, False, True]))
+    kept, skipped = cm.select_runs(res)
+    assert kept.run_id.tolist() == ["a", "c"] and skipped == ["b"]
+    kept, skipped = cm.select_runs(res, include_invalid=True)
+    assert kept.run_id.tolist() == ["a", "b", "c"] and skipped == []
+    as_text = res.assign(valid=["True", "False", "True"])   # a column read as strings
+    assert cm.select_runs(as_text)[1] == ["b"]
+    assert cm.select_runs(res.drop(columns="valid"))[1] == []
+
+
+def test_run_measures_against_city_summary_with_spillback_before_warmup(tmp_path):
+    # The net of test_congestion.py (60 s cycle; AB 100 m x 2 lanes, BC 200 m; AB -> BC).
+    # AB is slow with high occupancy from the first interval, BC from the third. Persistence
+    # 2 delays the congested state and spillback by one interval each: AB is in spillback from
+    # t = 120, before the 180 s warm-up ends, and BC from t = 240.
+    from test_congestion import EDGES, write_edgedata, write_net
+    from traffic_project import measurements
+    netfile = write_net(tmp_path / "t.net.xml")
+    free, jam = (20, 9.0, 1, 2), (60, 1.0, 70, 1)   # (sampledSeconds, speed, occupancy %, left)
+    ivals = [{"AB": jam, "BA": free, "BC": jam if i >= 2 else free, "CB": free} for i in range(5)]
+    run = write_edgedata(tmp_path / "run.xml", ivals)
+    ref = write_edgedata(tmp_path / "ref.xml", [{e: (100, 10.0, 1, 5) for e in EDGES}] * 5)
+    summary = tmp_path / "summary.xml"
+    summary.write_text("<summary>" + "".join(
+        f'<step time="{t}.00" running="7" halting="1" meanSpeed="5.00"/>' for t in range(300)) + "</summary>")
+    measure = dict(M, period_s="cycle", period_mult=1, r_on=0.5, adjacency="directed",   # M: persist_m = 2
+                   weight="lane_length", vref_min_sampled_s=60, vref_fallback="class_median",
+                   gridlock_outflow_frac=0.01, gridlock_cycles=3, timeseries_every_s=30)
+    sweep, checks, _ = measurements.city_summary(run, ref, netfile, summary, measure, 180, n_vehicles=7)
+    assert all(checks.values())
+
+    net, df = cg.read_net(netfile), cg.read_edgedata(run)
+    vref, _ = cg.free_flow_reference(cg.read_edgedata(ref), net.edges, 180, 60)
+    state = cg.classify(cg.relative_speed(df, vref), r_on=0.5, persist_m=2)
+    summ, _, spill = mm.run_measures(df, state, net.edges, 180, 60, 7, M)
+    assert spill.AB.tolist() == [0, 0, 1, 1, 1] and spill.BC.tolist() == [0, 0, 0, 0, 1]
+    # AB's spillback began before the window, so only BC's counts as an event, in both
+    assert summ["spill_events"] == sweep["city_spillback_events"] == 1
+    assert summ["spill_edges_ever"] == 2 and summ["spill_edge_share"] == pytest.approx(3 / 8)
+    assert summ["n_intervals"] == sweep["city_n_intervals"] == 2
+    ser = cg.order_parameters(state[state.index >= 180], df, net.edges, cg.edge_adjacency(net, "directed"))
+    assert ser.G1.mean() == pytest.approx(sweep["city_largest_cluster"]) == 400 / 700   # AB + BC

@@ -55,6 +55,15 @@ def parse_args():
     return ap.parse_args()
 
 
+def select_runs(res, include_invalid=False):
+    """The results rows to measure and the run_ids left out: rows with valid = False are left
+    out unless include_invalid (valid is read as text, so "True"/"False" strings work too)."""
+    if include_invalid or "valid" not in res:
+        return res, []
+    ok = res["valid"].astype(str).str.lower() == "true"
+    return res[ok], list(res.loc[~ok, "run_id"])
+
+
 def measure_one(job):
     run_id, k, seed, n = job
     net, m, vref, adj = G["net"], G["m"], G["vref"], G["adj"]
@@ -255,10 +264,9 @@ def main():
     if q_s and float(q_s) != P:
         sys.exit(f"[run] queue_output_s = {q_s:g} s, but the queue measures need the criterion period {P:g} s")
     res = pd.read_csv(a.results_csv or root / "results" / cfg["scenario"] / f"{cfg['name']}.csv")
-    n_invalid = int((~res["valid"].astype(bool)).sum()) if "valid" in res else 0
-    if n_invalid and not a.include_invalid:
-        print(f"skipping {n_invalid} run(s) with valid = False: {', '.join(res.loc[~res['valid'].astype(bool), 'run_id'])}")
-        res = res[res["valid"].astype(bool)]
+    res, skipped = select_runs(res, a.include_invalid)
+    if skipped:
+        print(f"skipping {len(skipped)} run(s) with valid = False: {', '.join(skipped)}")
     prefix = a.prefix or cfg["sweep"]["run_prefix"]
     ref_id = f"{prefix}_k{float(m['reference_density_veh_km']):g}_s{m['reference_seed']}"
     ref = cg.read_edgedata(root / "runs" / ref_id / edfile)
@@ -330,7 +338,7 @@ def main():
     figures(per_run, onset, btw, corr, heat, a)
 
     chk = dict(
-        vref_coverage=info["coverage"], n_runs=len(per_run), n_invalid_skipped=0 if a.include_invalid else n_invalid,
+        vref_coverage=info["coverage"], n_runs=len(per_run), n_invalid_skipped=len(skipped),
         censor_at=censor, **conf,
         # against the sweep's columns, from the same criterion code: a check of the plumbing
         max_abs_G1_diff=float((per_run.G1_recomputed - per_run.city_largest_cluster).abs().max()),
