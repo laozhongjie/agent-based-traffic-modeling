@@ -1,0 +1,84 @@
+# T4-D3 teleport check, teleport after 1,200 s (member D asked 2026-10-29: does flow level off from 300 to 600 to 1,200 s?; operator "Q20 ok", 2026-10-29).
+# A copy of bugis_all_controller_tp600.toml at 25, 30 and 40 veh/km (25 added 2026-10-29), seeds 1-3, with only the teleport
+# setting, name, run prefix and densities changed. Compare its runs with the runs of
+# bugis_all_controller.toml (teleport after 300 s) and bugis_all_controller_tp600.toml (600 s) at the
+# same densities and seeds: if flow levels off from 300 to 600 to 1,200 s, the teleport bias is bounded.
+# Network v1 as frozen 2026-10-29 (373a24c, T1-D13 option B); the results on the provisional net
+# before the freeze (30 and 40 veh/km only) are at 9f331a8.
+# Run and measure: python scripts/city_sweep.py --config configs/city/bugis_all_controller_tp1200.toml
+# Run folders runs/tp1200_city_bugis_all_k<k>_s<seed>/ are git-ignored.
+name = "bugis_all_controller_tp1200"
+scenario = "city"
+model = "IDM"
+
+[network]
+net_file = "scenarios/city/bugis_all.net.xml"   # Task 1 main net (all road classes), v1 frozen 2026-10-29 (373a24c)
+tag = "bugis_all"
+
+[sweep]
+densities_veh_km = [25, 30, 40]   # 25 added 2026-10-29 (frozen-net rerun); veh/km: N / total lane length of normal lanes; the MFD peak region (T4-D3; member D asked for 30 and 40)
+seeds = [1, 2, 3]
+jobs = 8                       # parallel worker processes, one SUMO run each (CPU cores)
+run_prefix = "tp1200_city_bugis_all"   # run IDs <run_prefix>_k<k>_s<seed>
+
+[run]
+end_s = 7200                   # s, run length (T3-D9 trial)
+warmup_s = 3600                # s, measurements use warmup_s-end_s (T3-D9 trial); also the v_ref window start of the reference run
+step_length_s = 1              # s
+allow_teleport = true          # T4-D3: teleport after 1,200 s
+time_to_teleport_s = 1200      # s a car may stand still before SUMO teleports it (four times SUMO's default)
+placement_jitter_m = 0.5       # m; cars spread evenly over all car lanes at t = 0, +- this jitter (as task 3)
+
+[controller]   # T4-D1, src/traffic_project/demand.py
+retarget_at_remaining_edges = 3  # edges: new random destination when a car is this close to its route end (as task 3)
+destination = "uniform_edge"   # destination edge drawn uniformly from the edges that allow passenger cars
+guard_m = 60                   # m: re-target when the current edge ends less than this before the destination by any path, and never draw a destination that close; must exceed maxSpeed x step_length_s (30 m), checked by the script
+seed_offset = 7919             # destination draws use the seed seed + seed_offset (as task 3's pilot)
+
+[rerouting]   # SUMO rerouting device (T4-D1); the setting of C's gridlock diagnosis (not in the repo) that kept flow up without gridlock
+probability = 1                # share of cars with the device
+period_s = 60                  # s between re-plans of each car
+adaptation_interval_s = 10     # s between travel-time samples
+adaptation_steps = 18          # samples averaged: 18 x 10 s = 180 s
+
+[settle]   # T3-D9 trial settledness check
+block_s = 1800                 # s, block length for flow and teleport rates per block
+ratio_min = 0.9                # flow(last block) / flow(previous block) must be >= this
+ratio_max = 1.1                # ... and <= this
+in_valid = false               # true: an unsettled run is invalid; false: reported in city_settled only
+
+[vehicle]   # written unchanged into the SUMO <vType>; = the Task 3 grid pilot vType (configs/validation/grid_smoke.toml on main)
+carFollowModel = "IDM"
+length = 5                     # m
+minGap = 2                     # m, IDM s0
+accel = 1.0                    # m/s^2, IDM a
+decel = 1.5                    # m/s^2, IDM b (comfortable deceleration)
+tau = 1.5                      # s, IDM time headway T
+delta = 4                      # IDM acceleration exponent (no unit)
+maxSpeed = 30                  # m/s, IDM v0; lane speed limits cap it (at most 19.44 m/s in this net)
+speedDev = 0                   # (ratio, no unit) all cars share the same desired speed
+speedFactor = 1                # (ratio, no unit) desired speed = speedFactor x lane speed limit
+
+[inputs]
+edgedata_file = "edge{period:g}.xml.gz"   # edgeData at the criterion period (90 s cycle)
+summary_file = "summary.xml"
+write_timeseries = true
+
+[measure]   # same values as configs/city/bugis_all_density_settled.toml
+timeseries_every_s = 10    # s
+r_on = 0.5                 # T3-D1, (ratio, no unit) speed / v_ref below which an edge counts as congested
+persist_m = 2              # T3-D1, intervals
+period_s = "cycle"         # T3-D1; 90 s in Bugis (all 76 signals), T1-D4
+period_mult = 1            # T3-D1, (ratio, no unit) measurement interval = period_mult x period_s
+adjacency = "directed"     # T3-D1
+weight = "lane_length"     # T3-D2
+reference_density_veh_km = 2   # veh/km, free-flow reference run (T3-D8 option A), same controller settings and end_s
+reference_seed = 99
+vref_min_sampled_s = 60    # s; T3-D8 default
+vref_coverage_min = 0.90   # (share, no unit) v_ref coverage must exceed this (proposal section 4); reported in city_vref_coverage_ok, not a validity check
+vref_fallback = "class_median"  # T3-D8
+spillback_occ_frac = 0.8   # T3-D8
+veh_length_m = 5.0         # m
+min_gap_m = 2.0            # m
+gridlock_outflow_frac = 0.01   # T3-D8
+gridlock_cycles = 3        # T3-D8, intervals
