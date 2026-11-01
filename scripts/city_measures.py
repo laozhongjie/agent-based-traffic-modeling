@@ -6,11 +6,12 @@ writes tables (CSV) and figures. Nothing is re-simulated. checks.json compares G
 and the spillback count with the sweep's own columns; both come from the same criterion
 code, so that comparison checks the files and windows read, not the criterion.
 
-    python scripts/city_measures.py --config configs/city/bugis_all_controller.toml \
-        --root ../agent-based-traffic-modeling --tables-dir OUT/tables --figures-dir OUT/figures
+    python scripts/city_measures.py --config configs/city/bugis_all_controller.toml
 
---root is the checkout that holds runs/ and results/ (default: this one). The figures are
-numbered 01-05; see the evidence note of task 6 for what each shows.
+writes results/<scenario>/<name>_measures/ in this checkout (tables, checks.json and figures
+01-05). The analysis settings (onset share and its checks, censoring, the flow plateau, the
+heat-map density) are keys of the config's [measure] table; the flags below override them
+for a one-off look. --root is the checkout that holds runs/ and results/ (default: this one).
 """
 import argparse
 import json
@@ -27,6 +28,8 @@ from traffic_project import congestion as cg
 from traffic_project import mfd_measures as mm
 
 G = {}   # shared with the worker processes (fork)
+MEASURE_KEYS = ("onset_share", "onset_share_checks", "onset_censor_factor", "flow_plateau_veh_km",
+                "heatmap_density_veh_km")
 BLUE, ORANGE, AQUA, GREY, INK = "#2a78d6", "#eb6834", "#1baf7a", "#8a8984", "#0b0b0b"
 
 
@@ -34,15 +37,14 @@ def parse_args():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--config", required=True)
     ap.add_argument("--root", default=".", help="checkout holding runs/ and results/ (read only)")
-    ap.add_argument("--tables-dir", required=True)
-    ap.add_argument("--figures-dir", required=True)
-    ap.add_argument("--onset-threshold", type=float, default=0.5,
-                    help="share of measured intervals congested that marks onset (T3-D3: 0.5)")
-    ap.add_argument("--peak-density", type=float, default=30.0,
-                    help="veh/km, the MFD flow peak to mark (pre-freeze net: 30); also picks the heat-map run")
+    ap.add_argument("--tables-dir", help="default results/<scenario>/<name>_measures in this checkout")
+    ap.add_argument("--figures-dir", help="default the same folder as the tables")
+    ap.add_argument("--onset-threshold", type=float,
+                    help="override [measure] onset_share: share of measured cycles congested that marks onset")
+    ap.add_argument("--peak-density", type=float,
+                    help="veh/km: mark one flow peak with a line instead of shading [measure] flow_plateau_veh_km")
     ap.add_argument("--peak-range", type=float, nargs=2, metavar=("LO", "HI"),
-                    help="veh/km: mark a flat MFD top as a shaded range instead of the --peak-density line "
-                         "(frozen net: 20 35, the critical-density range of the fit proposal)")
+                    help="veh/km: override [measure] flow_plateau_veh_km, the flat top shaded in the figures")
     ap.add_argument("--include-invalid", action="store_true",
                     help="also measure runs whose results row has valid = False (default: skip them)")
     ap.add_argument("--heatmap-run", default=None, help="run_id for the per-edge queue heat map")
@@ -64,8 +66,8 @@ def measure_one(job):
     # not the criterion
     ser = cg.order_parameters(state[keep], run, net.edges, adj, m.get("weight", "lane_length"))
     summ, per_edge, spill = mm.run_measures(run, state, net.edges, G["warmup"], G["P"], n, m)
-    qfile = G["runs"] / run_id / f"queue{G['P']:g}.xml.gz"   # only in runs made with --queue-output-s
-    if qfile.exists():
+    qfile = G["runs"] / run_id / G["qfile"] if G["qfile"] else None   # runs made with [run] queue_output_s
+    if qfile is not None and qfile.exists():
         summ.update(mm.queue_output_measures(mm.read_queue_output(qfile), state, spill, net.edges,
                                              G["warmup"], m["veh_length_m"] + m["min_gap_m"]))
     summ.update(run_id=run_id, k=k, seed=seed, G1_recomputed=float(ser.G1.mean()),
@@ -178,7 +180,7 @@ def figures(per_run, onset, btw, corr, heat, a):
     fig, axs = plt.subplots(1, 2, figsize=(11, 4.8), dpi=130, sharey=False)
     ks = sorted(onset.dropna().unique())
     cats = ks + [np.nan]
-    labels = [f"{k:g}" for k in ks] + ["none\n(<= 40)"]
+    labels = [f"{k:g}" for k in ks] + [f"none\n(<= {a.max_density:g})"]
     rng = np.random.default_rng(0)
     for ax, col, title in ((axs[0], "btw_junction_emp_lane", "junction graph (edge betweenness)"),
                            (axs[1], "btw_turn_emp_lane", "turn graph (turn restrictions kept)")):
@@ -211,14 +213,14 @@ def figures(per_run, onset, btw, corr, heat, a):
 
     # 05 per-edge queue over time, one run
     if heat is not None:
-        order = onset.fillna(99).sort_values(kind="stable").index
+        order = onset.fillna(a.censor_at).sort_values(kind="stable").index
         h = heat.reindex(columns=order).fillna(0.0).T
         fig, ax = plt.subplots(figsize=(9, 4.4), dpi=130)
         im = ax.imshow(np.clip(h.to_numpy(), 0, 1), aspect="auto", cmap="Blues", vmin=0, vmax=1,
                        extent=(h.columns[0], h.columns[-1] + G["P"], len(order), 0), interpolation="nearest")
         ax.axvline(G["warmup"], color=ORANGE, lw=1.2, ls="--")
         ax.text(G["warmup"] + 40, 20, "measured from here", color=ORANGE, fontsize=8, ha="left", va="top")
-        bounds = onset.reindex(order).fillna(99).to_numpy()
+        bounds = onset.reindex(order).fillna(a.censor_at).to_numpy()
         for kk in ks:
             y = int(np.searchsorted(bounds, kk, side="right"))
             ax.axhline(y, color="#d0cfca", lw=0.6)
@@ -234,6 +236,16 @@ def main():
     t0 = time.time()
     cfg = tomllib.loads(Path(a.config).read_text())
     m, root = cfg["measure"], Path(a.root).resolve()
+    missing = [k for k in MEASURE_KEYS if k not in m]
+    if missing:
+        sys.exit(f"{a.config}: [measure] lacks {', '.join(missing)} (see configs/city/bugis_all_controller.toml)")
+    if a.onset_threshold is None:
+        a.onset_threshold = float(m["onset_share"])
+    if a.peak_range is None and a.peak_density is None:
+        a.peak_range = [float(v) for v in m["flow_plateau_veh_km"]]
+    out_dir = Path(__file__).resolve().parents[1] / "results" / cfg["scenario"] / f"{cfg['name']}_measures"
+    a.tables_dir = a.tables_dir or out_dir
+    a.figures_dir = a.figures_dir or a.tables_dir
     net = cg.read_net(root / cfg["network"]["net_file"])
     P = cg.cycle_period(net, m["period_s"]) * m.get("period_mult", 1)
     if m.get("period_mult", 1) != 1:
@@ -252,7 +264,8 @@ def main():
                                         m.get("vref_fallback", "class_median"))
     G.update(net=net, m=m, vref=vref, adj=cg.edge_adjacency(net, m["adjacency"]), runs=root / "runs",
              edfile=edfile, warmup=warmup, P=P,
-             heat_run=a.heatmap_run or f"{prefix}_k{a.peak_density:g}_s1")
+             qfile=f"queue{float(cfg['run']['queue_output_s']):g}.xml.gz" if cfg["run"].get("queue_output_s") else None,
+             heat_run=a.heatmap_run or f"{prefix}_k{float(m['heatmap_density_veh_km']):g}_s1")
     jobs = [(r.run_id, float(r.city_k_target), int(r.seed), int(r.city_n_vehicles)) for r in res.itertuples()]
     with Pool(min(a.jobs, len(jobs))) as pool:
         outs = pool.map(measure_one, jobs)
@@ -277,11 +290,12 @@ def main():
             btw[f"btw_{graph}{tag}_lane"] = mm.per_lane(b, net.edges)
     btw = pd.DataFrame(btw)
     load = mm.reference_load(ref, net.edges, warmup)
-    censor = float(shares.index.max()) * 1.25
+    a.max_density = float(shares.index.max())
+    censor = a.censor_at = a.max_density * float(m["onset_censor_factor"])
     edges = net.edges[["length", "lanes", "limit"]].join(btw)
     edges["vref"], edges["ref_load"] = vref, load
     rows = []
-    for th in sorted({0.25, a.onset_threshold, 0.75}):
+    for th in sorted({a.onset_threshold, *map(float, m["onset_share_checks"])}):
         on = cg.onset_density(shares, th)
         edges[f"onset_k_{th:g}"] = on
         for col in btw.columns:

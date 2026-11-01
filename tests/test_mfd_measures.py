@@ -289,24 +289,19 @@ def test_onset_correlation_load_and_lanes():
 
 # ---------------------------------------------------------------- proposed sweep output
 
-def test_city_sweep_queue_output_flag_is_opt_in():
+def test_city_sweep_queue_output_is_opt_in_from_the_config():
     import importlib.util
-    from types import SimpleNamespace
     from traffic_project import ROOT, config
     spec = importlib.util.spec_from_file_location("city_sweep", ROOT / "scripts" / "city_sweep.py")
     cs = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cs)
     cs.CTX["net_path"] = ROOT / "scenarios" / "city" / "bugis_all.net.xml"
-    args = dict(densities=None, seeds=None, end_s=None, warmup_s=None, block_s=None, jobs=None,
-                prefix=None, name=None, verify_routes=False)
     cfg = config.load(ROOT / "configs" / "city" / "bugis_all_controller.toml")
-    over, smoke = cs.apply_overrides(cfg, SimpleNamespace(**args))
+    assert "queue_output_s" not in cfg["run"]   # the committed sweep writes no queue file
     plain = cs.sumocfg_text(cfg, ROOT / "runs" / "x", 1)
-    assert "queue-output" not in plain and over == {}
+    assert "queue-output" not in plain
     assert '<output><summary-output value="summary.xml"/></output>' in plain
-    cfg = config.load(ROOT / "configs" / "city" / "bugis_all_controller.toml")
-    over, smoke = cs.apply_overrides(cfg, SimpleNamespace(**args, queue_output_s=90.0))
+    cfg["run"]["queue_output_s"] = 90   # [run] queue_output_s = 90 in a config
     text = cs.sumocfg_text(cfg, ROOT / "runs" / "x", 1)
-    assert not smoke and over == {"run.queue_output_s": 90.0}
-    assert ('<queue-output value="queue90.xml.gz"/><queue-output.aggregation value="90"/>' in text)
-    assert text.replace('<queue-output value="queue90.xml.gz"/><queue-output.aggregation value="90"/>', "") == plain
+    q = '<queue-output value="queue90.xml.gz"/><queue-output.aggregation value="90"/>'
+    assert q in text and text.replace(q, "") == plain
