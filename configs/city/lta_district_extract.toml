@@ -1,0 +1,25 @@
+# LTA Traffic Speed Bands for the city district, one compact file per Singapore day (member E's speed history).
+# Run: python scripts/lta_district_extract.py --config configs/city/lta_district_extract.toml [--through YYYY-MM-DD]
+# Reads the poller's git-ignored raw files and writes data/processed/lta/ (committed; owner E, GUIDE.md section 2).
+
+name = "lta_district_extract"
+scenario = "city"
+model = "IDM"             # car-following model of the city experiments; the extract does not use it
+
+[network]
+net = "scenarios/city/bugis_all.net.xml"   # city network v1; its <location> gives the boundary, offset and projection
+
+[box]
+margin_m = 200.0          # grow the net's convBoundary by this on each side (m); keep a link if either end point is inside
+
+[input]
+raw_dir = "data/raw/lta_speedbands_v4"     # git-ignored poller output: speedbands/<YYYYMMDD>/<HHMMSS>.parquet, links.parquet, poll_log.csv
+interval_s = 300          # the poller's cadence (s); a 5-min slot with no complete poll is reported as a gap
+late_s = 60               # a poll that starts more than this after its slot's boundary is listed as off-schedule (s)
+
+[output]
+out_dir = "data/processed/lta"
+gzip_level = 9            # gzip compression level of the day files (header mtime is always 0, so reruns give identical bytes)
+
+[notes]                   # known causes of gaps, written by hand: "<YYYY-MM-DD HH:MM> SGT start of a gap" = "cause"
+"2026-10-28 07:00" = "C's record: the Linux system on C's computer that runs the poller (WSL) restarted"
