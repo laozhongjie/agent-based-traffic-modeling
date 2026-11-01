@@ -1,6 +1,6 @@
 """Task 6: queues, spillback, largest cluster and betweenness-vs-onset on a finished city sweep.
 
-Reads a sweep's results table and run folders read-only (edge<P>.xml.gz, meta.json) and the
+Reads a sweep's results table and run folders read-only (edge<P>.xml.gz) and the
 reference run's edgeData; classifies every edge with the config's [measure] congestion criterion;
 writes tables (CSV) and figures. Nothing is re-simulated. checks.json compares G1, phi_len
 and the spillback count with the sweep's own columns; both come from the same criterion
