@@ -319,10 +319,13 @@ def _edgedata(path, mult):
     return cg.merge_intervals(cg.read_edgedata(path), mult)
 
 
-def edge_shares(runs, cfgs, runs_dir, base="base", log=print):
+def edge_shares(runs, cfgs, runs_dir, base="base", log=print, main=None):
     """One row per variant, density, seed and road: congested share over warmup_s-end_s and the
     sampledSeconds-weighted mean speed. v_ref: each road's mean speed in the variant's own reference
-    run, as in city_sweep.py (see the module doc)."""
+    run, as in city_sweep.py (see the module doc). main: {variant: name of its main sweep table};
+    the reference run is looked up under that table's run prefix, since an extra table (e.g. more
+    seeds, run under another prefix) has its own reference run with the same road data (C's fix,
+    2026-11-02)."""
     cg = _cg()
     def params(run_dir, cfg):
         """The run's own [run] and [measure] (its manifest holds them with any smoke-run overrides)."""
@@ -336,7 +339,10 @@ def edge_shares(runs, cfgs, runs_dir, base="base", log=print):
         m = cfg["measure"]
         period = cg.cycle_period(net, m["period_s"])
         edfile = cfg["inputs"]["edgedata_file"].format(period=period)
-        prefix = _prefix(runs[runs.variant == variant].run_id)
+        own = runs[runs.variant == variant]
+        if main:
+            own = own[own.table == main[variant]]
+        prefix = _prefix(own.run_id)
         ref_dir = Path(runs_dir) / f"{prefix}_k{float(m['reference_density_veh_km']):g}_s{m['reference_seed']}"
         r, m = params(ref_dir, cfg)
         vref, _ = cg.free_flow_reference(_edgedata(ref_dir / edfile, m.get("period_mult", 1)), net.edges,
@@ -757,7 +763,8 @@ def main():
     else:
         print("reading per-road speeds from runs/ ...")
         try:
-            edges = edge_table(edge_shares(runs, cfgs, ROOT / a.runs_dir, base), base)
+            edges = edge_table(edge_shares(runs, cfgs, ROOT / a.runs_dir, base,
+                                           main={v: n[0] for v, n in names.items()}), base)
             edges.to_csv(edges_csv, index=False, float_format="%.4g")
         except FileNotFoundError as err:
             print(f"maps skipped: {err} is missing (runs/ is not in git; use --skip-edges with planning_edges.csv)")
