@@ -839,6 +839,9 @@ def main():
             edges.to_csv(edges_csv, index=False, float_format="%.4g")
         except FileNotFoundError as err:
             print(f"maps skipped: {err} is missing (runs/ is not in git; use --skip-edges with planning_edges.csv)")
+        except ImportError:
+            print("maps skipped: reading runs/ needs traffic_project.congestion (C's city code); "
+                  "use --skip-edges to draw the maps from planning_edges.csv")
     if edges is not None:
         ks = ([float(x) for x in a.map_densities.split(",")] if a.map_densities
               else map_densities(summary, runs.k_target.unique(), base))
