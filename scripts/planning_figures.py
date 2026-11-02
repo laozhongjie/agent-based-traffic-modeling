@@ -48,7 +48,8 @@ Outputs (in --out, default results/city/planning/):
   planning_mfd.csv       one row per variant and density: speed and flow, mean, min and max over seeds
   planning_edges.csv     one row per variant, density and road: congested share (mean, min, max over
                          seeds) and mean speed
-  figures/planning_mfd.png, figures/planning_map_k<k>.png
+  figures/planning_mfd.png (three panels) and each panel alone (planning_mfd_flow.png,
+                         planning_mfd_speed.png, planning_speed_change.png), figures/planning_map_k<k>.png
 and the site export --site/planning.js (default docs/data/city/), in the layout of A's
 traffic_project.export_web (see export_site). Export the four sweeps themselves with
 scripts/export_web.py first (on the computer that ran them), so planning.js can name their
@@ -429,69 +430,139 @@ def _style_axes(ax):
     ax.tick_params(colors=MUTED, labelcolor="#52514e")
 
 
-def plot_mfd(mfd, summary, change, v0, v_star, variants, path):
-    """Flow-density (left), speed-density with the threshold v* and each variant's critical density
-    (middle), and the paired change of mean speed from the baseline (right; bars: 1 standard error).
-    Lines: mean over seeds; bands: range over seeds."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+def _ranges(ks):
+    """'25-35' for consecutive sweep densities given as a sorted list, joined with commas."""
+    return ", ".join(f"{k:g}" for k in ks)
 
-    fig, (axq, axv, axd) = plt.subplots(1, 3, figsize=(16, 4.6))
+
+def pair_note(change, min_pairs=3):
+    """How many seed pairs the speed-change points rest on, for a caption: the usual count, the
+    densities of each variant with more (extra seeds) and the points with fewer than min_pairs."""
+    if not len(change):
+        return ""
+    usual = int(change.n_pairs.mode().iloc[0])
+    parts = [f"{usual} seed pairs per point"]
+    for variant, g in change.groupby("variant", sort=False):
+        more = g[g.n_pairs > usual].sort_values("k_target")
+        if len(more):
+            parts.append(f"{LABELS.get(variant, variant)} {more.n_pairs.min()}-{more.n_pairs.max()} at "
+                         f"{_ranges(more.k_target)} veh/km")
+    few = change[change.n_pairs < min_pairs]
+    if len(few):
+        groups = [f"{LABELS.get(v, v)} at {_ranges(sorted(g.k_target))}"
+                  for v, g in few.groupby("variant", sort=False)]
+        parts.append(f"hollow: fewer than {min_pairs} pairs (an invalid run drops its pair): " + "; ".join(groups))
+    return "; ".join(parts)
+
+
+def _panel_flow(ax, mfd, variants):
+    for variant in variants:
+        d = mfd[mfd.variant == variant].sort_values("k")
+        st = STYLE.get(variant, dict(color=INK, marker="o", ls="-"))
+        ax.fill_between(d.k, d.q_min, d.q_max, color=st["color"], alpha=0.15, lw=0)
+        ax.plot(d.k, d.q_mean, color=st["color"], lw=2, ls=st["ls"], marker=st["marker"], ms=5,
+                label=LABELS.get(variant, variant), zorder=3 if variant == "base" else 4)
+    ax.set_ylabel("Flow (veh/h per lane)")
+    ax.set_title("Macroscopic fundamental diagram", fontsize=11, loc="left", color=INK)
+    ax.set_xlabel("Density (veh/km of baseline lane)")
+    ax.set_ylim(bottom=0)
+    ax.set_xlim(left=0)
+    _style_axes(ax)
+    ax.legend(frameon=False, fontsize=9, loc="lower right")
+
+
+def _panel_speed(ax, mfd, summary, v_star, variants):
+    from matplotlib.lines import Line2D
     s = summary.set_index("variant")
+    for variant in variants:
+        d = mfd[mfd.variant == variant].sort_values("k")
+        st = STYLE.get(variant, dict(color=INK, marker="o", ls="-"))
+        ax.fill_between(d.k, d.v_min, d.v_max, color=st["color"], alpha=0.15, lw=0)
+        ax.plot(d.k, d.v_mean, color=st["color"], lw=2, ls=st["ls"], marker=st["marker"], ms=5,
+                zorder=3 if variant == "base" else 4)
+        kh = s.loc[variant, "k_half"] if variant in s.index else math.nan
+        if not math.isnan(kh):
+            ax.plot([kh], [v_star], marker="|", ms=16, mew=2, color=st["color"], zorder=5)
+    ax.axhline(v_star, color=INK, lw=1, ls=(0, (4, 3)), zorder=2)
+    ax.set_ylim(bottom=0)
+    ax.set_xlim(left=0)
+    ax.annotate(f"half of near-empty speed ({v_star:.2f} m/s)", (ax.get_xlim()[1], v_star),
+                xytext=(-4, 5), textcoords="offset points", ha="right", va="bottom", fontsize=8.5, color="#52514e")
+    ax.set_ylabel("Mean speed (m/s)")
+    ax.set_title("Speed and critical density (ticks)", fontsize=11, loc="left", color=INK)
+    ax.set_xlabel("Density (veh/km of baseline lane)")
+    _style_axes(ax)
+    # the ticks of close critical densities overlap, so list the values as well
+    handles = [Line2D([], [], color=STYLE.get(v, {}).get("color", INK), marker="|", ms=12, mew=2, ls="none",
+                      label=f"{LABELS.get(v, v)}: {s.loc[v, 'k_half']:.2f} veh/km")
+               for v in variants if v in s.index and not math.isnan(s.loc[v, "k_half"])]
+    if handles:
+        ax.legend(handles=handles, title="Critical density (seed-mean curve)", title_fontsize=8.5,
+                  frameon=False, fontsize=8.5, loc="upper right")
+
+
+def _panel_change(ax, change, variants, min_pairs=3):
+    """Paired speed change per density; points resting on fewer than min_pairs seed pairs hollow."""
     others = [v for v in variants if v in set(change.variant)] if len(change) else []
     off = {v: (i - (len(others) - 1) / 2) * 0.5 for i, v in enumerate(others)}   # veh/km, for legibility
     for variant in others:
         d = change[change.variant == variant].sort_values("k_target")
         st = STYLE.get(variant, dict(color=INK, marker="o", ls="-"))
-        axd.errorbar(d.k_target + off[variant], d.pct_mean, yerr=d.pct_se, color=st["color"], marker=st["marker"],
-                     ms=5, lw=1.6, ls=st["ls"], capsize=2.5, label=LABELS.get(variant, variant))
-    axd.axhline(0, color="#52514e", lw=1)
-    axd.set_ylabel("Change in mean speed vs baseline (%)")
-    axd.set_title("Paired change at the same car count", fontsize=11, loc="left", color=INK)
-    axd.set_xlabel("Density (veh/km of baseline lane)")
-    _style_axes(axd)
+        x = d.k_target + off[variant]
+        ax.errorbar(x, d.pct_mean, yerr=d.pct_se, color=st["color"], marker="none", lw=1.6, ls=st["ls"],
+                    capsize=2.5)
+        solid = d.n_pairs >= min_pairs
+        ax.plot(x[solid], d.pct_mean[solid], ls="none", marker=st["marker"], ms=5, color=st["color"],
+                label=LABELS.get(variant, variant))
+        ax.plot(x[~solid], d.pct_mean[~solid], ls="none", marker=st["marker"], ms=6, mfc="white",
+                mec=st["color"], mew=1.5)
+    ax.axhline(0, color="#52514e", lw=1)
+    ax.set_ylabel("Change in mean speed vs baseline (%)")
+    ax.set_title("Paired change at the same car count", fontsize=11, loc="left", color=INK)
+    ax.set_xlabel("Density (veh/km of baseline lane)")
+    _style_axes(ax)
     if others:
-        axd.legend(frameon=False, fontsize=8.5, loc="best")
-    for variant in variants:
-        d = mfd[mfd.variant == variant].sort_values("k")
-        st = STYLE.get(variant, dict(color=INK, marker="o", ls="-"))
-        kw = dict(color=st["color"], lw=2, ls=st["ls"], marker=st["marker"], ms=5, label=LABELS.get(variant, variant),
-                  zorder=3 if variant == "base" else 4)
-        axq.fill_between(d.k, d.q_min, d.q_max, color=st["color"], alpha=0.15, lw=0)
-        axq.plot(d.k, d.q_mean, **kw)
-        axv.fill_between(d.k, d.v_min, d.v_max, color=st["color"], alpha=0.15, lw=0)
-        axv.plot(d.k, d.v_mean, **kw)
-        kh = s.loc[variant, "k_half"] if variant in s.index else math.nan
-        if not math.isnan(kh):
-            axv.plot([kh], [v_star], marker="|", ms=16, mew=2, color=st["color"], zorder=5)
-    axv.axhline(v_star, color=INK, lw=1, ls=(0, (4, 3)), zorder=2)
-    axv.annotate(f"half of near-empty speed ({v_star:.2f} m/s)", (axv.get_xlim()[1], v_star),
-                 xytext=(-4, 5), textcoords="offset points", ha="right", va="bottom", fontsize=8.5, color="#52514e")
-    axq.set_ylabel("Flow (veh/h per lane)")
-    axv.set_ylabel("Mean speed (m/s)")
-    axq.set_title("Macroscopic fundamental diagram", fontsize=11, loc="left", color=INK)
-    axv.set_title("Speed and critical density (ticks)", fontsize=11, loc="left", color=INK)
-    for ax in (axq, axv):
-        ax.set_xlabel("Density (veh/km of baseline lane)")
-        ax.set_ylim(bottom=0)
-        ax.set_xlim(left=0)
-        _style_axes(ax)
-    axq.legend(frameon=False, fontsize=9, loc="lower right")
-    # the ticks of close critical densities overlap, so list the values as well
-    from matplotlib.lines import Line2D
-    handles = [Line2D([], [], color=STYLE.get(v, {}).get("color", INK), marker="|", ms=12, mew=2, ls="none",
-                      label=f"{LABELS.get(v, v)}: {s.loc[v, 'k_half']:.2f} veh/km")
-               for v in variants if v in s.index and not math.isnan(s.loc[v, "k_half"])]
-    if handles:
-        axv.legend(handles=handles, title="Critical density (seed-mean curve)", title_fontsize=8.5,
-                   frameon=False, fontsize=8.5, loc="upper right")
-    fig.text(0.01, 0.005, f"Lines: mean over seeds; bands: range over seeds; right: mean of paired differences "
-             f"(same density and seed), bars 1 standard error, variants offset by 0.5 veh/km for legibility. "
-             f"Near-empty speed v0 = {v0:.2f} m/s (baseline, lowest density).", fontsize=8, color=MUTED)
-    fig.tight_layout(rect=(0, 0.03, 1, 1))
-    fig.savefig(path, dpi=200)
-    plt.close(fig)
+        ax.legend(frameon=False, fontsize=8.5, loc="best")
+
+
+def plot_mfd(mfd, summary, change, v0, v_star, variants, path):
+    """Flow-density (left), speed-density with the threshold v* and each variant's critical density
+    (middle), and the paired change of mean speed from the baseline (right; bars: 1 standard error;
+    hollow points rest on fewer than 3 seed pairs). Lines: mean over seeds; bands: range over seeds.
+    Writes the three panels together at path, and each alone beside it (planning_mfd_flow.png,
+    planning_mfd_speed.png, planning_speed_change.png), so a report can combine panels of two runs
+    (e.g. the 3-seed MFD with the 10-seed speed change)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    path = Path(path)
+    common = (f"Lines: mean over seeds; bands: range over seeds (wider with more seeds). "
+              f"Near-empty speed v0 = {v0:.2f} m/s (baseline, lowest density).")
+    change_note = ("Mean of paired differences (same density and seed), bars 1 standard error, variants offset "
+                   "by 0.5 veh/km for legibility; " + pair_note(change) + ".")
+
+    def save(fig, out, note):
+        import textwrap
+        w = fig.get_size_inches()[0]
+        lines = textwrap.wrap(note, int(w * 15))
+        fig.text(0.01, 0.005, "\n".join(lines), fontsize=8, color=MUTED, va="bottom")
+        fig.tight_layout(rect=(0, 0.035 * len(lines) * 4.6 / fig.get_size_inches()[1], 1, 1))
+        fig.savefig(out, dpi=200)
+        plt.close(fig)
+
+    fig, (axq, axv, axd) = plt.subplots(1, 3, figsize=(16, 4.8))
+    _panel_flow(axq, mfd, variants)
+    _panel_speed(axv, mfd, summary, v_star, variants)
+    _panel_change(axd, change, variants)
+    save(fig, path, common + " Right: m" + change_note[1:])
+    for name, draw, note in (
+            ("planning_mfd_flow.png", lambda ax: _panel_flow(ax, mfd, variants), common),
+            ("planning_mfd_speed.png", lambda ax: _panel_speed(ax, mfd, summary, v_star, variants), common),
+            ("planning_speed_change.png", lambda ax: _panel_change(ax, change, variants), change_note)):
+        fig, ax = plt.subplots(figsize=(6.4, 4.8))
+        draw(ax)
+        save(fig, path.with_name(name), note)
 
 
 def plot_map(edges, geo, variants, k, path, base="base", change_min=0.05):
