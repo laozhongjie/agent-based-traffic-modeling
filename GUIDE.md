@@ -101,7 +101,7 @@ Code is organised by what it does, not by who wrote it. Each kind of code has on
 | `runs/<run-id>/` | One folder per run, written by the scripts; never edited by hand | — |
 | `sandbox/<your-name>/` | Your own experiments and notebooks | You |
 | `notebooks/<your-name>/` | Read-only notebook copies for teammates, released by date (rule 6) | You |
-| `docs/data/<scenario>/` | Results exported for the website; written by `scripts/export_web.py`, never edited by hand | — |
+| `docs/data/<page>/` | Results the website shows, one folder per page (`ring`, `network`, `planning`), in the format of section 6, "Website files"; written by scripts, never edited by hand | — |
 | `docs/` | The project website | A |
 
 ### Network files in `scenarios/`
@@ -181,7 +181,7 @@ Run every command from the repository root, with the `traffic` environment activ
    python scripts/plot_ring.py --config configs/ring/idm_sweep.toml
    ```
 
-6. Export the valid runs to the website. This writes `docs/data/ring/idm_sweep.js` with each run's config hash, SUMO version and git commit. It stops when the runs came from uncommitted code or the config changed after the runs; `--allow-dirty` writes a draft for previewing. Run it on the computer that ran the sweep, because it reads the run records in `runs/`.
+6. Export the valid runs to the website. This writes `docs/data/ring/idm_sweep.js` (format: section 6, "Website files") with each run's config hash, SUMO version and git commit. It stops when the runs came from uncommitted code or the config changed after the runs; `--allow-dirty` writes a draft for previewing. Run it on the computer that ran the sweep, because it reads the run records in `runs/`.
 
    ```bash
    python scripts/export_web.py --config configs/ring/idm_sweep.toml
@@ -276,6 +276,32 @@ df = load_summary("ring", "idm_sweep")                               # one row p
 ts = load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")   # one run over time
 df = df[df.valid]                                                     # keep runs that passed every check
 ```
+
+### Website files: `docs/data/<page>/<name>.js`
+
+The website reads results only from files in `docs/data/` in the format below; a table in any other form cannot appear on a page. Scripts write these files, never by hand, and a file made from runs uses valid runs only.
+
+Rules for every file:
+
+- One dataset per file, in `docs/data/<page>/`, where `<page>` names the page that shows it: `ring` (`docs/lab/ring.html`), `network` (`docs/lab/network.html`) or `planning` (`docs/lab/planning.html`).
+- The first line is a comment that names the script and its source and ends "do not edit"; the second is `window.<KIND> = window.<KIND> || {};`; the third sets one entry of that object, `window.<KIND>["<key>"] = {...};`. The page loads the file with a `<script defer>` tag, so the site needs no server. The pull request that adds a file adds its tag to the page too, so A reviews both together.
+- The same inputs give the same file: no timestamps.
+- A file made from runs names where its numbers come from: `config`, `config_sha256`, `git_commit`, `sumo_version` and the run IDs (section 5). A `git_commit` ending in `-dirty` marks a draft. A file made from a network names its net file (`net`).
+- Units follow section 8 and are named in a `units` field; the one exception is `NETWORK`'s `speed_kmh`, the speed limit in km/h. Numbers keep 6 significant digits; positions are rounded to 1 m.
+- A file is at most 2 MB: `docs/` is published as it is, and each visitor downloads the files of the page they open.
+
+The kinds of file:
+
+| Kind and key | What one entry holds | Written by | Shown on |
+| --- | --- | --- | --- |
+| `RESULTS["<page>/<name>"]` | One experiment's valid runs: `columns`, every summary-table column, scenario-specific ones included, except `scenario` and `valid`; `rows`, one array per run in `columns` order; `units` for the columns in the table above that have one; and `scenario`, `page`, `name`, `model`, `config`, `config_sha256`, `sumo_version`, `git_commit`, `draft` and `excluded_invalid` | `scripts/export_web.py` | ring: fundamental diagrams, order parameter and fluctuations; network: macroscopic fundamental diagram, largest congested cluster; planning: macroscopic fundamental diagrams overlaid |
+| `NETWORK["roads_<tag>"]` | The net file's path (`net`), `units`, the net's `boundary`, and `edges`, one per road (normal edge): its `id`, `lanes`, `speed_kmh` and `shape`, lane 0's outline as `[x, y]` points in the net's metres | `scripts/city_clips.py` (pull request #12) | The base layer of every map |
+| `CLIPS["<tag>_k<k>"]` | A short replay of one run: `car_ids` once, then `frames`, one per step of `step_s` from `begin_s`; a frame lists, for each car in `car_ids` order, `dx, dy`: its position change in m since its last known position, so a car's first pair that is not `null` is its absolute position (in the first frame for nearly every car), and `null, null` marks a step the car is missing from, mid-teleport. A clip's `net` is the tag: its roads are `NETWORK["roads_" + net]` | `scripts/city_clips.py` (pull request #12) | The replay on the network map |
+| `EDGES["<name>_k<k>_s<seed>"]` (to build) | One run's roads, in the order of its `roads_<tag>` file: `v_ref_mps` (near-empty speed, section 8), then per measurement interval from 0 s, warm-up included (`period_s`, the interval length in s: 90 in Bugis): `speed_mps` (to 0.1 m/s), `congested` and `largest_cluster` (0 or 1) | C for the city network, D for the planning variants | network: the network map's colours and highlighted cluster, link congestion maps; planning: side-by-side maps, change in congestion |
+| `EDGES["<name>"]` (to build) | One sweep's roads, in the same order: `betweenness` and `onset_k`, the lowest swept density at which the road's share of measured cycles congested, averaged over seeds, exceeds `[measure] onset_share` (0.5), as `scripts/city_measures.py` in pull request #13 computes it (`null` if no swept density reaches it) | C | network: betweenness against congestion onset |
+| `CRITICAL["<page>/<name>"]` (to build) | One entry per ring, network or variant: `k_c` with its range `k_c_low`, `k_c_high`; `q_max` with `q_max_low`, `q_max_high`; the `method`; the run IDs | E's estimator (C fills the city network with E's method until it exists) | ring: critical density summary; network: network critical density summary, network against highway; planning: critical density by scenario, critical density and maximum flow by scenario |
+
+`scripts/export_web.py` picks the page folder itself: ring runs go to `ring`, city runs to `network`, and planning variants (a config with `[network] variant`) to `planning`; `--page` overrides it. Grid runs go to `docs/data/grid/`, which no page reads; the network page's test-grid row, in its critical density summary, comes from the grid's `CRITICAL["network/<name>"]` entry. The exporter keeps text columns as text and writes `True` and `False` as `true` and `false`, and an empty cell or NaN as `null`, except in `run_id`, `model` and `variant`, which stay as written. The ring page draws every `RESULTS` entry whose `scenario` is `ring` (`docs/assets/ring-results.js`). The network and planning pages have no loader yet (A); their `RESULTS` entries both have `scenario` `city`, so those loaders select by `page`. Ring outputs 3-5 have no kind yet, and neither has the comparison with LTA speed data (network page, output 6), which gets its kind once the SUMO edge to LTA lookup exists.
 
 ## 7. Checks every run must pass
 

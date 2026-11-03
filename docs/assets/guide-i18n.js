@@ -82,7 +82,7 @@ source ~/.bashrc</code></pre>
           <tr><td><code>data/raw/</code>、<code>data/processed/</code></td><td>外部数据：OSM、PeMS、highD、LTA</td><td>E</td></tr>
           <tr><td><code>runs/&lt;run-id&gt;/</code></td><td>每次运行一个目录，由脚本写出，不手工修改</td><td>—</td></tr>
           <tr><td><code>sandbox/&lt;your-name&gt;/</code></td><td>个人试验代码和 notebook</td><td>本人</td></tr>
-          <tr><td><code>docs/data/&lt;scenario&gt;/</code></td><td>导出到网站的结果，由 <code>scripts/export_web.py</code> 写出，不手工修改</td><td>—</td></tr>
+          <tr><td><code>docs/data/&lt;page&gt;/</code></td><td>网站显示的结果，每个页面一个文件夹（<code>ring</code>、<code>network</code>、<code>planning</code>），格式见第 6 节“网站文件”；由脚本写出，不手工修改</td><td>—</td></tr>
           <tr><td><code>docs/</code></td><td>本网站</td><td>A</td></tr>
         </tbody>
       </table>
@@ -146,7 +146,7 @@ source ~/.bashrc</code></pre>
       <li>把基本图和时空图画到 <code>results/ring/</code>。
 <pre><code>python scripts/plot_ring.py --config configs/ring/idm_sweep.toml</code></pre>
       </li>
-      <li>把通过检查的运行导出到网站。命令会写出 <code>docs/data/ring/idm_sweep.js</code>，其中包含每次运行的配置哈希值、SUMO 版本和 git commit。运行来自未提交的代码，或运行之后配置文件改动过时，命令会报错停止；加 <code>--allow-dirty</code> 可以写出供预览的草稿。导出要读取 <code>runs/</code> 中的运行记录，所以在运行扫描的那台电脑上执行。
+      <li>把通过检查的运行导出到网站。命令会写出 <code>docs/data/ring/idm_sweep.js</code>（格式见第 6 节“网站文件”），其中包含每次运行的配置哈希值、SUMO 版本和 git commit。运行来自未提交的代码，或运行之后配置文件改动过时，命令会报错停止；加 <code>--allow-dirty</code> 可以写出供预览的草稿。导出要读取 <code>runs/</code> 中的运行记录，所以在运行扫描的那台电脑上执行。
 <pre><code>python scripts/export_web.py --config configs/ring/idm_sweep.toml</code></pre>
       </li>
     </ol>
@@ -230,7 +230,33 @@ results.write_summary(rows, cfg)</code></pre>
 
 df = load_summary("ring", "idm_sweep")                               # 每次运行一行
 ts = load_timeseries("ring", "idm_sweep", "ring_idm_L1000_n50_s1")   # 单次运行的时间序列
-df = df[df.valid]                                                     # 只保留通过全部检查的运行</code></pre>`,
+df = df[df.valid]                                                     # 只保留通过全部检查的运行</code></pre>
+    <h3>网站文件：<code>docs/data/&lt;page&gt;/&lt;name&gt;.js</code></h3>
+    <p>网站只从 <code>docs/data/</code> 中按下述格式写出的文件读取结果；其他形式的表格无法出现在页面上。这些文件一律由脚本写出，不手工修改；由运行得到的文件只使用有效运行。</p>
+    <p>每个文件都要遵守的规定：</p>
+    <ul>
+      <li>一个文件只放一组数据，放在 <code>docs/data/&lt;page&gt;/</code> 中，<code>&lt;page&gt;</code> 是显示它的页面：<code>ring</code>（<code>docs/lab/ring.html</code>）、<code>network</code>（<code>docs/lab/network.html</code>）或 <code>planning</code>（<code>docs/lab/planning.html</code>）。</li>
+      <li>第一行是注释，写明生成它的脚本和数据来源，并以“do not edit”结尾；第二行是 <code>window.&lt;KIND&gt; = window.&lt;KIND&gt; || {};</code>；第三行只设置该对象中的一项：<code>window.&lt;KIND&gt;["&lt;key&gt;"] = {...};</code>。页面用 <code>&lt;script defer&gt;</code> 标签载入文件，所以网站不需要服务器。新增文件的 PR 同时在页面上加上它的标签，让 A 一次审阅两者。</li>
+      <li>同样的输入得到同样的文件：文件中不写时间戳。</li>
+      <li>由运行得到的文件写明数字的来源：<code>config</code>、<code>config_sha256</code>、<code>git_commit</code>、<code>sumo_version</code> 和运行编号（第 5 节）。<code>git_commit</code> 以 <code>-dirty</code> 结尾表示草稿。由路网得到的文件写明路网文件（<code>net</code>）。</li>
+      <li>单位按第 8 节，并在 <code>units</code> 字段中写明；唯一的例外是 <code>NETWORK</code> 的 <code>speed_kmh</code>，即以 km/h 表示的限速。数字保留 6 位有效数字；位置取整到 1 m。</li>
+      <li>每个文件不超过 2 MB：<code>docs/</code> 原样发布，访问者打开哪个页面就要下载该页面的全部文件。</li>
+    </ul>
+    <p>文件的种类：</p>
+    <div class='table-wrap'>
+      <table class='model-table'>
+        <thead><tr><th>种类和键</th><th>一项包含的内容</th><th>写出者</th><th>显示位置</th></tr></thead>
+        <tbody>
+          <tr><td><code>RESULTS["&lt;page&gt;/&lt;name&gt;"]</code></td><td>一个实验的有效运行：<code>columns</code>，即汇总表的全部列（含场景专用列，去掉 <code>scenario</code> 和 <code>valid</code>）；<code>rows</code>，每次运行一个数组，顺序与 <code>columns</code> 相同；<code>units</code>，上表中有单位的各列的单位；以及 <code>scenario</code>、<code>page</code>、<code>name</code>、<code>model</code>、<code>config</code>、<code>config_sha256</code>、<code>sumo_version</code>、<code>git_commit</code>、<code>draft</code> 和 <code>excluded_invalid</code></td><td><code>scripts/export_web.py</code></td><td>ring：基本图、序参量与涨落；network：宏观基本图、最大拥堵连通区域；planning：宏观基本图叠加</td></tr>
+          <tr><td><code>NETWORK["roads_&lt;tag&gt;"]</code></td><td>路网文件的路径（<code>net</code>）、<code>units</code>、路网的 <code>boundary</code>，以及 <code>edges</code>：每条路段（普通 edge）一项，含 <code>id</code>、<code>lanes</code>、<code>speed_kmh</code> 和 <code>shape</code>，即 0 号车道的轮廓，以路网坐标（m）中的 <code>[x, y]</code> 点表示</td><td><code>scripts/city_clips.py</code>（PR #12）</td><td>所有地图的底图</td></tr>
+          <tr><td><code>CLIPS["&lt;tag&gt;_k&lt;k&gt;"]</code></td><td>一次运行的短回放：<code>car_ids</code> 只写一次，然后是 <code>frames</code>，从 <code>begin_s</code> 起每 <code>step_s</code> 一帧；每帧按 <code>car_ids</code> 的顺序列出每辆车的 <code>dx, dy</code>：它相对上一个已知位置的位移，单位为 m，所以每辆车第一对不为 <code>null</code> 的值就是它的绝对位置（几乎所有车都在第一帧），<code>null, null</code> 表示该车在这一步缺席（正在瞬移）。回放的 <code>net</code> 是标签：它的路段在 <code>NETWORK["roads_" + net]</code> 中</td><td><code>scripts/city_clips.py</code>（PR #12）</td><td>路网地图上的回放</td></tr>
+          <tr><td><code>EDGES["&lt;name&gt;_k&lt;k&gt;_s&lt;seed&gt;"]</code>（待建）</td><td>一次运行的各条路段，顺序与其 <code>roads_&lt;tag&gt;</code> 文件相同：<code>v_ref_mps</code>（近空载速度，第 8 节），然后从 0 s 起（含预热段）每个测量区间（<code>period_s</code>，区间长度，单位 s；Bugis 为 90）的 <code>speed_mps</code>（精确到 0.1 m/s）、<code>congested</code> 和 <code>largest_cluster</code>（0 或 1）</td><td>城市路网由 C 写出，规划方案由 D 写出</td><td>network：路网地图的颜色和突出显示的连通区域、路段拥堵热图；planning：并排地图、拥堵变化地图</td></tr>
+          <tr><td><code>EDGES["&lt;name&gt;"]</code>（待建）</td><td>一次扫描的各条路段，顺序相同：<code>betweenness</code>，以及 <code>onset_k</code>：该路段处于拥堵的已测信号周期比例（按种子取平均）超过 <code>[measure] onset_share</code>（0.5）时的最低扫描密度，按 PR #13 中 <code>scripts/city_measures.py</code> 的算法计算（在所有扫描密度下都达不到时为 <code>null</code>）</td><td>C</td><td>network：边介数与拥堵开始时刻</td></tr>
+          <tr><td><code>CRITICAL["&lt;page&gt;/&lt;name&gt;"]</code>（待建）</td><td>每个环路、路网或方案一项：<code>k_c</code> 及其范围 <code>k_c_low</code>、<code>k_c_high</code>；<code>q_max</code> 及 <code>q_max_low</code>、<code>q_max_high</code>；所用方法 <code>method</code>；运行编号</td><td>E 的估计程序（在它完成前，城市路网由 C 按 E 的方法填写）</td><td>ring：临界密度汇总；network：网络临界密度汇总、路网与高速公路对照；planning：各方案临界密度汇总、各方案的临界密度与最大流量</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><code>scripts/export_web.py</code> 自动选择页面文件夹：环路运行进 <code>ring</code>，城市路网运行进 <code>network</code>，规划方案（配置中有 <code>[network] variant</code>）进 <code>planning</code>；可用 <code>--page</code> 另行指定。网格运行进 <code>docs/data/grid/</code>，没有页面读取它；路网页面临界密度汇总中测试网格那一行来自网格的 <code>CRITICAL["network/&lt;name&gt;"]</code> 项。导出时文本列保持为文本，<code>True</code> 和 <code>False</code> 写成 <code>true</code> 和 <code>false</code>，空单元格或 NaN 写成 <code>null</code>；<code>run_id</code>、<code>model</code> 和 <code>variant</code> 三列除外，按原样保留。环路页面画出 <code>scenario</code> 为 <code>ring</code> 的每一项 <code>RESULTS</code>（<code>docs/assets/ring-results.js</code>）。路网和规划页面还没有载入程序（A）；这两个页面的 <code>RESULTS</code> 项的 <code>scenario</code> 都是 <code>city</code>，所以它们的载入程序按 <code>page</code> 选取。环路页面第 3-5 项还没有对应的文件种类；与 LTA 速度数据的对照（路网页面第 6 项）也没有，用哪种文件，等 SUMO edge 到 LTA 路段的查找表完成后再定。</p>`,
 
   "guide.checks": `
     <h2>7. 每次运行必须通过的检查</h2>
