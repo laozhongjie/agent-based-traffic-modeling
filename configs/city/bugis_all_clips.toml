@@ -1,0 +1,20 @@
+# Trajectory clips of representative city runs for the team site (task 5, card C5 bullet 3).
+# Run: python scripts/city_clips.py --config configs/city/bugis_all_clips.toml
+# Each clip reruns one run of the sweep config below exactly as scripts/city_sweep.py builds and runs it
+# (same routes, seeds, controller and SUMO options), stops at begin_s + length_s, and records every car's
+# position each step from begin_s (SUMO FCD output); the script checks the rerun against the sweep's own
+# summary.xml up to that time, then exports compact JS files to docs/data/network/.
+name = "bugis_all_clips"
+scenario = "city"
+model = "IDM"
+
+[clips]
+sweep_config = "configs/city/bugis_all_controller.toml"   # the run settings come from here, unchanged
+densities_veh_km = [10, 25, 40]   # below the critical point (13.3), on the flat top, past it
+seed = 1
+begin_s = 5400                    # s: inside the measured hour (3,600-7,200 s), runs settled
+length_s = 60                     # s: one frame per 1 s step, begin_s to begin_s + length_s
+run_prefix = "clip_city_bugis_all"
+sweep_run_prefix = "ctl_city_bugis_all"   # the sweep's runs, to check the rerun against
+jobs = 3
+out_dir = "docs/data/network"

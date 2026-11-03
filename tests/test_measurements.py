@@ -56,3 +56,33 @@ def test_network_summary_counts_teleporting_vehicles_from_summary_xml(tmp_path):
     delayed = write_summary(tmp_path / "late.xml", {0: 1, 1: 2, 2: 2})   # one insertion delayed
     _, late, _ = measurements.network_summary(fcd, *args, summary_xml=delayed)
     assert not late["all_vehicles_present"]
+
+
+def test_city_summary_on_a_hand_built_net(tmp_path):
+    # The three-node test net of test_congestion.py: lane length 700 m, one 60 s signal cycle.
+    # AB (200 m of lane) runs at 1 m/s against a reference speed of 10 m/s in both intervals,
+    # so it is congested; it holds 60 of the 120 vehicle-seconds of each interval.
+    from test_congestion import EDGES, write_edgedata, write_net
+    net = write_net(tmp_path / "t.net.xml")
+    ref = write_edgedata(tmp_path / "ref.xml", [{e: (100, 10.0, 1, 5) for e in EDGES}] * 2)
+    jam = {"AB": (60, 1.0, 10, 1), "BA": (20, 9.0, 1, 2), "BC": (20, 9.0, 1, 2), "CB": (20, 9.0, 1, 2)}
+    run = write_edgedata(tmp_path / "run.xml", [jam, jam])
+    steps = "".join(f'<step time="{t}.00" running="7" halting="0" meanSpeed="5.00"/>' for t in range(120))
+    summary = tmp_path / "summary.xml"
+    summary.write_text(f"<summary>{steps}</summary>")
+    assert measurements.read_summary_xml(summary).shape == (120, 4)
+    measure = dict(period_s="cycle", period_mult=1, r_on=0.5, persist_m=1, adjacency="directed",
+                   weight="lane_length", vref_min_sampled_s=60, vref_fallback="class_median",
+                   veh_length_m=5.0, min_gap_m=2.0, spillback_occ_frac=0.8, gridlock_outflow_frac=0.01,
+                   gridlock_cycles=3, timeseries_every_s=30)
+    m, checks, series = measurements.city_summary(run, ref, net, summary, measure, 0, n_vehicles=7)
+    assert m["density_veh_km"] == pytest.approx(10)                 # 7 vehicles / 0.7 km
+    assert m["flow_veh_h"] == pytest.approx(10 * 5 * 3.6)
+    assert m["congested_fraction"] == pytest.approx(0.5) and m["congested_fraction_var"] == 0
+    assert m["city_congested_length_fraction"] == pytest.approx(200 / 700)
+    assert m["city_vref_coverage"] == 1 and m["city_lane_length_m"] == 700 and m["city_gridlock"] == 0
+    assert all(checks.values())
+    # 30 s rows; congested_fraction repeats the last completed 60 s interval (0 before the first)
+    assert [(s["time_s"], s["congested_fraction"]) for s in series] == [(0, 0), (30, 0), (60, 0.5), (90, 0.5)]
+    _, short, _ = measurements.city_summary(run, ref, net, summary, measure, 0, n_vehicles=8)
+    assert not short["all_vehicles_present"]
