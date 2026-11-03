@@ -200,6 +200,9 @@ def load_network(cfg):
 def sumocfg_text(cfg, run_dir, seed):
     r, rr = cfg["run"], cfg["rerouting"]
     ttt = r["time_to_teleport_s"] if r.get("allow_teleport", False) else -1
+    q = r.get("queue_output_s")   # SUMO's aggregated queue-output for city_measures.py; absent = none
+    queue = (f'<queue-output value="queue{q:g}.xml.gz"/><queue-output.aggregation value="{q:g}"/>'
+             if q else "")
     return f"""<configuration>
     <input>
         <net-file value="{os.path.relpath(CTX['net_path'], run_dir)}"/>
@@ -216,7 +219,7 @@ def sumocfg_text(cfg, run_dir, seed):
         <device.rerouting.adaptation-interval value="{rr['adaptation_interval_s']}"/>
         <device.rerouting.adaptation-steps value="{rr['adaptation_steps']}"/>
     </processing>
-    <output><summary-output value="summary.xml"/></output>
+    <output><summary-output value="summary.xml"/>{queue}</output>
 </configuration>
 """
 

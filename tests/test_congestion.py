@@ -147,6 +147,16 @@ def test_spillback_gridlock_onset():
     assert on["a"] == 10.0 and np.isnan(on["b"])
 
 
+def test_rises_counts_first_row_and_transitions():
+    x = np.array([[1, 0], [1, 1], [0, 1], [1, 0]])
+    # column 0: rise at row 0 and row 3; column 1: rise at row 1
+    r = cg.rises(x)
+    assert r.shape == x.shape and r.dtype == bool
+    assert r.sum(axis=1).tolist() == [1, 1, 0, 1]
+    assert r[:, 0].tolist() == [True, False, False, True]
+    assert cg.rises(pd.DataFrame(x)).sum() == 3 and cg.onsets(x) == 2   # onsets skips row 0
+
+
 def test_edgedata_additional():
     txt = cg.edgedata_additional(90, "edge90.xml.gz")
     assert 'period="90"' in txt and 'excludeEmpty="false"' in txt and "sampledSeconds" in txt

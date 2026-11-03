@@ -313,6 +313,15 @@ def onsets(state01):
     return int((np.diff(x, axis=0) == 1).sum())
 
 
+def rises(state01):
+    """Where a 0/1 table (time x edge) turns on: a boolean array of the same shape, True
+    where a 1 follows a 0. The row before the first counts as 0, so a 1 in the first row
+    is a rise. Spillback events are rises of the spillback state (city_summary and
+    mfd_measures count them with this function)."""
+    x = np.asarray(state01)
+    return np.diff(np.vstack([np.zeros((1, x.shape[1])), x]), axis=0) == 1
+
+
 def gridlock(outflow, free_outflow, frac=0.01, cycles=3):
     """True per interval when outflow (sum of edgeData `left`) has stayed below
     frac x free_outflow for at least `cycles` consecutive intervals ending here."""
