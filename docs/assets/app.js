@@ -373,11 +373,19 @@
         ctx.restore();
       }
 
+      // Centre label "NaSch · v_max = 5 · p = 0.25", the symbols set like the KaTeX formulas on the site.
       ctx.fillStyle = cssColor("--muted");
-      ctx.font = "12px -apple-system, Segoe UI, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("NaSch · vmax " + VMAX + " · p " + P_SLOW, c, c + 4);
+      ctx.textAlign = "left";
+      const parts = LABEL_PARTS.map(([text, font, dy]) => { ctx.font = font; return [text, font, dy || 0, ctx.measureText(text).width]; });
+      let x = c - parts.reduce((w, p) => w + p[3], 0) / 2;
+      for (const [text, font, dy, w] of parts) { ctx.font = font; ctx.fillText(text, x, c + 5 + dy); x += w; }
     }
+    const UI_FONT = "13px -apple-system, Segoe UI, sans-serif", SERIF = ', "Times New Roman", serif';
+    const MATH_IT = "italic 15px KaTeX_Math" + SERIF, MATH_RM = "15px KaTeX_Main" + SERIF;
+    const LABEL_PARTS = [["NaSch", UI_FONT], ["  ·  ", UI_FONT], ["v", MATH_IT], ["max", "11px KaTeX_Main" + SERIF, 3],
+      [" = " + VMAX, MATH_RM], ["  ·  ", UI_FONT], ["p", MATH_IT], [" = " + P_SLOW, MATH_RM]];
+    // Canvas text does not trigger web-font loading; load the KaTeX fonts, then redraw.
+    if (document.fonts) Promise.all([MATH_IT, MATH_RM].map((f) => document.fonts.load(f))).then(() => draw(1), () => {});
 
     function frame(t) {
       if (running && visible) {
