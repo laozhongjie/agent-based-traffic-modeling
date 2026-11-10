@@ -1,0 +1,24 @@
+{
+  "run_id": "lookup",
+  "scenario": "city",
+  "model": "IDM",
+  "config": "configs/city/lta_lookup.toml",
+  "config_sha256": "8c4bd4646f7d",
+  "parameters": {
+    "net": "scenarios/city/bugis_all.net.xml",
+    "lta_input": "data/processed/lta/district_links.csv",
+    "lta_source": "v4-district-links-2026-10-20",
+    "match": {
+      "radius": 25.0,
+      "max_angle": 45.0,
+      "detour": 1.5,
+      "buffer": 15.0,
+      "min_frac": 0.5,
+      "margin": 50.0
+    },
+    "cleaning_cause": true
+  },
+  "sumo_version": "Eclipse SUMO sumo 1.28.0",
+  "git_commit": "26918f8",
+  "created_utc": "2026-11-10T13:33:49+00:00"
+}
