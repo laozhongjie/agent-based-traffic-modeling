@@ -503,13 +503,13 @@ window.PROJECT = {
           detail: {
             en: [
               "Network mean flow and speed, stopped-vehicle share, queue lengths and spillbacks",
-              "Size of the largest congested cluster: does it grow quickly near the critical density?",
-              "Edge betweenness (NetworkX) vs. when each segment becomes congested: does structure predict where jams start?"
+              "Size of the largest congested cluster: it grows steadily through the flat top of the MFD, with no sudden jump, and between 20 and 25 veh/km it comes to hold more than half of all congested lane length",
+              "Edge betweenness per lane (NetworkX, measured free-flow travel times) vs. onset density, the lowest swept network density at which a segment is congested in more than half of its measured signal cycles (a density, not a time): segments with higher betweenness congest at lower densities, but mostly because they carry more traffic and have fewer lanes; with traffic carried and lane count removed, betweenness predicts little about where jams start"
             ],
             zh: [
               "网络平均流量和速度、停驶车辆比例、排队长度和回溢次数",
-              "最大拥堵连通区域的规模：是否在临界密度附近迅速扩大",
-              "边介数（NetworkX）与各路段开始拥堵的时刻：路网结构能否预测拥堵最先出现的位置"
+              "最大拥堵连通区域的规模：在宏观基本图的平顶段内稳步增长，没有突然跃升；在 20 到 25 veh/km 之间，它所含的拥堵车道长度升至全部拥堵车道长度的一半以上",
+              "按车道计的边介数（NetworkX，以实测自由流行驶时间为权重）与开始拥堵的密度（扫描中路段在超过一半的测量周期内处于拥堵状态的最低网络密度，而不是时刻）：介数高的路段在较低密度下就开始拥堵，但这主要是因为它们承载的车流更多、车道更少；扣除车流和车道数这两项后，介数几乎不能预测拥堵最先出现的位置"
             ]
           }
         },

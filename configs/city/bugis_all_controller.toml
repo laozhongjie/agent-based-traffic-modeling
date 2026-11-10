@@ -39,6 +39,7 @@ step_length_s = 1              # s
 allow_teleport = true          # T3-D11 option C: report teleports instead of failing the no_teleport check
 time_to_teleport_s = 300       # s a car may stand still before SUMO teleports it (SUMO's default); -1 when allow_teleport = false
 placement_jitter_m = 0.5       # m; cars spread evenly over all car lanes at t = 0, +- this jitter (as task 3)
+# queue_output_s = 90          # s; uncomment to also write SUMO's aggregated queue-output (per-cycle maximum queue per edge) to queue<s>.xml.gz; scripts/city_measures.py needs it equal to the 90 s signal cycle
 
 [controller]   # T4-D1, src/traffic_project/demand.py
 retarget_at_remaining_edges = 3  # edges: new random destination when a car is this close to its route end (as task 3)
@@ -93,3 +94,9 @@ veh_length_m = 5.0         # m
 min_gap_m = 2.0            # m
 gridlock_outflow_frac = 0.01   # T3-D8
 gridlock_cycles = 3        # T3-D8, intervals
+# MFD measures, queues and betweenness against congestion onset: read by scripts/city_measures.py, not by the sweep
+onset_share = 0.5          # (share, no unit) an edge's onset density is the first swept density at which it is congested in more than this share of the measured cycles (seed mean)
+onset_share_checks = [0.25, 0.75]   # (shares, no unit) the same onset density at these shares, as a sensitivity check
+onset_censor_factor = 1.25 # (ratio, no unit) edges never congested in the sweep rank at this x the highest swept density
+flow_plateau_veh_km = [20, 35]   # veh/km, the flat top of the flow curve, shaded in the figures
+heatmap_density_veh_km = 30      # veh/km, the queue heat map shows the seed 1 run at this density

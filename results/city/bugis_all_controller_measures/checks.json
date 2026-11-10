@@ -1,0 +1,22 @@
+{
+ "vref_coverage": 0.9105403011514615,
+ "n_runs": 32,
+ "n_invalid_skipped": 1,
+ "censor_at": 50.0,
+ "rho_length_btw_junction": -0.11942237201431179,
+ "rho_length_onset": -0.03432033010345529,
+ "rho_load_btw_junction": 0.8706781772068468,
+ "rho_load_btw_turn_emp_lane": 0.7046929887607305,
+ "rho_load_onset": -0.35012741781626344,
+ "partial_inv_lanes_onset_given_load": -0.27619959654893966,
+ "partial_inv_lanes_censored_given_load": -0.07638773197860241,
+ "max_abs_G1_diff": 9.80118763926896e-17,
+ "max_abs_phi_diff": 8.326672684688674e-17,
+ "spill_events_equal": true,
+ "max_abs_halting_diff": 0.02610465745378132,
+ "flow_ratio_edgedata_over_summary": [
+  0.8868347137766941,
+  0.9010387810455229
+ ],
+ "wall_s": 13.9
+}
