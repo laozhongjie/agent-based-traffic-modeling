@@ -111,7 +111,7 @@
         </ul>
         </aside>
         <section class="lab-main">
-          <div class="placeholder main"><strong data-i18n="lab.net.main">Network map</strong><span data-i18n="lab.net.maind">Links coloured by speed over time, with the largest congested cluster highlighted.</span></div>
+          <div class="placeholder main" data-results="map"><strong data-i18n="lab.net.main">Network map</strong><span data-i18n="lab.net.maind">Links coloured by speed over time, with the largest congested cluster highlighted.</span></div>
           <div class="placeholder summary"><strong data-i18n="lab.net.sumH">Network critical density summary</strong><div class="table-wrap"><table><thead><tr><th data-i18n="lab.net.sum0">Network</th><th data-i18n="lab.net.sum1">Critical density \(k_c\) (veh/km per lane)</th><th data-i18n="lab.net.sum2">Error range</th><th data-i18n="lab.net.sum3">Maximum network flow (veh/h per lane)</th></tr></thead><tbody><tr><th scope="row" data-i18n="lab.net.row0">4×4 test grid</th><td>—</td><td>—</td><td>—</td></tr><tr><th scope="row" data-i18n="lab.net.row1">City district</th><td>—</td><td>—</td><td>—</td></tr></tbody></table></div><span class="q" data-i18n="lab.net.sumNote">Values are estimated with E's shared function. The 4×4 grid only checks the pipeline. Answers question 1.</span></div>
           <div class="grid two">
             <div class="placeholder"><strong data-i18n="lab.net.f1">1. Macroscopic fundamental diagram</strong><span data-i18n="lab.net.f1d">Network flow \(q\) against network density \(k\), one set of points per seed; the peak marks the network critical density.</span><span class="q" data-i18n="lab.net.f1q">Answers question 1</span></div>
@@ -129,6 +129,7 @@
       <h2 data-i18n="lab.data">Data</h2>
       <div class="card lab-data">
         <p data-i18n="lab.net.data">Precomputed SUMO results will be stored in docs/data/network/: network geometry, link speeds per time interval, MFD points and short trajectory clips.</p>
+        <div data-results="provenance"></div>
       </div>
     </section>
   </main>
@@ -144,5 +145,11 @@
   <script defer src="../assets/i18n.js"></script>
   <script defer src="../assets/common.js"></script>
   <script defer src="../assets/lab.js"></script>
+  <!-- Road outlines and trajectory clips written by scripts/city_clips.py; add one line per new clip. -->
+  <script defer src="../data/network/roads_bugis_all.js"></script>
+  <script defer src="../data/network/clip_bugis_all_k10.js"></script>
+  <script defer src="../data/network/clip_bugis_all_k25.js"></script>
+  <script defer src="../data/network/clip_bugis_all_k40.js"></script>
+  <script defer src="../assets/network-map.js"></script>
 </body>
 </html>
