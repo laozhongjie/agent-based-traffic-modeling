@@ -15,6 +15,8 @@ city district and writes, under [output] out_dir (member E's data):
                                      are the speed band, empty when the link is missing from that poll
     README.md                        what the files hold, the box, the days and the gaps; written
                                      by this script (change the text here, then rerun)
+The subfolder lookup/ is not this script's: scripts/lta_lookup.py writes it (the stretch to
+SUMO edge lookup), and the sizes in the README leave it out.
 
 The district is the net's convBoundary grown by [box] margin_m on each side and taken back to
 lon/lat through the net's <location> (netOffset, projParameter); a link is kept if its start or
@@ -257,7 +259,9 @@ def readme(cfg, box, links, days, gaps, failed, late, truncated, ranges, poll_se
         f"speed band that LTA DataMall's Traffic Speed Bands feed (v4) gave each of the district's {n_links:,} road "
         f"stretches in every poll from {first_day} {first_poll} to the end of {last_day} (Singapore time), "
         f"{n_polls:,} polls, about every 5 minutes. `{script}` writes every file in this folder, this README included, "
-        f"from C's raw polls; change the script, not the files (see \"Regenerate\").",
+        f"from C's raw polls; change the script, not the files (see \"Regenerate\"). The one exception is the "
+        f"`lookup/` folder, the table that says which road of the simulated network each stretch lies on: "
+        f"`scripts/lta_lookup.py` writes it, and `lookup/README.md` describes it.",
         "",
         "## Files",
         "",
@@ -478,7 +482,8 @@ def main():
         print(f"WARNING: day files not written by this run remain in {out / 'speedbands'}: {', '.join(stale)}")
     slots_per_day = 24 * 3600 // interval
     day_bytes = sorted(d["bytes"] for d in days.values() if d["polls"] >= 0.9 * slots_per_day)   # "a full day"
-    sizes = {"total": sum(p.stat().st_size for p in out.rglob("*") if p.is_file() and p.name != "README.md"),
+    sizes = {"total": sum(p.stat().st_size for p in out.rglob("*") if p.is_file() and p.name != "README.md"
+                          and "lookup" not in p.relative_to(out).parts),
              "day_median": day_bytes[len(day_bytes) // 2] if day_bytes else 0}
     text = readme(cfg, box, links, days, gaps, failed, late, cut, ranges,
                   {"median": seconds.median(), "max": seconds.max(), "offset_median": offsets.median()}, sizes,

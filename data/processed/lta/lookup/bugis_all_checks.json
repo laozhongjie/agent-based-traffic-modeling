@@ -1,0 +1,246 @@
+{
+  "counts": {
+    "n_lta_links_in_file": 4778,
+    "n_considered": 3742,
+    "matched_a": 2423,
+    "matched_b": 1937,
+    "matched_both": 1905,
+    "ab_identical": 1715,
+    "matched_none": 1287,
+    "absent_from_net": 379,
+    "n_missing_road_names": 44,
+    "snap_start_median_m": 3.5,
+    "snap_start_max_m": 24.8,
+    "matched_a_by_category": {
+      "1": "0/10",
+      "2": "779/973",
+      "3": "204/330",
+      "4": "613/1169",
+      "5": "795/1189",
+      "6": "32/67",
+      "8": "0/4"
+    },
+    "cause": {
+      "(placed by A)": 2033,
+      "outside-net": 1036,
+      "direction-test-failed": 417,
+      "removed-by-cleaning": 394,
+      "no-length-on-edge": 390,
+      "road-not-in-net": 230,
+      "no-edge-within-radius": 216,
+      "matched-by-b-only": 32,
+      "expressway": 17,
+      "opposite-direction-only": 10,
+      "path-too-long": 3
+    },
+    "cause_in_study_box": {
+      "(placed by A)": 1893,
+      "direction-test-failed": 400,
+      "no-length-on-edge": 366,
+      "removed-by-cleaning": 266,
+      "no-edge-within-radius": 199,
+      "road-not-in-net": 188,
+      "matched-by-b-only": 29,
+      "expressway": 14,
+      "opposite-direction-only": 10,
+      "path-too-long": 3
+    },
+    "cleaning_cause_tested": true,
+    "expressway_pairs_dropped": 0,
+    "confidence": {
+      "high": 1655,
+      "": 1287,
+      "medium": 623,
+      "low": 177
+    },
+    "qa_flag": {
+      "": 1711,
+      "in-net-missed;a-no-candidate-start": 839,
+      "stub<15m": 712,
+      "absent-from-net": 379,
+      "in-net-missed;a-no-candidate-end": 66,
+      "b-only;a-no-candidate-start": 20,
+      "b-only;a-no-candidate-end": 12,
+      "in-net-missed;a-detour": 3
+    },
+    "sumo_net_sha256": "0fa042dabe60a2fbc2335d553c9f6bd531772dc37ee945d7ddaeb09a77a6bdca",
+    "valid_for_results": true
+  },
+  "coverage": {
+    "inside_net_area": [
+      {
+        "lta_category_code": "1",
+        "stretches": 10,
+        "placed": 0,
+        "km": 1.65,
+        "placed_km": 0.0,
+        "share": 0.0,
+        "share_of_length": 0.0
+      },
+      {
+        "lta_category_code": "2",
+        "stretches": 973,
+        "placed": 670,
+        "km": 42.64,
+        "placed_km": 33.21,
+        "share": 0.689,
+        "share_of_length": 0.779
+      },
+      {
+        "lta_category_code": "3",
+        "stretches": 330,
+        "placed": 182,
+        "km": 11.99,
+        "placed_km": 7.94,
+        "share": 0.552,
+        "share_of_length": 0.662
+      },
+      {
+        "lta_category_code": "4",
+        "stretches": 1169,
+        "placed": 508,
+        "km": 40.2,
+        "placed_km": 23.45,
+        "share": 0.435,
+        "share_of_length": 0.583
+      },
+      {
+        "lta_category_code": "5",
+        "stretches": 1189,
+        "placed": 641,
+        "km": 34.74,
+        "placed_km": 24.42,
+        "share": 0.539,
+        "share_of_length": 0.703
+      },
+      {
+        "lta_category_code": "6",
+        "stretches": 67,
+        "placed": 32,
+        "km": 4.62,
+        "placed_km": 1.76,
+        "share": 0.478,
+        "share_of_length": 0.38
+      },
+      {
+        "lta_category_code": "8",
+        "stretches": 4,
+        "placed": 0,
+        "km": 0.36,
+        "placed_km": 0.0,
+        "share": 0.0,
+        "share_of_length": 0.0
+      },
+      {
+        "lta_category_code": "all",
+        "stretches": 3742,
+        "placed": 2033,
+        "km": 136.19,
+        "placed_km": 90.77,
+        "share": 0.543,
+        "share_of_length": 0.667
+      }
+    ],
+    "inside_study_box": [
+      {
+        "lta_category_code": "1",
+        "stretches": 8,
+        "placed": 0,
+        "km": 1.31,
+        "placed_km": 0.0,
+        "share": 0.0,
+        "share_of_length": 0.0
+      },
+      {
+        "lta_category_code": "2",
+        "stretches": 868,
+        "placed": 628,
+        "km": 37.55,
+        "placed_km": 30.36,
+        "share": 0.724,
+        "share_of_length": 0.808
+      },
+      {
+        "lta_category_code": "3",
+        "stretches": 306,
+        "placed": 172,
+        "km": 10.81,
+        "placed_km": 7.49,
+        "share": 0.562,
+        "share_of_length": 0.692
+      },
+      {
+        "lta_category_code": "4",
+        "stretches": 1065,
+        "placed": 482,
+        "km": 35.9,
+        "placed_km": 22.13,
+        "share": 0.453,
+        "share_of_length": 0.617
+      },
+      {
+        "lta_category_code": "5",
+        "stretches": 1056,
+        "placed": 582,
+        "km": 30.87,
+        "placed_km": 22.11,
+        "share": 0.551,
+        "share_of_length": 0.716
+      },
+      {
+        "lta_category_code": "6",
+        "stretches": 61,
+        "placed": 29,
+        "km": 4.12,
+        "placed_km": 1.6,
+        "share": 0.475,
+        "share_of_length": 0.389
+      },
+      {
+        "lta_category_code": "8",
+        "stretches": 4,
+        "placed": 0,
+        "km": 0.36,
+        "placed_km": 0.0,
+        "share": 0.0,
+        "share_of_length": 0.0
+      },
+      {
+        "lta_category_code": "all",
+        "stretches": 3368,
+        "placed": 1893,
+        "km": 120.93,
+        "placed_km": 83.69,
+        "share": 0.562,
+        "share_of_length": 0.692
+      }
+    ]
+  },
+  "checks": {
+    "1_direction_twins_disjoint": {
+      "passed": true,
+      "n_twin_pairs": 216,
+      "n_twin_pairs_both_matched_a": 53,
+      "shared": []
+    },
+    "2_name_exact_rate": {
+      "passed": true,
+      "rate": 0.94,
+      "n": 2423,
+      "threshold": 0.9
+    },
+    "3_side_left_majority_twins": {
+      "passed": true,
+      "left": 81,
+      "right": 34,
+      "on": 7
+    },
+    "4_arterial_coverage": {
+      "passed": false,
+      "coverage": 0.754,
+      "n": 1303,
+      "threshold": 0.85,
+      "judged": true
+    }
+  }
+}

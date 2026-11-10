@@ -1,0 +1,38 @@
+# SUMO edge <-> LTA road-stretch lookup v1 (task 2) on the frozen city network.
+# Run (SUMO_HOME must be set):  python scripts/lta_lookup.py --config configs/city/lta_lookup.toml
+# Writes data/processed/lta/lookup/ (committed; member E's comparison of simulated hotspots with
+# the slowest real roads). The matching settings were agreed by the group on 2026-10-30.
+
+name = "lta_lookup"
+scenario = "city"
+model = "IDM"             # car-following model of the city experiments; the lookup does not use it
+
+[network]
+net = "scenarios/city/bugis_all.net.xml"     # frozen city network v1; the table records its sha256
+net_config = "configs/city/bugis_all.toml"   # its build config: [network] study_box sets in_study_box
+
+[lta]
+input = "data/processed/lta/district_links.csv"   # the district's 4,778 stretches (committed, scripts/lta_district_extract.py)
+source = "v4-district-links-2026-10-20"   # LTA Traffic Speed Bands v4, stretch list of the poll of 2026-10-20 14:56
+api_version = "v4"                        # v4 RoadCategory codes 1-6, 8
+
+[output]
+out_dir = "data/processed/lta/lookup"     # committed; files <out_dir>/<prefix>_{pairs,links,missing_roads}.csv, README.md
+prefix = "bugis_all"
+
+[match]                   # agreed 2026-10-30: radius 25 m, heading 45 deg, many-to-many table with frac_of_edge
+radius = 25.0             # endpoint snap radius, m
+max_angle = 45.0          # max heading difference, deg
+detour = 1.5              # matcher A: max path length / stretch length
+buffer = 15.0             # matcher B: buffer half-width, m
+min_frac = 0.5            # matcher B: min overlap share of the stretch (or of the edge)
+margin = 50.0             # skip links within this of the net boundary, m (cause "outside-net")
+
+[checks]                  # proposal §2 failure checks (judgment thresholds)
+min_name_exact = 0.90     # check 2: share of A matches with the same road name
+min_arterial_coverage = 0.85  # check 4: share of arterial links matched by A (judged on v4 only)
+arterial_codes = [2, 3]   # main comparison (agreed 2026-10-30): major arterial (2) and arterial (3)
+
+[causes]                  # cause "removed-by-cleaning": task 1's build run of the net (build_run_dir in
+                          # scenarios/city/bugis_all.meta.json); git-ignored, so only C's machine has it
+build_run_dir = "runs/city-build-bugis_all-20261029-164348"   # stage1.net.xml and scc_edges.txt
