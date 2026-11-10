@@ -1,6 +1,6 @@
 # LTA speed bands for the city district
 
-Member E's history of real traffic speeds in the city district (Bugis-Rochor-Lavender) lives here: the speed band that LTA DataMall's Traffic Speed Bands feed (v4) gave each of the district's 4,778 road stretches in every poll from 2026-10-20 14:54:46 to the end of 2026-10-31 (Singapore time), 3,267 polls, about every 5 minutes. `scripts/lta_district_extract.py` writes every file in this folder, this README included, from C's raw polls; change the script, not the files (see "Regenerate").
+Member E's history of real traffic speeds in the city district (Bugis-Rochor-Lavender) lives here: the speed band that LTA DataMall's Traffic Speed Bands feed (v4) gave each of the district's 4,778 road stretches in every poll from 2026-10-20 14:54:46 to the end of 2026-10-31 (Singapore time), 3,267 polls, about every 5 minutes. `scripts/lta_district_extract.py` writes every file in this folder, this README included, from C's raw polls; change the script, not the files (see "Regenerate"). The one exception is the `lookup/` folder, the table that says which road of the simulated network each stretch lies on: `scripts/lta_lookup.py` writes it, and `lookup/README.md` describes it.
 
 ## Files
 
