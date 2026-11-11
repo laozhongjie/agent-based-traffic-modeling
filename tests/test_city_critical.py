@@ -296,13 +296,15 @@ def ruled():
 def test_frozen_sweep_gives_the_recorded_critical_point(ruled):
     """results/city/bugis_all_controller.csv, the frozen sweep (seeds 1-3, 32 valid runs): 24.40 km/h,
     13.34 veh/km (95 % 12.97-13.62), the numbers of C's half-speed script of 31 Oct; highest seed-mean
-    flow 172.7 at 30 veh/km; quadratic top 172.37."""
+    flow 172.7 at 30 veh/km; quadratic top 172.37 (seeds 1-3 only: 168.42-176.32)."""
     e = cc.estimate(_committed("bugis_all_controller"), ruled)
     assert e["n_runs"] == 32 and e["v0"] * 3.6 == pytest.approx(24.40, abs=0.005)
     assert (e["k_c"], e["k_c_low"], e["k_c_high"]) == pytest.approx((13.3350, 12.9735, 13.6206), abs=5e-5)
     assert e["bracket"] == [12.5, 15]
     assert (e["q_seed_mean"], e["k_seed_mean"]) == (pytest.approx(172.72, abs=0.005), 30)
-    assert e["cap"]["q_max"] == pytest.approx(172.37, abs=0.005) and e["cap"]["dof"] == 9
+    c = e["cap"]
+    assert (c["q_max"], c["q_max_low"], c["q_max_high"]) == pytest.approx((172.372, 168.423, 176.320), abs=5e-4)
+    assert (c["runs"], c["dof"]) == (14, 9)
 
 
 def test_frozen_sweep_with_seeds_4_to_6_gives_the_recorded_capacity(ruled):
@@ -318,7 +320,10 @@ def test_frozen_sweep_with_seeds_4_to_6_gives_the_recorded_capacity(ruled):
 
 def test_member_d_baseline_gives_the_recorded_critical_point(ruled):
     """results/city/bugis_all_base_controller.csv, member D's baseline (31 valid runs): 24.38 km/h,
-    13.35 veh/km (12.98-13.59), not to be confused with the frozen sweep's 13.34."""
+    13.35 veh/km (12.98-13.59), not to be confused with the frozen sweep's 13.34; capacity 172.5."""
     e = cc.estimate(_committed("bugis_all_base_controller"), ruled)
     assert e["n_runs"] == 31 and e["v0"] * 3.6 == pytest.approx(24.38, abs=0.005)
     assert (round(e["k_c"], 2), round(e["k_c_low"], 2), round(e["k_c_high"], 2)) == (13.35, 12.98, 13.59)
+    # capacity 172.5 (169.7-175.3) veh/h, as C's course-map page R8 of 10 Nov gives it (there with another seed)
+    c = e["cap"]
+    assert (round(c["q_max"], 1), round(c["q_max_low"], 1), round(c["q_max_high"], 1)) == (172.5, 169.7, 175.3)
