@@ -32,8 +32,10 @@ runs/<run_id>/manifest.json of every valid run; [critical] extra_configs add swe
 densities on the same settings (for example configs/city/bugis_all_controller_seeds4to6.toml).
 Checks, as scripts/export_web.py makes them: the script stops when a run record is missing, when a sweep's
 config changed after its runs (its hash), when the runs do not share one SUMO version and one git commit,
-when a run is a smoke run, and when the runs came from uncommitted code (a git commit ending in -dirty),
-unless --allow-dirty is given; the entry is then marked draft: true. It also stops when the sweeps differ
+and when the runs came from uncommitted code (a git commit ending in -dirty), unless --allow-dirty is given;
+the entry is then marked draft: true. Two checks export_web.py lacks: it stops when a run is a smoke run,
+and when a valid run has no summary.json (it did not finish) or its summary.json gives another speed or flow
+than the table's row (the table comes from other runs). It also stops when the sweeps differ
 in their run settings or net, when a density and seed appear twice, when the speed never falls to half of
 v0, and when the capacity window holds fewer than three densities. A planning variant with its own
 baseline net is refused: it is judged against its baseline's v0, which scripts/planning_figures.py does.
@@ -292,6 +294,16 @@ def provenance(sweeps, src=None, allow_dirty=False):
             commits.add(m["git_commit"])
             if (m.get("parameters", {}).get("overrides") or {}).get("smoke_run"):
                 problems.append(f"{run_id} is a smoke run (city_sweep.py overrides): not a result")
+            # city_sweep.py writes every manifest before the first run starts, and summary.json only once
+            # the run is measured: a table beside records of unfinished or other runs must not pass
+            done = path.with_name("summary.json")
+            row = s["runs"].loc[s["runs"]["run_id"] == run_id].iloc[0]
+            if not done.exists():
+                problems.append(f"{run_id} has no summary.json: the run did not finish; rerun the sweep")
+            elif not all(math.isclose(float(row[c]), float(json.loads(done.read_text())[c]), rel_tol=1e-9)
+                         for c in ("mean_speed_mps", "flow_veh_h")):
+                problems.append(f"{run_id}: the table's row is not the run's summary.json; the table comes from "
+                                "other runs (rerun the sweep, or measure it again with city_sweep.py --measure-only)")
         s["config_sha256"] = ", ".join(sorted(hashes))
         if len(hashes) > 1:
             problems.append(f"the runs of {cfg['_path']} differ in config hash ({s['config_sha256']}); rerun the sweep")

@@ -158,6 +158,8 @@ def write_sweep(root, name="s", prefix="ctl_s", seeds=(1, 2, 3), densities=(2.5,
             (run_dir / "manifest.json").write_text(json.dumps(
                 {"config_sha256": cfg["_sha256"], "sumo_version": "Eclipse SUMO sumo 1.28.0",
                  "git_commit": commit, "parameters": params}))
+            (run_dir / "summary.json").write_text(json.dumps(       # runner.finish, once the run is measured
+                {k: rows[-1][k] for k in ("run_id", "mean_speed_mps", "flow_veh_h", "valid")}))
     results.write_summary(rows, cfg)
     return cfg
 
@@ -227,6 +229,8 @@ def test_extra_sweep_joins_and_is_named(repo):
     ("manifest", "missing run record"),
     ("smoke", "smoke run"),
     ("commits", "differ in git commit"),
+    ("stale", "the table's row is not the run's summary.json"),
+    ("unfinished", "has no summary.json"),
 ])
 def test_refuses_runs_that_fail_a_check(repo, change, message):
     write_sweep(repo, commit="abc1234-dirty" if change == "dirty" else "abc1234", smoke=change == "smoke")
@@ -238,6 +242,11 @@ def test_refuses_runs_that_fail_a_check(repo, change, message):
     if change == "commits":
         p = repo / "runs/ctl_s_k10_s1/manifest.json"
         p.write_text(p.read_text().replace("abc1234", "def5678"))
+    if change == "stale":       # a table left from other runs: one row's speed is not its run's
+        p = repo / "runs/ctl_s_k20_s3/summary.json"
+        p.write_text(json.dumps(dict(json.loads(p.read_text()), mean_speed_mps=2.5)))
+    if change == "unfinished":  # the sweep died after writing the records: no summary.json yet
+        (repo / "runs/ctl_s_k30_s1/summary.json").unlink()
     crit = write_critical(repo)
     with pytest.raises(SystemExit, match=message):
         cc.main(["--config", str(crit)])
