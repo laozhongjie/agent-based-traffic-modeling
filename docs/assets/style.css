@@ -894,3 +894,14 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .sources { margin-top: 28px; }
 .sources summary { cursor: pointer; font-weight: 600; }
 .sources h3 { font-size: 16px; margin: 16px 0 8px; }
+.result-sub { margin: 12px 0 0; font-size: 18px; }
+.result-list { margin: 0; padding-left: 20px; color: var(--muted); max-width: 80ch; }
+.result-list li + li { margin-top: 4px; }
+.tabs { display: grid; gap: 14px; min-width: 0; }
+.tab-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab-list .btn { cursor: pointer; font: inherit; }
+.tab-panel { display: grid; gap: 16px; min-width: 0; }
+.tab-panel[hidden] { display: none; }
+.grid.fig-pair { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+@media (max-width: 760px) { .grid.fig-pair { grid-template-columns: minmax(0, 1fr); } }
+.fig-card a { display: block; cursor: zoom-in; }

@@ -1,5 +1,5 @@
 // Results on the home page, drawn from the exported data in window.RESULTS (scripts/export_web.py):
-// the ring-road IDM sweep, the city network's baseline sweep and the four planning variants.
+// the city network's baseline sweep and the four planning variants. The ring-road figures are images.
 // The city replay map (network-map.js and its clips, about 4 MB) loads when its box comes near.
 //
 // Planning critical density, as in scripts/planning_figures.py (member D, agreed with E):
@@ -42,7 +42,6 @@
   }
 
   // ---------- data ----------
-  const ring = rowsOf("ring/idm_sweep");
   const plan = {
     base: rowsOf("planning/bugis_all_base_controller").concat(rowsOf("planning/bugis_all_base_controller_seeds4to10")),
     closure: rowsOf("planning/bugis_all_closure_controller"),
@@ -72,20 +71,6 @@
     charts.push({ c: window.Chart.line(el, specFn()), specFn });
   }
   const kLane = () => text("density k (veh/km per lane)", "密度 k（veh/km，每车道）");
-
-  if (ring.length) {
-    const kRing = () => text("density k (veh/km)", "密度 k（veh/km）");
-    chart('[data-chart="ring-flow"]', () => ({
-      aria: text("Flow against density on the ring road, IDM", "环路 IDM 的流量–密度图"),
-      x: { label: kRing(), min: 0 }, y: { label: text("flow q (veh/h)", "流量 q（veh/h）") },
-      series: [{ name: "IDM", color: "--accent", line: bySeed(ring, "flow_veh_h", "density_veh_km").line, dots: ring.map((r) => [r.density_veh_km, r.flow_veh_h]) }]
-    }));
-    chart('[data-chart="ring-speed"]', () => ({
-      aria: text("Mean speed against density on the ring road, IDM", "环路 IDM 的平均车速–密度图"),
-      x: { label: kRing(), min: 0 }, y: { label: text("mean speed (m/s)", "平均车速（m/s）") },
-      series: [{ name: "IDM", color: "--accent", line: bySeed(ring, "mean_speed_mps", "density_veh_km").line, dots: ring.map((r) => [r.density_veh_km, r.mean_speed_mps]) }]
-    }));
-  }
 
   if (city.length) {
     chart('[data-chart="city-flow"]', () => ({
