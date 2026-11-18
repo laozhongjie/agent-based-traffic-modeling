@@ -912,3 +912,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .result-sub2 { margin: 6px 0 0; font-size: 16px; }
 .fig-stack .fig-cell img { width: auto; max-width: 100%; max-height: 520px; }
 .fig-row > .tag { text-transform: none; letter-spacing: 0; font-size: 13px !important; }
+/* Home page text: full width and justified, so the right edge lines up with the cards. */
+.result-text, .result-list { max-width: none; }
+.result-text, .result-list li, .section-intro, .lede, .card p, .fig-row figcaption, .chart-card figcaption, .fig-card figcaption, .note {
+  text-align: justify; hyphens: auto; -webkit-hyphens: auto;
+}
