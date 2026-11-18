@@ -866,3 +866,12 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .nm-card .nm-note { margin-top: 12px; font-size: 13px; color: var(--muted); }
 .lab-data .nm-source { margin-top: 8px; font-size: 13px; }
 @media (max-width: 860px) { .nm-layout { grid-template-columns: 1fr; } .nm-side .sim-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Public home page (index.html) */
+.card .finding-num { margin: 2px 0 8px; font-size: 22px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.approach-cards { margin-top: 20px; }
+.approach-cards h3, .fig-card h3 { margin-top: 0; }
+.fig-card { margin: 0; }
+.fig-card img { display: block; width: 100%; height: auto; border-radius: 6px; background: #fff; }
+.fig-card figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; }
+.hub-note { margin: 16px auto 0; }

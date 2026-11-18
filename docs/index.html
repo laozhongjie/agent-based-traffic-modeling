@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="assets/theme.js"></script>
   <title>Agent-Based Traffic Modeling</title>
-  <meta name="description" content="Project hub: overview, timeline and progress for agent-based modeling of traffic congestion on road networks.">
+  <meta name="description" content="Agent-based simulations of the transition from free flow to congestion, on a ring road and on the road network of Singapore's Bugis district.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232f6fde' stroke-width='4'/%3E%3Ccircle cx='16' cy='5' r='3.5' fill='%23d9534f'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css">
@@ -14,51 +14,11 @@
   <header class="topbar">
     <div class="wrap topbar-inner">
       <a class="brand" href="#top">Agent-Based Traffic Modeling</a>
-      <!-- Links are grouped; a group's menu opens on hover, keyboard focus, or a tap (app.js).
-           Items with .has-sub open a second-level menu to the side on hover; on touch screens it is shown inline.
-           The member list under Tasks is filled from data/project.js by app.js. -->
-      <nav class="nav-groups" aria-label="Sections" data-i18n-aria="nav.label">
-        <div class="nav-group">
-          <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.project">Project</button>
-          <div class="nav-menu"><div class="nav-menu-inner">
-            <a href="#overview" data-i18n="nav.overview">Overview</a>
-            <div class="nav-item has-sub">
-              <a href="#research" data-i18n="nav.research">Research</a>
-              <div class="nav-sub"><div class="nav-menu-inner">
-                <a href="lab/ring.html"><span class="nav-tag">RQ1</span><span data-i18n="lab.nav.ring">Ring road</span></a>
-                <a href="lab/network.html"><span class="nav-tag">RQ2</span><span data-i18n="lab.nav.net">City network</span></a>
-                <a href="lab/planning.html"><span class="nav-tag">RQ3</span><span data-i18n="lab.nav.plan">Planning</span></a>
-              </div></div>
-            </div>
-            <a href="#experiments" data-i18n="nav.experiments">Methods</a>
-            <div class="nav-item has-sub">
-              <a href="#models" data-i18n="nav.models">Models</a>
-              <div class="nav-sub"><div class="nav-menu-inner">
-                <a href="models/nasch.html">NaSch</a>
-                <a href="models/ovm.html">OVM</a>
-                <a href="models/idm.html">IDM</a>
-              </div></div>
-            </div>
-          </div></div>
-        </div>
-        <div class="nav-group">
-          <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.plan">Schedule</button>
-          <div class="nav-menu"><div class="nav-menu-inner">
-            <div class="nav-item has-sub">
-              <a href="#tasks" data-i18n="nav.tasks">Tasks</a>
-              <div class="nav-sub"><div class="nav-menu-inner" id="nav-members"></div></div>
-            </div>
-            <a href="#timeline" data-i18n="nav.timeline">Timeline</a>
-            <a href="#requirements" data-i18n="nav.requirements">Requirements</a>
-          </div></div>
-        </div>
-        <div class="nav-group">
-          <button type="button" class="nav-top" aria-expanded="false" data-i18n="nav.g.resources">Resources</button>
-          <div class="nav-menu"><div class="nav-menu-inner">
-            <a href="#resources" data-i18n="nav.references">References</a>
-            <a href="guide.html" data-i18n="nav.guide">Guide</a>
-          </div></div>
-        </div>
+      <nav aria-label="Sections" data-i18n-aria="nav.label">
+        <a href="#findings" data-i18n="nav.findings">Findings</a>
+        <a href="#approach" data-i18n="nav.approach">Approach</a>
+        <a href="#models" data-i18n="nav.models">Models</a>
+        <a href="#code" data-i18n="nav.code">Code</a>
       </nav>
       <div class="topbar-actions">
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch day/night mode / 切换白天/夜间模式" title="Day/night · 白天/夜间">
@@ -69,17 +29,14 @@
       </div>
     </div>
   </header>
-
   <main id="top">
     <section class="hero wrap">
       <div class="hero-text">
-        <p class="eyebrow" data-i18n="hero.eyebrow">Group project hub</p>
+        <p class="eyebrow" data-i18n="hero.eyebrow">PC5253 group project · National University of Singapore</p>
         <h1 data-i18n="hero.title">Agent-Based Modeling of Traffic Congestion on Road Networks</h1>
-        <p class="lede" data-i18n="hero.lede">How does free-flowing traffic tip into a jam? We simulate individual vehicles on a highway and on a real city network, locate the critical density at which free flow breaks down, and test how planning changes shift it.</p>
-        <p class="hero-actions" data-i18n="hero.cta"><a class="btn primary" href="https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview_EN.md">Read the full overview</a><a class="btn" href="https://github.com/laozhongjie/agent-based-traffic-modeling">Open the repository</a></p>
-        <a class="next-deadline" id="next-deadline" href="#timeline" aria-live="polite"></a>
+        <p class="lede" data-i18n="hero.lede">How does free-flowing traffic tip into a jam? We simulate every vehicle on a ring road and on the real road network of Singapore's Bugis district, locate the critical density at which congestion sets in, and test whether planning changes can move it.</p>
+        <p class="hero-actions" data-i18n="hero.cta"><a class="btn primary" href="#findings">Key findings</a><a class="btn" href="https://github.com/laozhongjie/agent-based-traffic-modeling">Code on GitHub</a></p>
       </div>
-
       <figure class="demo">
         <p class="tag demo-tag" data-i18n="demo.badge">Illustration · not report data</p>
         <canvas id="ring" width="360" height="360" aria-label="Animated ring road: vehicles following the Nagel–Schreckenberg rules" data-i18n-aria="demo.aria"></canvas>
@@ -96,81 +53,63 @@
       </figure>
     </section>
 
-    <section id="overview" class="wrap section">
-      <h2 data-i18n="overview.h">Overview</h2>
-      <p class="section-intro" data-i18n="overview.intro">Each driver reacts only to the car ahead, yet together they produce queues, stop-and-go waves and a drop in capacity. We treat the switch from free flow to congestion as a <strong>nonequilibrium phase transition</strong> and study it at two scales.</p>
-      <div class="grid two">
-        <article class="card">
-          <p class="tag" data-i18n="overview.hwTag">Ring-road experiment · Uninterrupted flow</p>
-          <h3 data-i18n="overview.hwTitle">Highway</h3>
-          <p data-i18n="overview.hwText">A single-lane ring road in SUMO with no traffic lights. Three vehicle models, a density sweep, and a single bottleneck to separate spontaneous jams from bottleneck-induced ones.</p>
-        </article>
-        <article class="card">
-          <p class="tag" data-i18n="overview.cityTag">City-network &amp; planning experiments · Interrupted flow</p>
-          <h3 data-i18n="overview.cityTitle">City network</h3>
-          <p data-i18n="overview.cityText">A real urban district from OpenStreetMap with intersections, signals and speed limits. A network-density sweep, then planning changes such as closing a road or adding a link.</p>
-        </article>
+    <section id="findings" class="wrap section">
+      <h2 data-i18n="findings.h">Key findings</h2>
+      <p class="section-intro" data-i18n="findings.intro">Each card opens the full question, method and results. All results come from SUMO simulations on a single build.</p>
+      <div class="grid three">
+        <a class="card rq exp-card" href="lab/ring.html">
+          <p class="tag" data-i18n="f1.tag">RQ1 · Ring road</p>
+          <h3 data-i18n="f1.title">Jams without a bottleneck</h3>
+          <p data-i18n="f1.text">On a single-lane ring with no traffic lights, free flow breaks into stop-and-go waves that travel backwards once the density exceeds a critical value. We compare where this happens for the NaSch, OVM and IDM models.</p>
+          <span class="exp-foot"><span class="chip" data-i18n="f.pending">Results being finalised</span><span class="exp-open" data-i18n="f.open">Method &amp; results</span></span>
+        </a>
+        <a class="card rq exp-card" href="lab/network.html">
+          <p class="tag" data-i18n="f2.tag">RQ2 · City network</p>
+          <h3 data-i18n="f2.title">A network-wide critical density</h3>
+          <p class="finding-num" data-i18n="f2.num">≈ 13 veh/km per lane</p>
+          <p data-i18n="f2.text">On the Bugis network, with its junctions and traffic lights, the network mean speed falls to half its near-empty value at about 13 vehicles per kilometre of lane, and the flow levels off near 170 veh/h per lane.</p>
+          <span class="exp-foot"><span class="chip" data-i18n="f.pending">Results being finalised</span><span class="exp-open" data-i18n="f.open">Method &amp; results</span></span>
+        </a>
+        <a class="card rq exp-card" href="lab/planning.html">
+          <p class="tag" data-i18n="f3.tag">RQ3 · Planning</p>
+          <h3 data-i18n="f3.title">A closure hurts; a new road changes little</h3>
+          <p class="finding-num" data-i18n="f3.num">ρ<sub>c</sub> −3.4% after a closure</p>
+          <p data-i18n="f3.text">Closing the most central removable road segment lowers the critical density from 13.35 to 12.90 veh/km and pushes congestion onto the neighbouring streets. A new 148 m link changes the network speed by less than the seed-to-seed spread: Braess's paradox appears only next to the link.</p>
+          <span class="exp-foot"><span></span><span class="exp-open" data-i18n="f.open">Method &amp; results</span></span>
+        </a>
       </div>
+    </section>
+
+    <section id="approach" class="wrap section">
+      <h2 data-i18n="approach.h">Approach</h2>
+      <p class="section-intro" data-i18n="approach.intro">Each step adds one new factor to the previous one, so that any change in the results can be traced to it.</p>
       <ol class="flow" aria-label="Research chain" data-i18n-aria="overview.chain">
         <li data-i18n="overview.step1">Local driving rules</li>
         <li data-i18n="overview.step2">Highway critical density</li>
         <li data-i18n="overview.step3">City-network critical density</li>
         <li data-i18n="overview.step4">How planning shifts the critical point</li>
       </ol>
-      <p class="note" data-i18n="overview.note">Each step adds exactly one new factor, so every change in the results can be traced to its cause. <a href="https://github.com/laozhongjie/agent-based-traffic-modeling/blob/main/Project_Overview_EN.md" class="more">Read the full overview</a></p>
-    </section>
-
-    <section id="research" class="wrap section">
-      <h2 data-i18n="research.h">Research questions</h2>
-      <p class="section-intro" data-i18n="research.intro">Each question has its own page: the full question, the experimental method, and the SUMO results as the runs are completed.</p>
-      <div class="grid three">
-        <a class="card rq exp-card" href="lab/ring.html">
-          <p class="tag" data-i18n="rq1.tag">RQ1 · Ring-road experiment</p>
-          <h3 data-i18n="rq1.title">Phase transition on a highway</h3>
-          <p data-i18n="rq1.text">What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?</p>
-          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results</span></span>
-        </a>
-        <a class="card rq exp-card" href="lab/network.html">
-          <p class="tag" data-i18n="rq2.tag">RQ2 · City-network experiment</p>
-          <h3 data-i18n="rq2.title">Network-level critical point</h3>
-          <p data-i18n="rq2.text">Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?</p>
-          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results</span></span>
-        </a>
-        <a class="card rq exp-card" href="lab/planning.html">
-          <p class="tag" data-i18n="rq3.tag">RQ3 · Planning experiment</p>
-          <h3 data-i18n="rq3.title">Planning shifts the critical point</h3>
-          <p data-i18n="rq3.text">Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?</p>
-          <span class="exp-foot"><span class="chip" data-i18n="rq.pending">Results pending</span><span class="exp-open" data-i18n="rq.open">Method &amp; results</span></span>
-        </a>
+      <div class="grid two approach-cards">
+        <article class="card">
+          <h3 data-i18n="approach.simH">One simulator for every experiment</h3>
+          <p data-i18n="approach.simText">All runs use one build of SUMO 1.28.0 compiled from source. NaSch and IDM are built into SUMO; we implemented the optimal velocity model in C++ and added it to the same build, so ring and city results can be compared directly.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="approach.recH">Every run is recorded and checked</h3>
+          <p data-i18n="approach.recText">Each run keeps its configuration, random seed, SUMO version and code commit. Automatic checks for collisions, missing vehicles and teleports decide whether a run enters the result tables.</p>
+        </article>
       </div>
-    </section>
-
-    <section id="experiments" class="wrap section">
-      <h2 data-i18n="method.h">Methods</h2>
-      <p class="section-intro" data-i18n="method.intro">All three experiments share one approach: sweep the density from low to high, change one factor at a time, and locate the critical point the same way, from the peak in flow and the sharp rise in congestion, with error bars. The measures differ between the ring and the city network (below). The settings of each experiment are on its question page.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th></th><th data-i18n="method.colRing">Ring road · RQ1</th><th data-i18n="method.colCity">City network · RQ2, RQ3</th></tr></thead>
-          <tbody>
-            <tr><th scope="row" data-i18n="method.flow">Flow type</th><td data-i18n="method.flowRing">Uninterrupted flow</td><td data-i18n="method.flowCity">Interrupted flow</td></tr>
-            <tr><th scope="row" data-i18n="method.setting">Setting</th><td data-i18n="method.settingRing">Single-lane closed ring with no traffic lights, an idealized stretch of highway; vehicles never enter or leave</td><td data-i18n="method.settingCity">Real street layout of an urban district from OpenStreetMap (intersections, traffic lights, varying speed limits) with synthetic demand: vehicle numbers and random destinations are set by us, and signals use fixed timings from one rule, not real signal plans</td></tr>
-            <tr><th scope="row" data-i18n="method.model">Vehicle model</th><td data-i18n="method.modelRing">NaSch, OVM and IDM, compared</td><td data-i18n="method.modelCity">IDM (NaSch and OVM only as optional robustness checks)</td></tr>
-            <tr><th scope="row" data-i18n="method.vary">What is varied</th><td data-i18n="method.varyRing">Density; also ring length, NaSch's random-slowdown probability, and bottleneck (none / reduced-speed section), one at a time</td><td data-i18n="method.varyCity">Density (RQ2); RQ3 also compares the baseline with a road closure and a new link at the same densities and seeds</td></tr>
-            <tr><th scope="row" data-i18n="method.cause">Expected cause of congestion</th><td data-i18n="method.causeRing">Spontaneous jams from vehicle interactions; a reduced-speed section is the control that tells them apart from bottleneck jams</td><td data-i18n="method.causeCity">Queues, spillback and gridlock at intersections with limited capacity</td></tr>
-            <tr><th scope="row" data-i18n="method.sweep">Density swept</th><td data-i18n="method.sweepRing">Vehicles per km on the single lane</td><td data-i18n="method.sweepCity">Vehicles in the network ÷ total lane length, held constant within a run</td></tr>
-            <tr><th scope="row" data-i18n="method.meaning">Critical point</th><td data-i18n="method.meaningRing">Critical density of a single road</td><td data-i18n="method.meaningCity">Critical density and maximum flow of the whole network</td></tr>
-          </tbody>
-        </table>
+      <h3 class="subhead" data-i18n="valid.h">Validating the models</h3>
+      <div class="grid two">
+        <figure class="card fig-card">
+          <img src="assets/img/nasch_p0_fd.png" alt="Flow against density for NaSch at p = 0: the SUMO points lie on the exact triangle." data-i18n-aria="valid.naschAlt" width="1100" height="690" loading="lazy">
+          <figcaption data-i18n="valid.nasch">NaSch without random braking reproduces the exact fundamental diagram, and every vehicle's cell and speed match an independent implementation at every step.</figcaption>
+        </figure>
+        <figure class="card fig-card">
+          <img src="assets/img/ovm_stability_spacetime.png" alt="Space-time diagrams of our OVM at three densities." data-i18n-aria="valid.ovmAlt" width="1100" height="690" loading="lazy">
+          <figcaption data-i18n="valid.ovm">Our OVM implementation: small perturbations die out outside the predicted unstable band (29.3–84.5 veh/km) and grow into backward-moving jams inside it.</figcaption>
+        </figure>
       </div>
-
-      <h3 class="subhead" id="critical" data-i18n="critical.h">How we find the critical point</h3>
-      <div class="grid four">
-        <div class="metric"><strong data-i18n="critical.op">Order parameter</strong><span data-i18n="critical.opText">The share of jammed vehicles: near zero in free flow, rising sharply past the critical density.</span><div class="metric-eq">\(\phi = N_{\text{jam}}/N\)</div></div>
-        <div class="metric"><strong data-i18n="critical.fl">Fluctuations</strong><span data-i18n="critical.flText">The variance of the order parameter, or of the flow, peaks at the transition.</span><div class="metric-eq">\(\chi = N\left(\langle\phi^2\rangle-\langle\phi\rangle^2\right)\)</div></div>
-        <div class="metric"><strong data-i18n="critical.fs">Finite size</strong><span data-i18n="critical.fsText">Repeat on longer roads; a true transition gets sharper.</span><div class="metric-eq">\(L_1 < L_2 < L_3\)</div></div>
-        <div class="metric"><strong data-i18n="critical.mfd">MFD peak</strong><span data-i18n="critical.mfdText">In the city network, the density at which total flow stops increasing.</span><div class="metric-eq">\(k_c = \arg\max_k\, q(k)\)</div></div>
-      </div>
-      <p class="note" data-i18n="method.note">The critical density is reported as an estimate with error bars. A coarse density grid locates the candidate range first; extra points and repeated runs are then added near it. The expected causes of congestion come from earlier studies: they are what the results are checked against, not results of this project.</p>
     </section>
 
     <section id="models" class="wrap section">
@@ -211,76 +150,32 @@
       </div>
     </section>
 
-    <section id="tasks" class="wrap section">
-      <h2 data-i18n="tasks.h">Task assignment</h2>
-      <p class="section-intro" data-i18n="tasks.intro">Five primary owners work in parallel through shared interfaces. Every member contributes to design, implementation, validation, analysis and delivery, with cross-review between workstreams. Click a member to see their tasks and cross-review.</p>
-      <div class="assignments" id="assignments"></div>
-      <!-- Cross-review on the left, live progress on the right. -->
-      <div class="card review review-progress">
-        <div class="review-col">
-          <h3 data-i18n="tasks.reviewH">Cross-review</h3>
-          <p data-i18n="tasks.reviewNote">A coordinates the project and supplies the tools; E sets the analysis methods and pulls the results together. A and E review each other, and B, C and D review in a loop. Coloured arrows point from reviewer to reviewee; grey dashed arrows show hand-offs.</p>
-          <div class="review-map" id="review-map"></div>
-        </div>
-        <div class="progress-col" id="progress">
-          <h3 data-i18n="progress.h">Progress</h3>
-          <div class="progress-summary" id="progress-summary"></div>
-          <div class="workstreams" id="workstreams"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="timeline" class="wrap section">
-      <h2 data-i18n="timeline.h">Timeline</h2>
-      <p class="section-intro" id="timeline-status"></p>
-      <div class="timeline-bar" id="timeline-bar" aria-hidden="true"></div>
-      <div class="who-filter" id="timeline-filter" role="group"></div>
-      <ol class="phases" id="timeline-list"></ol>
-    </section>
-
-    <section id="requirements" class="wrap section">
-      <h2 data-i18n="req.h">Submission requirements</h2>
+    <section id="code" class="wrap section">
+      <h2 data-i18n="code.h">Code and report</h2>
       <div class="grid two">
+        <a class="card exp-card" href="https://github.com/laozhongjie/agent-based-traffic-modeling">
+          <h3 data-i18n="code.repoH">Repository</h3>
+          <p data-i18n="code.repoText">The SUMO build with our OVM, the shared Python framework, every experiment configuration, the result tables, and the commands that reproduce each figure.</p>
+          <span class="exp-foot"><span></span><span class="exp-open" data-i18n="code.repoOpen">Open on GitHub</span></span>
+        </a>
         <article class="card">
-          <h3 data-i18n="req.pres">Presentation</h3>
-          <ul>
-            <li data-i18n="req.pres1">15 minutes + 3 minutes Q&amp;A per group</li>
-            <li data-i18n="req.pres2">Submit slides to the group in Canvas › People › Groups by <strong>5 Nov, 6:00 pm</strong></li>
-            <li data-i18n="req.pres3">Complete peer grading (Canvas Quiz) by <strong>15 Nov, 11:59 pm</strong></li>
-          </ul>
-        </article>
-        <article class="card">
-          <h3 data-i18n="req.report">Report</h3>
-          <ul>
-            <li data-i18n="req.report1">One group report, at least 10 pages excluding code, data and references</li>
-            <li data-i18n="req.report2">Submit the group report, data and code, and individual reports by <strong>22 Nov, 11:59 pm</strong></li>
-            <li data-i18n="req.report3">Attach the AI prompts used in the project to the report</li>
-          </ul>
+          <h3 data-i18n="code.reportH">Report</h3>
+          <p data-i18n="code.reportText">The full report, with the derivations, all figures and a discussion of the limitations, will be linked here after submission on 22 November 2026.</p>
         </article>
       </div>
-      <p class="note warn" data-i18n="req.late">Late submissions lose 20% for each day late.</p>
-    </section>
-
-    <section id="resources" class="wrap section">
-      <h2 data-i18n="resources.h">Resources</h2>
-      <div class="res-columns" id="resources-list"></div>
     </section>
   </main>
-
   <footer class="footer">
     <div class="wrap footer-inner">
-      <span id="updated"></span>
-      <span data-i18n="footer.howto">To update progress, click tasks on your member page. To change the tasks themselves, edit <code>docs/data/project.js</code> and push.</span>
+      <span data-i18n="footer.course">PC5253 group project · National University of Singapore · 2026</span>
+      <a href="hub.html" data-i18n="footer.hub">Team workspace</a>
     </div>
   </footer>
-
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
-  <script defer src="assets/i18n.js"></script>
-  <script defer src="data/project.js"></script>
+  <script defer src="assets/home-i18n.js"></script>
   <script defer src="assets/common.js"></script>
-  <script defer src="assets/team.js"></script>
-  <script defer src="assets/live.js"></script>
-  <script defer src="assets/app.js"></script>
+  <script defer src="assets/ring-demo.js"></script>
+  <script defer src="assets/home.js"></script>
 </body>
 </html>
