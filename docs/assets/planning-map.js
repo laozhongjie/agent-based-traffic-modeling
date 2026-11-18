@@ -21,7 +21,9 @@
     ];
     const MAX_HEIGHT = 620;
     const byId = new Map(roads.edges.map((e) => [e.id, e]));
+    const STEP_MS = 1200, HOLD_MS = 2500;   // time on each density while playing; extra pause on the last
     let mode = "closure", kIndex = P.densities.indexOf(12.5), zoomed = false, view = null, colors = {};
+    let playing = false, timer = 0;
 
     function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
     function rgb(hex) {
@@ -149,24 +151,43 @@
             <div class="viz-controls nm-controls"><label>${text("Density k (veh/km per lane)", "密度 k（veh/km，每车道）")}<output class="pm-k"></output>
               <input type="range" class="pm-slider" min="0" max="${P.densities.length - 1}" step="1" value="${kIndex}"></label>
               <span class="nm-range"><span>${P.densities[0]}</span><span>${P.densities[P.densities.length - 1]}</span></span></div>
-            <div class="nm-group"><button type="button" class="btn pm-zoom" aria-pressed="${zoomed}">${zoomed ? text("Whole district", "整个片区") : text("Zoom to the change", "放大到改动处")}</button></div>
+            <div class="nm-group pm-buttons"><button type="button" class="btn pm-play" aria-pressed="${playing}">${playing ? text("Pause", "暂停") : text("Play", "播放")}</button>
+              <button type="button" class="btn pm-zoom" aria-pressed="${zoomed}">${zoomed ? text("Whole district", "整个片区") : text("Zoom to the change", "放大到改动处")}</button></div>
             <dl class="sim-stats nm-stats pm-stats"></dl>
           </div>
         </div>`;
       els = { map: box.querySelector(".nm-map"), wrap: box.querySelector(".nm-map-wrap"), k: box.querySelector(".pm-k"),
+              slider: box.querySelector(".pm-slider"), play: box.querySelector(".pm-play"),
               stats: box.querySelector(".pm-stats"), legend: box.querySelector(".pm-legend"), zoom: box.querySelector(".pm-zoom") };
       els.zoom.disabled = mode === "base";
       view = null;
       draw();
     }
 
+    // Playing steps the density up one value at a time and starts again from the lowest.
+    function setPlaying(on) {
+      playing = on;
+      clearTimeout(timer);
+      if (on) timer = setTimeout(step, STEP_MS);
+      els.play.textContent = on ? text("Pause", "暂停") : text("Play", "播放");
+      els.play.setAttribute("aria-pressed", on);
+    }
+    function step() {
+      kIndex = (kIndex + 1) % P.densities.length;
+      els.slider.value = kIndex;
+      draw();
+      timer = setTimeout(step, kIndex === P.densities.length - 1 ? STEP_MS + HOLD_MS : STEP_MS);
+    }
+
     let els = {};
     box.addEventListener("input", (e) => {
       if (!e.target.classList.contains("pm-slider")) return;
+      if (playing) setPlaying(false);
       kIndex = Number(e.target.value);
       draw();
     });
     box.addEventListener("click", (e) => {
+      if (e.target.closest(".pm-play")) { setPlaying(!playing); return; }
       const b = e.target.closest("[data-mode], .pm-zoom");
       if (!b) return;
       if (b.classList.contains("pm-zoom")) zoomed = !zoomed;
@@ -176,6 +197,15 @@
 
     readColors();
     build();
+    // Start playing the first time the map comes into view, unless the reader asks for less motion.
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const seen = new IntersectionObserver((entries) => {
+        if (!entries.some((en) => en.isIntersecting)) return;
+        seen.disconnect();
+        if (!playing) setPlaying(true);
+      }, { threshold: 0.25 });
+      seen.observe(box);
+    }
     window.Site.onChange(build);
     const recolour = () => { readColors(); draw(); };
     new MutationObserver(recolour).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
