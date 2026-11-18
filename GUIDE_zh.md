@@ -283,7 +283,7 @@ df = df[df.valid]                                                     # 只保�
 
 每个文件都要遵守的规定：
 
-- 一个文件只放一组数据，放在 `docs/data/<page>/` 中，`<page>` 是显示它的页面：`ring`（`docs/lab/ring.html`）、`network`（`docs/lab/network.html`）或 `planning`（`docs/lab/planning.html`）。
+- 一个文件只放一组数据，放在 `docs/data/<page>/` 中，`<page>` 是它所属的结果部分：`ring`、`network` 或 `planning`。三者都显示在首页 `docs/index.html`，首页用 `<script defer>` 标签载入每个文件。
 - 第一行是注释，写明生成它的脚本和数据来源，并以“do not edit”结尾；第二行是 `window.<KIND> = window.<KIND> || {};`；第三行只设置该对象中的一项：`window.<KIND>["<key>"] = {...};`。页面用 `<script defer>` 标签载入文件，所以网站不需要服务器。新增文件的 PR 同时在页面上加上它的标签，让 A 一次审阅两者。
 - 同样的输入得到同样的文件：文件中不写时间戳。
 - 由运行得到的文件写明数字的来源：`config`、`config_sha256`、`git_commit`、`sumo_version` 和运行编号（第 5 节）。`git_commit` 以 `-dirty` 结尾表示草稿。由路网得到的文件写明路网文件（`net`）。
@@ -301,7 +301,7 @@ df = df[df.valid]                                                     # 只保�
 | `EDGES["<name>"]`（待建） | 一次扫描的各条路段，顺序相同：`betweenness`，以及 `onset_k`：该路段处于拥堵的已测信号周期比例（按种子取平均）超过 `[measure] onset_share`（0.5）时的最低扫描密度，按 PR #13 中 `scripts/city_measures.py` 的算法计算（在所有扫描密度下都达不到时为 `null`） | C | network：边介数与拥堵开始时刻 |
 | `CRITICAL["<page>/<name>"]`（待建） | 每个环路、路网或方案一项：`k_c` 及其范围 `k_c_low`、`k_c_high`；`q_max` 及 `q_max_low`、`q_max_high`；所用方法 `method`；运行编号 | E 的估计程序（在它完成前，城市路网由 C 按 E 的方法填写） | ring：临界密度汇总；network：网络临界密度汇总、路网与高速公路对照；planning：各方案临界密度汇总、各方案的临界密度与最大流量 |
 
-`scripts/export_web.py` 自动选择页面文件夹：环路运行进 `ring`，城市路网运行进 `network`，规划方案（配置中有 `[network] variant`）进 `planning`；可用 `--page` 另行指定。网格运行进 `docs/data/grid/`，没有页面读取它；路网页面临界密度汇总中测试网格那一行来自网格的 `CRITICAL["network/<name>"]` 项。导出时文本列保持为文本，`True` 和 `False` 写成 `true` 和 `false`，空单元格或 NaN 写成 `null`；`run_id`、`model` 和 `variant` 三列除外，按原样保留。环路页面画出 `scenario` 为 `ring` 的每一项 `RESULTS`（`docs/assets/ring-results.js`）。路网和规划页面还没有载入程序（A）；这两个页面的 `RESULTS` 项的 `scenario` 都是 `city`，所以它们的载入程序按 `page` 选取。环路页面第 3-5 项还没有对应的文件种类；与 LTA 速度数据的对照（路网页面第 6 项）也没有，用哪种文件，等 SUMO edge 到 LTA 路段的查找表完成后再定。
+`scripts/export_web.py` 自动选择页面文件夹：环路运行进 `ring`，城市路网运行进 `network`，规划方案（配置中有 `[network] variant`）进 `planning`；可用 `--page` 另行指定。网格运行进 `docs/data/grid/`，没有页面读取它；路网页面临界密度汇总中测试网格那一行来自网格的 `CRITICAL["network/<name>"]` 项。导出时文本列保持为文本，`True` 和 `False` 写成 `true` 和 `false`，空单元格或 NaN 写成 `null`；`run_id`、`model` 和 `variant` 三列除外，按原样保留。首页用 `docs/assets/home-results.js` 画出 `RESULTS` 中的各项，并在路网地图滚动到可见范围时载入 `NETWORK` 和 `CLIPS` 文件；新增一项时也要在那里加一行。环路页面第 3-5 项还没有对应的文件种类；与 LTA 速度数据的对照（路网页面第 6 项）也没有，用哪种文件，等 SUMO edge 到 LTA 路段的查找表完成后再定。
 
 ## 7. 每次运行必须通过的检查
 

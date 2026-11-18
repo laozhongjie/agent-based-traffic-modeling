@@ -21,7 +21,7 @@ This project studies the transition from free flow to congestion as a nonequilib
 
 [Open the project website](https://laozhongjie.github.io/agent-based-traffic-modeling/)
 
-The site supports English and Chinese. The home page summarises the research questions, key findings, approach and model validation; the ring-road, city-network and planning pages give the method and results of each experiment, and the model pages explain NaSch, OVM and IDM with interactive illustrations.
+The site supports English and Chinese. The home page shows the research questions, key findings and all results: interactive charts drawn from the exported result tables, the replay of the city-network runs, and the planning maps. The model pages explain NaSch, OVM and IDM with interactive illustrations.
 
 The team's working page (tasks, timeline, progress and the experiment guide) stays at [hub.html](https://laozhongjie.github.io/agent-based-traffic-modeling/hub.html) until the report deadline.
 

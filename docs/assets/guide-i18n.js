@@ -235,7 +235,7 @@ df = df[df.valid]                                                     # 只保�
     <p>网站只从 <code>docs/data/</code> 中按下述格式写出的文件读取结果；其他形式的表格无法出现在页面上。这些文件一律由脚本写出，不手工修改；由运行得到的文件只使用有效运行。</p>
     <p>每个文件都要遵守的规定：</p>
     <ul>
-      <li>一个文件只放一组数据，放在 <code>docs/data/&lt;page&gt;/</code> 中，<code>&lt;page&gt;</code> 是显示它的页面：<code>ring</code>（<code>docs/lab/ring.html</code>）、<code>network</code>（<code>docs/lab/network.html</code>）或 <code>planning</code>（<code>docs/lab/planning.html</code>）。</li>
+      <li>一个文件只放一组数据，放在 <code>docs/data/&lt;page&gt;/</code> 中，<code>&lt;page&gt;</code> 是它所属的结果部分：<code>ring</code>、<code>network</code> 或 <code>planning</code>。三者都显示在首页 <code>docs/index.html</code>，首页用 <code>&lt;script defer&gt;</code> 标签载入每个文件。</li>
       <li>第一行是注释，写明生成它的脚本和数据来源，并以“do not edit”结尾；第二行是 <code>window.&lt;KIND&gt; = window.&lt;KIND&gt; || {};</code>；第三行只设置该对象中的一项：<code>window.&lt;KIND&gt;["&lt;key&gt;"] = {...};</code>。页面用 <code>&lt;script defer&gt;</code> 标签载入文件，所以网站不需要服务器。新增文件的 PR 同时在页面上加上它的标签，让 A 一次审阅两者。</li>
       <li>同样的输入得到同样的文件：文件中不写时间戳。</li>
       <li>由运行得到的文件写明数字的来源：<code>config</code>、<code>config_sha256</code>、<code>git_commit</code>、<code>sumo_version</code> 和运行编号（第 5 节）。<code>git_commit</code> 以 <code>-dirty</code> 结尾表示草稿。由路网得到的文件写明路网文件（<code>net</code>）。</li>
@@ -256,7 +256,7 @@ df = df[df.valid]                                                     # 只保�
         </tbody>
       </table>
     </div>
-    <p><code>scripts/export_web.py</code> 自动选择页面文件夹：环路运行进 <code>ring</code>，城市路网运行进 <code>network</code>，规划方案（配置中有 <code>[network] variant</code>）进 <code>planning</code>；可用 <code>--page</code> 另行指定。网格运行进 <code>docs/data/grid/</code>，没有页面读取它；路网页面临界密度汇总中测试网格那一行来自网格的 <code>CRITICAL["network/&lt;name&gt;"]</code> 项。导出时文本列保持为文本，<code>True</code> 和 <code>False</code> 写成 <code>true</code> 和 <code>false</code>，空单元格或 NaN 写成 <code>null</code>；<code>run_id</code>、<code>model</code> 和 <code>variant</code> 三列除外，按原样保留。环路页面画出 <code>scenario</code> 为 <code>ring</code> 的每一项 <code>RESULTS</code>（<code>docs/assets/ring-results.js</code>）。路网和规划页面还没有载入程序（A）；这两个页面的 <code>RESULTS</code> 项的 <code>scenario</code> 都是 <code>city</code>，所以它们的载入程序按 <code>page</code> 选取。环路页面第 3-5 项还没有对应的文件种类；与 LTA 速度数据的对照（路网页面第 6 项）也没有，用哪种文件，等 SUMO edge 到 LTA 路段的查找表完成后再定。</p>`,
+    <p><code>scripts/export_web.py</code> 自动选择页面文件夹：环路运行进 <code>ring</code>，城市路网运行进 <code>network</code>，规划方案（配置中有 <code>[network] variant</code>）进 <code>planning</code>；可用 <code>--page</code> 另行指定。网格运行进 <code>docs/data/grid/</code>，没有页面读取它；路网页面临界密度汇总中测试网格那一行来自网格的 <code>CRITICAL["network/&lt;name&gt;"]</code> 项。导出时文本列保持为文本，<code>True</code> 和 <code>False</code> 写成 <code>true</code> 和 <code>false</code>，空单元格或 NaN 写成 <code>null</code>；<code>run_id</code>、<code>model</code> 和 <code>variant</code> 三列除外，按原样保留。首页用 <code>docs/assets/home-results.js</code> 画出 <code>RESULTS</code> 中的各项，并在路网地图滚动到可见范围时载入 <code>NETWORK</code> 和 <code>CLIPS</code> 文件；新增一项时也要在那里加一行。环路页面第 3-5 项还没有对应的文件种类；与 LTA 速度数据的对照（路网页面第 6 项）也没有，用哪种文件，等 SUMO edge 到 LTA 路段的查找表完成后再定。</p>`,
 
   "guide.checks": `
     <h2>7. 每次运行必须通过的检查</h2>

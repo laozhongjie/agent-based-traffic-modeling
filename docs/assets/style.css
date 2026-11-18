@@ -875,3 +875,22 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .fig-card img { display: block; width: 100%; height: auto; border-radius: 6px; background: #fff; }
 .fig-card figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; }
 .hub-note { margin: 16px auto 0; }
+.exp-open.down::after { transform: rotate(135deg); vertical-align: .2em; }
+.result-block { margin-top: 36px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.result-block > .tag, .result-block > h3 { margin: 0 !important; }
+.result-block > h3 { font-size: 22px; margin-top: -10px !important; }
+.result-text { margin: 0; color: var(--muted); max-width: 80ch; }
+.result-block .grid { gap: 16px; }
+.chart-card { margin: 0; padding: 14px 14px 12px; min-width: 0; }
+.chart-card figcaption { margin-top: 6px; color: var(--muted); font-size: 14px; }
+.chart-svg { display: block; width: 100%; height: auto; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; font-size: 13px; color: var(--muted); }
+.chart-legend i { display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: middle; border-radius: 2px; }
+.swatch-line { display: inline-block; width: 14px; height: 3px; margin-right: 8px; vertical-align: middle; border-radius: 2px; }
+.table-card table { width: 100%; }
+.table-card .note { margin-top: 10px; }
+.wide-fig { margin: 0; }
+.nm-loading { min-height: 120px; display: grid; place-items: center; color: var(--muted); }
+.sources { margin-top: 28px; }
+.sources summary { cursor: pointer; font-weight: 600; }
+.sources h3 { font-size: 16px; margin: 16px 0 8px; }

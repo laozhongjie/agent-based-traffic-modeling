@@ -16,6 +16,7 @@
       <a class="brand" href="#top">Agent-Based Traffic Modeling</a>
       <nav aria-label="Sections" data-i18n-aria="nav.label">
         <a href="#findings" data-i18n="nav.findings">Findings</a>
+        <a href="#results" data-i18n="nav.results">Results</a>
         <a href="#approach" data-i18n="nav.approach">Approach</a>
         <a href="#models" data-i18n="nav.models">Models</a>
         <a href="#code" data-i18n="nav.code">Code</a>
@@ -55,29 +56,95 @@
 
     <section id="findings" class="wrap section">
       <h2 data-i18n="findings.h">Key findings</h2>
-      <p class="section-intro" data-i18n="findings.intro">Each card opens the full question, method and results. All results come from SUMO simulations on a single build.</p>
+      <p class="section-intro" data-i18n="findings.intro">The figures and replays behind each finding are in the Results section below. All results come from SUMO simulations on a single build.</p>
       <div class="grid three">
-        <a class="card rq exp-card" href="lab/ring.html">
+        <a class="card rq exp-card" href="#ring">
           <p class="tag" data-i18n="f1.tag">RQ1 · Ring road</p>
           <h3 data-i18n="f1.title">Jams without a bottleneck</h3>
           <p data-i18n="f1.text">On a single-lane ring with no traffic lights, free flow breaks into stop-and-go waves that travel backwards once the density exceeds a critical value. We compare where this happens for the NaSch, OVM and IDM models.</p>
-          <span class="exp-foot"><span class="chip" data-i18n="f.pending">Results being finalised</span><span class="exp-open" data-i18n="f.open">Method &amp; results</span></span>
+          <span class="exp-foot"><span class="chip" data-i18n="f.pending">Results being finalised</span><span class="exp-open down" data-i18n="f.open">See the results</span></span>
         </a>
-        <a class="card rq exp-card" href="lab/network.html">
+        <a class="card rq exp-card" href="#city">
           <p class="tag" data-i18n="f2.tag">RQ2 · City network</p>
           <h3 data-i18n="f2.title">A network-wide critical density</h3>
           <p class="finding-num" data-i18n="f2.num">≈ 13 veh/km per lane</p>
           <p data-i18n="f2.text">On the Bugis network, with its junctions and traffic lights, the network mean speed falls to half its near-empty value at about 13 vehicles per kilometre of lane, and the flow levels off near 170 veh/h per lane.</p>
-          <span class="exp-foot"><span class="chip" data-i18n="f.pending">Results being finalised</span><span class="exp-open" data-i18n="f.open">Method &amp; results</span></span>
+          <span class="exp-foot"><span class="chip" data-i18n="f.pending">Results being finalised</span><span class="exp-open down" data-i18n="f.open">See the results</span></span>
         </a>
-        <a class="card rq exp-card" href="lab/planning.html">
+        <a class="card rq exp-card" href="#planning">
           <p class="tag" data-i18n="f3.tag">RQ3 · Planning</p>
           <h3 data-i18n="f3.title">A closure hurts; a new road changes little</h3>
           <p class="finding-num" data-i18n="f3.num">ρ<sub>c</sub> −3.4% after a closure</p>
           <p data-i18n="f3.text">Closing the most central removable road segment lowers the critical density from 13.35 to 12.90 veh/km and pushes congestion onto the neighbouring streets. A new 148 m link changes the network speed by less than the seed-to-seed spread: Braess's paradox appears only next to the link.</p>
-          <span class="exp-foot"><span></span><span class="exp-open" data-i18n="f.open">Method &amp; results</span></span>
+          <span class="exp-foot"><span></span><span class="exp-open down" data-i18n="f.open">See the results</span></span>
         </a>
       </div>
+    </section>
+
+    <section id="results" class="wrap section">
+      <h2 data-i18n="results.h">Results</h2>
+      <p class="section-intro" data-i18n="results.intro">Charts are drawn in your browser from the exported SUMO result tables; hover over a point to read its value.</p>
+
+      <article id="ring" class="result-block">
+        <p class="tag" data-i18n="r1.tag">RQ1 · Ring road</p>
+        <h3 data-i18n="r1.h">Jams without a bottleneck</h3>
+        <p class="result-text" data-i18n="r1.text">A single-lane ring of 1000 m with no traffic lights, so congestion can only come from the interaction between vehicles. In the IDM density sweep below (one run per density, 1800 s, the first 600 s discarded), the flow rises with density up to about 30 veh/km and then falls as stop-and-go waves form. The hero animation at the top of the page shows the same transition for the NaSch model.</p>
+        <div class="grid two">
+          <figure class="card chart-card"><div data-chart="ring-flow"></div><figcaption data-i18n="r1.flow">Fundamental diagram: flow against density.</figcaption></figure>
+          <figure class="card chart-card"><div data-chart="ring-speed"></div><figcaption data-i18n="r1.speed">Mean speed against density.</figcaption></figure>
+        </div>
+        <p class="note" data-i18n="r1.note">The NaSch and OVM sweeps and the critical density of each model will be added here when the ring-road analysis is final.</p>
+      </article>
+
+      <article id="city" class="result-block">
+        <p class="tag" data-i18n="r2.tag">RQ2 · City network</p>
+        <h3 data-i18n="r2.h">A network-wide critical density</h3>
+        <p class="result-text" data-i18n="r2.text">The road network of Singapore's Bugis district, imported from OpenStreetMap: 1,129 roads, 669 junctions, 78 of them with traffic lights, and 179.7 km of car lanes. A controller keeps the number of cars fixed by giving each car a new random destination before it arrives. Each density was run with three random seeds.</p>
+        <div data-results="map" class="card nm-loading"><p data-i18n="r2.loading">The replay of the SUMO runs loads when you scroll here.</p></div>
+        <div class="grid two">
+          <figure class="card chart-card"><div data-chart="city-flow"></div><figcaption data-i18n="r2.flow">The macroscopic fundamental diagram: above about 20 veh/km per lane the network flow levels off at about 170 veh/h per lane. Dots are single runs.</figcaption></figure>
+          <figure class="card chart-card"><div data-chart="city-speed"></div><figcaption data-i18n="r2.speed">The critical density is where the mean speed falls to half its near-empty value (dashed line): 13.35 veh/km per lane (tick).</figcaption></figure>
+        </div>
+        <div class="grid two">
+          <figure class="card chart-card"><div data-chart="city-cluster"></div><figcaption data-i18n="r2.cluster">Congested roads merge as the density rises: at 40 veh/km per lane the largest connected congested cluster covers 44% of the lane length.</figcaption></figure>
+          <article class="card">
+            <h3 data-i18n="r2.btwH">Does network structure predict where jams start?</h3>
+            <p data-i18n="r2.btw">Only weakly. Edge betweenness, the number of shortest routes through a road, correlates with the density at which the road first congests with a Spearman coefficient of about −0.3. Once the traffic load and the number of lanes are taken into account, the correlation disappears.</p>
+          </article>
+        </div>
+      </article>
+
+      <article id="planning" class="result-block">
+        <p class="tag" data-i18n="r3.tag">RQ3 · Planning</p>
+        <h3 data-i18n="r3.h">Moving the critical point</h3>
+        <p class="result-text" data-i18n="r3.text">Three changes to the baseline, each in one place: closing a segment of Victoria Street, the most central road segment that can be removed; removing one lane in each direction on the same segment; or adding a 148 m two-way link between the Republic Avenue ramp and Beach Road. Each network is swept over the same densities and seeds.</p>
+        <div class="grid two">
+          <figure class="card chart-card"><div data-chart="plan-speed"></div><figcaption data-i18n="r3.speed">Mean speed against density near the critical point. Lines: mean over seeds; bands: range over seeds; ticks: critical density of each network.</figcaption></figure>
+          <figure class="card chart-card"><div data-chart="plan-flow"></div><figcaption data-i18n="r3.flow">Flow against density. The four networks carry nearly the same maximum flow.</figcaption></figure>
+        </div>
+        <div class="card table-card"><div class="table-wrap" data-table="plan"></div>
+          <p class="note" data-i18n="r3.table">Seeds 1–3; for the baseline and the new link, seeds 1–10 at 25–35 veh/km. Only the closure moves the critical density by more than the seed-to-seed spread.</p></div>
+        <figure class="card fig-card wide-fig">
+          <img src="assets/img/closure_map_k12_5.png" alt="Map of the change in congestion around the closed segment of Victoria Street." data-i18n-aria="r3.closureAlt" width="1600" height="760" loading="lazy">
+          <figcaption data-i18n="r3.closure">Where the closure pushes traffic, at 12.5 veh/km (seeds 1–3): change in the share of time each road is congested. Red roads are congested more often, blue roads less often. The parallel Queen Street is congested 0.30 to 0.74 more of the hour.</figcaption>
+        </figure>
+        <div class="grid two">
+          <figure class="card fig-card">
+            <img src="assets/img/braess_test.png" alt="Change in network mean speed with the new link, paired by seed." data-i18n-aria="r3.braessAlt" width="1200" height="888" loading="lazy">
+            <figcaption data-i18n="r3.braess">Braess test: change in network mean speed with the new link, paired by seed. With three seeds (grey) the link looked harmful at 30 and 35 veh/km; with ten seeds (orange) every 95% confidence interval includes zero.</figcaption>
+          </figure>
+          <figure class="card fig-card">
+            <img src="assets/img/newlink_map_k25.png" alt="Map of the roads whose congestion changes with the new link." data-i18n-aria="r3.newlinkAlt" width="1142" height="545" loading="lazy">
+            <figcaption data-i18n="r3.newlink">A local Braess effect, at 25 veh/km (seeds 1–10): the five roads nearest the new link are congested 0.22 to 0.38 more of the hour, while the network as a whole is not slower.</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <details class="card sources">
+        <summary data-i18n="results.sources">Data sources: run tables and replay clips</summary>
+        <div data-results="sources"></div>
+        <div data-results="provenance"></div>
+      </details>
     </section>
 
     <section id="approach" class="wrap section">
@@ -177,5 +244,14 @@
   <script defer src="assets/common.js"></script>
   <script defer src="assets/ring-demo.js"></script>
   <script defer src="assets/home.js"></script>
+  <script defer src="data/ring/idm_sweep.js"></script>
+  <script defer src="data/planning/bugis_all_base_controller.js"></script>
+  <script defer src="data/planning/bugis_all_closure_controller.js"></script>
+  <script defer src="data/planning/bugis_all_lanecut_controller.js"></script>
+  <script defer src="data/planning/bugis_all_newlink_controller.js"></script>
+  <script defer src="data/planning/bugis_all_base_controller_seeds4to10.js"></script>
+  <script defer src="data/planning/bugis_all_newlink_controller_seeds4to10.js"></script>
+  <script defer src="assets/charts.js"></script>
+  <script defer src="assets/home-results.js"></script>
 </body>
 </html>

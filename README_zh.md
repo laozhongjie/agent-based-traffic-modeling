@@ -21,7 +21,7 @@
 
 [打开项目网站](https://laozhongjie.github.io/agent-based-traffic-modeling/)
 
-网站支持中英文切换。首页概括研究问题、主要发现、研究思路和模型验证；环路、城市路网和规划页面分别给出各实验的方法和结果；模型页面用交互图解介绍 NaSch、OVM 和 IDM。
+网站支持中英文切换。首页展示研究问题、主要发现和全部结果：根据导出的结果表绘制的交互图表、城市路网运行回放和规划地图。模型页面用交互图解介绍 NaSch、OVM 和 IDM。
 
 小组工作页面（任务、时间线、进度和实验指南）保留在 [hub.html](https://laozhongjie.github.io/agent-based-traffic-modeling/hub.html)，直到报告截止。
 
