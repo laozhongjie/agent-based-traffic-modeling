@@ -897,11 +897,18 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .result-sub { margin: 12px 0 0; font-size: 18px; }
 .result-list { margin: 0; padding-left: 20px; color: var(--muted); max-width: 80ch; }
 .result-list li + li { margin-top: 4px; }
-.tabs { display: grid; gap: 14px; min-width: 0; }
-.tab-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.tab-list .btn { cursor: pointer; font: inherit; }
-.tab-panel { display: grid; gap: 16px; min-width: 0; }
-.tab-panel[hidden] { display: none; }
-.grid.fig-pair { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
-@media (max-width: 760px) { .grid.fig-pair { grid-template-columns: minmax(0, 1fr); } }
 .fig-card a { display: block; cursor: zoom-in; }
+/* Figure rows: images in one row share a height (flex-grow = width / height), so their edges line up. */
+.fig-row { margin: 0; padding: 16px; min-width: 0; }
+.fig-row > .tag { margin: 0 0 10px !important; }
+.fig-strip { display: flex; gap: 12px; align-items: flex-start; }
+.fig-strip .fig-cell { flex-basis: 0; min-width: 0; }
+.fig-stack { display: grid; gap: 12px; justify-items: center; }
+.fig-stack .fig-cell { max-width: 100%; }
+.fig-stack img { max-height: 520px; width: auto; max-width: 100%; }
+.fig-cell { display: block; cursor: zoom-in; }
+.fig-cell img { display: block; width: 100%; height: auto; border-radius: 6px; background: #fff; }
+.fig-row figcaption { margin-top: 12px; color: var(--muted); font-size: 14px; }
+.result-sub2 { margin: 6px 0 0; font-size: 16px; }
+.fig-stack .fig-cell img { width: auto; max-width: 100%; max-height: 520px; }
+.fig-row > .tag { text-transform: none; letter-spacing: 0; font-size: 13px !important; }

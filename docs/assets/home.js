@@ -18,18 +18,4 @@
     a.append(img);
   });
 
-  // Tabs: a [data-tabs] box holds buttons [data-tab] and panels [data-panel] with the same names.
-  document.querySelectorAll("[data-tabs]").forEach((box) => {
-    const buttons = [...box.querySelectorAll(":scope > .tab-list [data-tab]")];
-    const panels = [...box.querySelectorAll(":scope > [data-panel]")];
-    const show = (name) => {
-      buttons.forEach((b) => {
-        const on = b.dataset.tab === name;
-        b.classList.toggle("primary", on);
-        b.setAttribute("aria-selected", on);
-      });
-      panels.forEach((p) => { p.hidden = p.dataset.panel !== name; });
-    };
-    buttons.forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
-  });
 })();
