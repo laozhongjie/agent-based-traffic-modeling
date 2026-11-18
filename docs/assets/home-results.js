@@ -1,5 +1,5 @@
 // Results on the home page, drawn from the exported data in window.RESULTS (scripts/export_web.py):
-// the city network's baseline sweep and the four planning variants. The ring-road figures are images.
+// the four planning variants. The ring-road and city-network figures are images.
 // The city replay map (network-map.js and its clips, about 4 MB) loads when its box comes near.
 //
 // Planning critical density, as in scripts/planning_figures.py (member D, agreed with E):
@@ -60,8 +60,6 @@
   const v0 = plan.base.length ? speed.base.line[0][1] : NaN;
   const kc = Object.fromEntries(VARIANTS.map((v) => [v.id, crossing(speed[v.id].line, v0 / 2)]));
   const qmax = Object.fromEntries(VARIANTS.map((v) => [v.id, Math.max(...flow[v.id].line.map((p) => p[1]))]));
-  // The city network section shows the baseline, seeds 1-3 (the extra seeds only cover 25-35 veh/km).
-  const city = rowsOf("planning/bugis_all_base_controller");
 
   // ---------- charts ----------
   const charts = [];
@@ -71,29 +69,6 @@
     charts.push({ c: window.Chart.line(el, specFn()), specFn });
   }
   const kLane = () => text("density k (veh/km per lane)", "密度 k（veh/km，每车道）");
-
-  if (city.length) {
-    chart('[data-chart="city-flow"]', () => ({
-      aria: text("Network flow against density", "路网流量–密度图"),
-      x: { label: kLane(), min: 0 }, y: { label: text("flow q (veh/h per lane)", "流量 q（veh/h，每车道）") },
-      series: [{ name: text("baseline", "基准路网"), color: "--accent", ...bySeed(city, "flow_veh_h", K) }]
-    }));
-    chart('[data-chart="city-speed"]', () => ({
-      aria: text("Network mean speed against density", "路网平均车速–密度图"),
-      x: { label: kLane(), min: 0 }, y: { label: text("mean speed (m/s)", "平均车速（m/s）") },
-      hlines: [{ y: v0 / 2, label: text("half the near-empty speed", "接近空载车速的一半") }],
-      marks: [{ x: kc.base, color: "--accent" }],
-      series: [{ name: text("baseline", "基准路网"), color: "--accent", ...bySeed(city, "mean_speed_mps", K) }]
-    }));
-    chart('[data-chart="city-cluster"]', () => ({
-      aria: text("Congested share of lane length against density", "拥堵车道长度占比–密度图"),
-      x: { label: kLane(), min: 0 }, y: { label: text("share of lane length", "占车道总长度的比例"), max: 0.6 },
-      series: [
-        { name: text("all congested roads", "全部拥堵路段"), color: "--muted", ...bySeed(city, "city_congested_length_fraction", K) },
-        { name: text("largest connected congested cluster", "最大连通拥堵簇"), color: "--jam", ...bySeed(city, "city_largest_cluster", K) }
-      ]
-    }));
-  }
 
   if (plan.base.length) {
     const series = (data) => VARIANTS.map((v) => ({ name: text(v.en, v.zh), color: v.color, line: data[v.id].line, band: data[v.id].band }));
