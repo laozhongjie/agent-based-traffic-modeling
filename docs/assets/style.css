@@ -917,3 +917,4 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .result-text, .result-list li, .section-intro, .lede, .card p, .fig-row figcaption, .chart-card figcaption, .fig-card figcaption, .note {
   text-align: justify; hyphens: auto; -webkit-hyphens: auto;
 }
+.table-card tr.row-chosen td, .table-card tr.row-chosen th { font-weight: 700; color: var(--text); }

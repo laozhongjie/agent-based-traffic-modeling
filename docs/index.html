@@ -138,26 +138,26 @@
         <p class="tag" data-i18n="r3.tag">RQ3 · Planning</p>
         <h3 data-i18n="r3.h">Moving the critical point</h3>
         <p class="result-text" data-i18n="r3.text">Three changes to the baseline, each in one place: closing a segment of Victoria Street, the most central road segment that can be removed; removing one lane in each direction on the same segment; or adding a 148 m two-way link between the Republic Avenue ramp and Beach Road. Each network is swept over the same densities and seeds.</p>
+        <h4 class="result-sub" data-i18n="r3.netH">The four networks</h4>
+        <figure class="card fig-row"><div class="fig-stack"><a class="fig-cell" href="assets/img/planning/four_networks.png" target="_blank" rel="noopener"><img src="assets/img/planning/four_networks.png" alt="The baseline network and the three variants" data-i18n-aria="plan.alt.nets" width="1500" height="1050" loading="lazy"></a></div><figcaption data-i18n="plan.cap.nets">The baseline and the three variants. The closure removes about 90 m of Victoria Street in both directions (4 + 3 lanes, 581 m of lane, 0.32% of the network); the lane cut removes one lane in each direction on the same stretch (178 m of lane, 0.10%); the new link adds a 148 m two-way road with one lane each way (250 m of lane, 0.14%). Densities are counted on the baseline's 179.7 km of lanes, so a given density means the same number of cars on every network.</figcaption></figure>
+        <div class="card table-card"><div class="table-wrap" data-table="plan-build"></div><p class="note" data-i18n="plan.tab.plan-build">Each variant was rebuilt with SUMO's netconvert and compared with the baseline; a rebuild of the unchanged baseline came out identical, so every difference comes from the change itself. Turns are lane-to-lane movements at junctions.</p></div>
+        <h4 class="result-sub" data-i18n="r3.chooseH">How the changes were chosen</h4>
+        <p class="result-text" data-i18n="r3.closureRule">The closure removes the road segment that the most quickest routes pass through (edge betweenness on empty-road travel times), provided that every road stays reachable from every other. The rule uses no simulation results, so the choice cannot be tuned towards an interesting outcome. The lane cut takes one lane from each direction of the same segment.</p>
+        <div class="card table-card"><div class="table-wrap" data-table="plan-closure"></div><p class="note" data-i18n="plan.tab.plan-closure">The six road segments with the highest edge betweenness. The highest-ranked segment of Jalan Besar cannot be removed without cutting roads off, so the closure takes the second, a stretch of Victoria Street.</p></div>
+        <p class="result-text" data-i18n="r3.linkRule">The new link is the short two-way road between two existing junctions (20 to 200 m apart, no road between them, no traffic light at either end) that cuts the total empty-road travel time between all pairs of junctions the most. The chosen road joins the Republic Avenue ramp to Beach Road and effectively restores Java Road, a minor road missing from the imported network.</p>
+        <figure class="card fig-row"><div class="fig-stack"><a class="fig-cell" href="assets/img/planning/newlink_candidates.png" target="_blank" rel="noopener"><img src="assets/img/planning/newlink_candidates.png" alt="The twelve best new-road candidates" data-i18n-aria="plan.alt.cands" width="1296" height="830" loading="lazy"></a></div><figcaption data-i18n="plan.cap.cands">The twelve best candidates. The chosen link cuts the total empty-road travel time by 0.91%, only slightly more than the second (0.85%), and 10 of the 12 join the same ramps at the edge of the modelled network, where few alternative routes exist.</figcaption></figure>
+        <h4 class="result-sub" data-i18n="r3.critH">Shift of the critical point</h4>
         <div class="grid two">
           <figure class="card chart-card"><div data-chart="plan-speed"></div><figcaption data-i18n="r3.speed">Mean speed against density near the critical point. Lines: mean over seeds; bands: range over seeds; ticks: critical density of each network.</figcaption></figure>
           <figure class="card chart-card"><div data-chart="plan-flow"></div><figcaption data-i18n="r3.flow">Flow against density. The four networks carry nearly the same maximum flow.</figcaption></figure>
         </div>
         <div class="card table-card"><div class="table-wrap" data-table="plan"></div>
           <p class="note" data-i18n="r3.table">Seeds 1–3; for the baseline and the new link, seeds 1–10 at 25–35 veh/km. Only the closure moves the critical density by more than the seed-to-seed spread.</p></div>
-        <figure class="card fig-card wide-fig">
-          <img src="assets/img/closure_map_k12_5.png" alt="Map of the change in congestion around the closed segment of Victoria Street." data-i18n-aria="r3.closureAlt" width="1600" height="760" loading="lazy">
-          <figcaption data-i18n="r3.closure">Where the closure pushes traffic, at 12.5 veh/km (seeds 1–3): change in the share of time each road is congested. Red roads are congested more often, blue roads less often. The parallel Queen Street is congested 0.30 to 0.74 more of the hour.</figcaption>
-        </figure>
-        <div class="grid two">
-          <figure class="card fig-card">
-            <img src="assets/img/braess_test.png" alt="Change in network mean speed with the new link, paired by seed." data-i18n-aria="r3.braessAlt" width="1200" height="888" loading="lazy">
-            <figcaption data-i18n="r3.braess">Braess test: change in network mean speed with the new link, paired by seed. With three seeds (grey) the link looked harmful at 30 and 35 veh/km; with ten seeds (orange) every 95% confidence interval includes zero.</figcaption>
-          </figure>
-          <figure class="card fig-card">
-            <img src="assets/img/newlink_map_k25.png" alt="Map of the roads whose congestion changes with the new link." data-i18n-aria="r3.newlinkAlt" width="1142" height="545" loading="lazy">
-            <figcaption data-i18n="r3.newlink">A local Braess effect, at 25 veh/km (seeds 1–10): the five roads nearest the new link are congested 0.22 to 0.38 more of the hour, while the network as a whole is not slower.</figcaption>
-          </figure>
-        </div>
+        <h4 class="result-sub" data-i18n="r3.whereH">Where the traffic goes</h4>
+        <div data-results="plan-map" class="card nm-loading"><p data-i18n="r3.mapLoading">The map loads with the page data.</p></div>
+        <figure class="card fig-row"><div class="fig-strip"><a class="fig-cell" href="assets/img/closure_map_k12_5.png" target="_blank" rel="noopener" style="flex-grow:2.1053"><img src="assets/img/closure_map_k12_5.png" alt="Map of the change in congestion around the closed segment" data-i18n-aria="plan.alt.closureMap" width="1600" height="760" loading="lazy"></a><a class="fig-cell" href="assets/img/newlink_map_k25.png" target="_blank" rel="noopener" style="flex-grow:2.0954"><img src="assets/img/newlink_map_k25.png" alt="Map of the change in congestion around the new link" data-i18n-aria="plan.alt.newlinkMap" width="1142" height="545" loading="lazy"></a></div><figcaption data-i18n="plan.cap.maps">Zoomed maps with street names. Closure, 12.5 veh/km (seeds 1–3): the diverted traffic squeezes onto the streets around the closed block; the parallel Queen Street is congested 0.30 to 0.74 more of the hour, while Victoria Street beyond the gap is congested less. New link, 25 veh/km (seeds 1–10): the five roads nearest the link are congested 0.22 to 0.38 more of the hour, while the network as a whole is not slower.</figcaption></figure>
+        <h4 class="result-sub" data-i18n="r3.braessH">Braess test</h4>
+        <figure class="card fig-row"><div class="fig-stack"><a class="fig-cell" href="assets/img/braess_test.png" target="_blank" rel="noopener"><img src="assets/img/braess_test.png" alt="Change in network mean speed with the new link, paired by seed" data-i18n-aria="plan.alt.braess" width="1200" height="888" loading="lazy"></a></div><figcaption data-i18n="plan.cap.braess">Change in network mean speed with the new link, paired by seed, at 25, 30 and 35 veh/km. With three seeds (grey) the link looked harmful at 30 and 35 veh/km; with ten seeds (orange) every 95% confidence interval includes zero (pooled: +0.6%, −0.7% to +1.9%). Braess's paradox therefore appears only next to the link, not in the network as a whole.</figcaption></figure>
       </article>
 
       <details class="card sources">
@@ -270,6 +270,9 @@
   <script defer src="data/planning/bugis_all_newlink_controller.js"></script>
   <script defer src="data/planning/bugis_all_base_controller_seeds4to10.js"></script>
   <script defer src="data/planning/bugis_all_newlink_controller_seeds4to10.js"></script>
+  <script defer src="data/network/roads_bugis_all.js"></script>
+  <script defer src="data/planning/planning_map.js"></script>
+  <script defer src="assets/planning-map.js"></script>
   <script defer src="assets/charts.js"></script>
   <script defer src="assets/home-results.js"></script>
 </body>

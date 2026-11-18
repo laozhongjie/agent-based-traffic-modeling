@@ -1,6 +1,7 @@
 // Results on the home page, drawn from the exported data in window.RESULTS (scripts/export_web.py):
 // the four planning variants. The ring-road and city-network figures are images.
-// The city replay map (network-map.js and its clips, about 4 MB) loads when its box comes near.
+// The city replay map (network-map.js and its clips, about 4 MB) loads when its box comes near;
+// the road outlines and the planning map data load with the page.
 //
 // Planning critical density, as in scripts/planning_figures.py (member D, agreed with E):
 // v0 = the baseline's seed-mean speed at the lowest target density; the critical density of a
@@ -11,6 +12,7 @@
   "use strict";
 
   const R = window.RESULTS || {};
+  const PM = window.PLANNING_MAP;
   const text = (en, zh) => (window.Site.lang === "zh" ? zh : en);
   const mean = (a) => a.reduce((s, v) => s + v, 0) / a.length;
   const rowsOf = (key) => {
@@ -107,20 +109,50 @@
       <td><code>${d.config}</code></td><td><code>${d.git_commit}</code></td><td>${d.sumo_version.replace(/^Eclipse SUMO sumo /, "")}</td></tr>`).join("");
     el.innerHTML = `<h3>${text("Result tables", "结果表")}</h3><div class="table-wrap"><table><thead><tr><th>${text("Data", "数据")}</th>
       <th>${text("Valid runs", "有效运行")}</th><th>${text("Config", "配置")}</th><th>git commit</th><th>${text("SUMO version", "SUMO 版本")}</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`;
+      <tbody>${rows}</tbody></table></div>${PM ? `<p class="nm-source">${text("Planning map", "规划地图")}: <code>${PM.source.edges}</code> ${text("and", "以及")} ${PM.source.meta.map((m) => `<code>${m}</code>`).join(", ")}, ${text("exported by", "由")} <code>scripts/export_planning_map.py</code>${text("", " 导出")}.</p>` : ""}`;
+  }
+
+  // Build checks and closure candidates, from window.PLANNING_MAP (scripts/export_planning_map.py).
+  function buildTable() {
+    const el = document.querySelector('[data-table="plan-build"]');
+    if (!el || !PM) return;
+    const names = { closure: text("Road closure", "封路"), lanecut: text("Lane cut", "减少车道"), newlink: text("New link", "新增道路") };
+    const pair = (a, b) => `${a} / ${b}`;
+    el.innerHTML = `<table><thead><tr><th>${text("Network", "路网")}</th><th>${text("Roads removed / added", "移除 / 新增道路")}</th>
+      <th>${text("Turns removed / added", "移除 / 新增转向")}</th><th>${text("Signal programs changed", "改动的信号方案")}</th>
+      <th>${text("Lane length", "车道长度")}</th><th>${text("All roads reachable", "所有道路可达")}</th></tr></thead><tbody>${
+      Object.entries(PM.variants).map(([v, d]) => { const b = d.build_check, dl = d.lane_length_m - d.baseline_lane_length_m;
+        return `<tr><th scope="row">${names[v]}</th><td>${pair(b.roads_removed, b.roads_added)}${b.roads_changed ? ` (${b.roads_changed} ${text("changed", "改动")})` : ""}</td>
+        <td>${pair(b.turns_removed, b.turns_added)}</td><td>${b.signal_programs_changed}</td>
+        <td>${dl > 0 ? "+" : "−"}${Math.abs(dl).toFixed(0)} m (${(100 * Math.abs(dl) / d.baseline_lane_length_m).toFixed(2)}%)</td>
+        <td>${b.all_roads_reachable ? text("yes", "是") : text("no", "否")}</td></tr>`; }).join("")}</tbody></table>`;
+  }
+  function closureTable() {
+    const el = document.querySelector('[data-table="plan-closure"]');
+    if (!el || !PM) return;
+    const chosen = PM.rankings.closure.findIndex((r) => r.removable);
+    el.innerHTML = `<table><thead><tr><th>${text("Rank", "排名")}</th><th>${text("Road segment", "路段")}</th><th>${text("Length", "长度")}</th>
+      <th>${text("Lanes", "车道")}</th><th>${text("Betweenness", "边介数")}</th><th>${text("Removable?", "可否移除")}</th></tr></thead><tbody>${
+      PM.rankings.closure.slice(0, 6).map((r, i) => `<tr${i === chosen ? ' class="row-chosen"' : ""}><td>${i + 1}</td><td>${r.streets.join(" / ")}</td>
+        <td>${r.length_m.toFixed(0)} m</td><td>${r.lanes.join(" + ")}</td><td>${r.betweenness.toLocaleString("en-US")}</td>
+        <td>${r.removable ? (i === chosen ? text("yes: chosen", "可以：选中") : text("yes", "可以"))
+          : text(`no: cuts off ${r.cut_off_roads} road${r.cut_off_roads === 1 ? "" : "s"}`, `否：${r.cut_off_roads} 条道路不可达`)}</td></tr>`).join("")}</tbody></table>`;
   }
 
   function redraw() { charts.forEach(({ c, specFn }) => c.redraw(specFn())); }
-  function render() { table(); sources(); window.Site.renderMath(); }
+  function render() { table(); buildTable(); closureTable(); sources(); window.Site.renderMath(); }
   render();
   window.Site.onChange(() => { redraw(); render(); });
   new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw);
 
+  // ---------- planning map (data loaded with the page) ----------
+  if (window.planningMap) window.planningMap();
+
   // ---------- city replay map, loaded on demand ----------
   const box = document.querySelector('[data-results="map"]');
   if (box) {
-    const files = ["data/network/roads_bugis_all.js", "data/network/clip_bugis_all_k10.js",
+    const files = ["data/network/clip_bugis_all_k10.js",
       "data/network/clip_bugis_all_k25.js", "data/network/clip_bugis_all_k40.js", "assets/network-map.js"];
     const load = () => files.forEach((src) => {
       const s = document.createElement("script");
