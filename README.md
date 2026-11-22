@@ -2,103 +2,79 @@
 
 [English](README.md) | [中文](README_zh.md)
 
-This project studies the transition from free flow to congestion as a nonequilibrium phase transition, first on a highway ring road and then on a city road network.
+PC5253 final project, National University of Singapore. We treat the onset of traffic congestion as a nonequilibrium phase transition and follow it from a single-lane ring road to the road network of Singapore's Bugis district, and to planning changes of that network. All simulations are agent-based and run in [SUMO](https://eclipse.dev/sumo/) with three car-following models: Nagel–Schreckenberg (NaSch), the optimal velocity model (OVM, implemented by us in C++) and the intelligent driver model (IDM).
 
-## Project overview
+**[Project website](https://laozhongjie.github.io/agent-based-traffic-modeling/)**: interactive model explanations and all ring, city and planning results, in English and Chinese.
 
-- [English](Project_Overview_EN.md)
-- [中文](Project_Overview.md)
+## Research questions
 
-## Key dates
+1. **Highway.** What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?
+2. **City network.** Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?
+3. **Planning.** Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?
 
-| Date | Deliverable |
+## Main results
+
+- **Ring road.** Free flow breaks into backward-moving stop-and-go waves above a critical density of about 20–25 veh/km (NaSch), 25 veh/km (OVM) and 30–35 veh/km (IDM), with no visible dependence on ring length between 600 and 4800 m. Linear stability analysis places the IDM threshold at 32.9 veh/km. Less randomness or faster driver response moves the onset to higher density. Freeway data (PeMS) peak in flow at 19–21 veh/km per lane and show signs of hysteresis.
+- **City network.** The mean speed of the Bugis network halves at 13.3 veh/km per lane, while the flow levels off at about 171 veh/h per lane. Neither fluctuations nor recovery time peak there, so it is a smooth crossover rather than a critical point. Local jams merge into one large cluster between 20 and 25 veh/km; edge betweenness barely predicts where congestion starts once traffic load is controlled for.
+- **Planning.** Closing the most central removable road segment lowers the critical density by 0.45 veh/km (3.4%). A lane cut and a new link change it by less than the seed-to-seed spread, and no network-wide Braess paradox is found.
+
+## Team
+
+| Member | Main work |
 |---|---|
-| 5 Nov, 6:00 pm | Presentation slides (Canvas › People › Groups) |
-| 15 Nov, 11:59 pm | Peer grading (Canvas Quiz) |
-| 22 Nov, 11:59 pm | Group report, data and code; individual report |
-
-## Project site
-
-[Open the project website](https://laozhongjie.github.io/agent-based-traffic-modeling/)
-
-The site supports English and Chinese. The home page shows the research questions, key findings and all results: interactive charts drawn from the exported result tables, the replay of the city-network runs, and the planning maps. The model pages explain NaSch, OVM and IDM with interactive illustrations.
-
-The team's working page (tasks, timeline, progress and the experiment guide) stays at [hub.html](https://laozhongjie.github.io/agent-based-traffic-modeling/hub.html) until the report deadline.
+| Lao Zhongjie (A) | Project lead: research plan, shared framework and pipeline, SUMO build and OVM implementation, model validation, website |
+| Foo Guowei (B) | Vehicle models; ring-road experiments |
+| Lim Yixiang (C) | City network: MFD, clusters, spreading and critical-point analyses; LTA data |
+| Cheong Zihao Daniel (D) | Planning scenarios and Braess test |
+| Shen Hongfang (E) | IDM equilibrium and linear stability; PeMS freeway analysis; discussion |
 
 ## Repository layout
 
-The tree below is the intended layout. The repository currently contains the overview documents, the website and a first ring-road scenario; add the other directories as their implementation begins. Directory names describe responsibilities, not team assignments.
-
 ```text
 .
-├── README.md / README_zh.md
-├── GUIDE.md / GUIDE_zh.md      # Guide as Markdown, same content as docs/guide.html
-├── Project_Overview.md / Project_Overview_EN.md
-├── environment.yml             # Reproducible Python environment
-├── pyproject.toml              # Makes src/traffic_project importable (pip install -e .)
-├── .github/workflows/          # Pages deployment and future checks
-├── research/                   # Decision log and validation notes
-├── sumo/
-│   ├── version.txt             # Pinned upstream SUMO commit
-│   ├── check_nasch.py          # Checks SUMO's NaSch against the exact p = 0 result
-│   ├── ovm/                    # MSCFModel_OVM.h/.cpp, kept as complete files, and check_ovm.py
-│   └── patches/                # Small edits that register OVM in SUMO
-├── scenarios/                  # Fixed SUMO inputs and their generators
-│   ├── ring/                   # Ring road and bottleneck variants
-│   ├── grid/                   # 4×4 network for pipeline validation
-│   └── city/                   # Baseline, closure and new-link variants
-├── configs/                    # Parameters, sweeps, seeds and durations
-│   ├── validation/
-│   ├── ring/
-│   ├── network/
-│   └── planning/
-├── src/traffic_project/        # Shared simulation and analysis code
-│   ├── config.py               # Load experiment configs (TOML)
-│   ├── io.py                   # Read SUMO outputs, write result tables
-│   ├── runner.py               # SUMO/TraCI execution and run records
-│   ├── demand.py               # Destinations, routing, vehicle-count control
-│   ├── measurements.py         # Common measurement definitions
-│   ├── results.py              # Result data format shared with the analysis
-│   ├── nasch.py                # NaSch theory at p = 0 and reference automaton
-│   ├── ovm.py                  # OVM theory and reference integrator
-│   ├── analysis/               # Critical points, fluctuations, clusters
-│   └── export_web.py           # Export compact website data
-├── scripts/                    # Command-line entry points
-├── tests/                      # Model, controller and measurement checks
-├── data/                       # External data, separate from run outputs
-│   ├── raw/                    # Original OSM, PeMS, highD or LTA data (not in git)
-│   └── processed/              # Cleaned external data
-├── runs/                       # One folder per run: inputs, record, log, outputs (not in git)
-├── sandbox/                    # Personal experiments (not in git)
-├── results/                    # Aggregated statistics and figures (in git, keep small)
-├── reports/                    # Report and presentation sources
-└── docs/                       # Published website; retain existing structure
-    ├── index.html
-    ├── guide.html              # Shared conventions for all members
-    ├── assets/                 # Shared styles, scripts and illustrations
-    ├── models/                 # NaSch, OVM and IDM explanations
-    ├── lab/                    # Ring, network and planning result views
-    └── data/
-        ├── project.js          # Website schedule and progress
-        ├── ring/               # Exported ring-road results
-        ├── network/            # Exported city-network results
-        └── planning/           # Exported planning comparisons
+├── sumo/                 # Pinned SUMO version, OVM source files, patch, validation checks
+├── src/traffic_project/  # Shared Python package: configs, runner, measurements, controller
+├── configs/              # One TOML file per experiment (parameters, densities, seeds)
+├── scenarios/            # Ring, grid and Bugis networks and the scripts that build them
+├── scripts/              # Command-line entry points for sweeps, analyses and figures
+├── results/              # Summary tables, time series and figures of all valid runs
+├── data/processed/       # Processed external data (LTA speed bands)
+├── notebooks/            # Analysis notebooks of the members
+├── tests/                # Automated tests (pytest)
+└── docs/                 # Project website (GitHub Pages)
 ```
 
-- `scenarios/` holds only inputs that stay fixed across runs (networks, signal plans) and the scripts that generate them. Anything generated for a single run (vehicle placement, `.sumocfg`, outputs) goes into `runs/<run-id>/`. `configs/` defines the experiment combinations. The three ring-road models share the same execution and analysis pipeline.
-- `runs/<run-id>/` preserves the resolved configuration, random seed, project and SUMO versions, scenario identity, validation outcome, logs and outputs. `results/` aggregates these runs; every published point should retain its source run identifiers.
-- Git tracks code, scenarios, configs, `results/` and `docs/`. It ignores `runs/` and `data/raw/` (see `.gitignore`); share large files through external storage and record how to retrieve them.
-- `docs/data/` contains compact exports generated from validated results. GitHub Pages publishes all of `docs/`, so keep full trajectories, private data and experiment inputs outside it.
-- `docs/guide.html` is the single reference for the shared conventions (units, run IDs, directories, checks); `GUIDE.md` and `GUIDE_zh.md` have the same content as Markdown. `research/` records how those decisions were reached and the validation results.
-- Keep the upstream SUMO checkout and build outside this repository; record its version in `sumo/version.txt`, the new OVM files in `sumo/ovm/` and the edits to existing SUMO files in `sumo/patches/`.
+Run directories (`runs/`) and raw data are not tracked because of their size. Every row in `results/` keeps the ID of the run it came from, and each run can be repeated from its configuration file and seed. The shared conventions (units, run IDs, checks) are in [GUIDE.md](GUIDE.md).
 
-## Experiment workflow
+## Reproducing the results
 
-1. Define the protocol and configuration: units, model parameters, density grid, seeds, initial conditions, warm-up and observation durations, and congestion criteria. Fix the SUMO build, including OVM.
-2. Validate from the command line: NaSch against the deterministic reference, OVM against stability predictions, and the city controller on the 4×4 grid. Check vehicle counts, nonnegative speeds and vehicle overlap.
-3. Run SUMO batches from the command line: ring-road comparisons first, city-network density sweeps next, then planning comparisons. Planning runs use the same density grid and seed set as the baseline, with lane length and vehicle count recorded for each scenario.
-4. Save each run under its run identifier, check validity and retain failed-run diagnostics. Compute statistics after warm-up, aggregate repeated runs and refine the density grid near candidate critical regions.
-5. Generate report figures and export the corresponding compact data to `docs/data/ring/`, `docs/data/network/` and `docs/data/planning/`.
-6. Verify the website against the exported results, then commit and push. Result-page controls select available precomputed runs or replay times; new parameter combinations require another command-line run and export. Browser illustrations remain educational examples.
+```bash
+conda env create -f environment.yml
+conda activate traffic
+```
 
-The ring-road tools follow this workflow; see `docs/guide.html` for the commands and for how to add a new experiment. Tools for the other scenarios are still to be implemented.
+NaSch and IDM need the official SUMO 1.28.0 release. The C++ OVM needs SUMO 1.28.0 built with the files in `sumo/ovm/` and `sumo/patches/register-ovm.patch` (see `sumo/version.txt`).
+
+```bash
+# Model validation
+python sumo/check_nasch.py
+python sumo/ovm/check_ovm.py
+pytest
+
+# City network
+python scripts/city_sweep.py    --config configs/city/bugis_all_controller.toml
+python scripts/city_measures.py --config configs/city/bugis_all_controller.toml
+
+# Planning scenarios (after sweeping each bugis_all_<variant>_controller.toml)
+python scripts/planning_figures.py \
+    --extra base=bugis_all_base_controller_seeds4to10 \
+    --extra newlink=bugis_all_newlink_controller_seeds4to10
+```
+
+The ring-road sweeps are on the branch `gw/self-experiment`, and the IDM stability and PeMS notebooks on `add-critical-density-analysis`. The report's appendix lists every command in full.
+
+## Data sources
+
+- Road network: © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, ODbL.
+- Singapore speed bands: contains information from Traffic Speed Bands accessed from LTA DataMall, made available under the [Singapore Open Data Licence 1.0](https://data.gov.sg/open-data-licence).
+- Freeway detector data: Caltrans Performance Measurement System (PeMS).

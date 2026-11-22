@@ -2,103 +2,79 @@
 
 [English](README.md) | [中文](README_zh.md)
 
-本项目将交通从自由流向拥堵的转变视为非平衡相变，先研究高速公路环形道路，再扩展到城市道路网络。
+新加坡国立大学 PC5253 课程期末项目。我们把交通拥堵的出现看作非平衡相变，从单车道环形道路出发，扩展到新加坡武吉士（Bugis）片区的道路网络，再研究该路网的规划改动。所有模拟都是基于智能体的，在 [SUMO](https://eclipse.dev/sumo/) 中运行，使用三种跟驰模型：Nagel–Schreckenberg（NaSch）、优化速度模型（OVM，由我们用 C++ 实现）和智能驾驶模型（IDM）。
 
-## 项目概览
+**[项目网站](https://laozhongjie.github.io/agent-based-traffic-modeling/)**：模型的交互式讲解，以及环路、城市路网和规划情景的全部结果，提供中英文两种语言。
 
-- [英文版](Project_Overview_EN.md)
-- [中文版](Project_Overview.md)
+## 研究问题
 
-## 关键日期
+1. **高速公路。** 没有信号灯的道路上，临界密度是多少？这一转变是否表现得像相变？它如何依赖于模型、随机性和系统尺寸？是否与真实高速公路数据相符？
+2. **城市路网。** 城市路网是否存在一个密度，使总通行量先达到峰值然后下降？局部拥堵是否会合并成大片拥堵区域？路网结构如何决定拥堵从哪里开始？
+3. **规划。** 封路或新建道路会提高还是降低路网的临界密度和最大流量？新增一条路会不会让交通更糟（Braess 悖论）？
 
-| 日期 | 提交内容 |
+## 主要结果
+
+- **环形道路。** 密度超过临界值后，自由流会演变为向后传播的走走停停波。临界密度约为 20–25 veh/km（NaSch）、25 veh/km（OVM）和 30–35 veh/km（IDM），在 600 到 4800 m 的环路长度范围内看不出差别。线性稳定性分析给出的 IDM 阈值为 32.9 veh/km。随机性越小、驾驶员反应越快，拥堵越晚出现。真实高速公路数据（PeMS）的流量峰值出现在每车道 19–21 veh/km，并显示出迟滞迹象。
+- **城市路网。** Bugis 路网的平均速度在每车道 13.3 veh/km 时减半，流量则在每车道约 171 veh/h 处趋于平稳。涨落和恢复时间在该密度处都没有峰值，因此这是平滑过渡，而不是临界点。局部拥堵在 20 到 25 veh/km 之间合并成一个大团簇；控制交通负载后，边介数几乎无法预测拥堵从哪里开始。
+- **规划。** 封闭最中心的可封闭路段，使临界密度下降 0.45 veh/km（3.4%）。车道缩减和新建道路带来的变化都小于不同随机种子之间的差异，没有发现全网范围的 Braess 悖论。
+
+## 团队
+
+| 成员 | 主要工作 |
 |---|---|
-| 11 月 5 日 18:00 | 汇报幻灯片（Canvas › People › Groups） |
-| 11 月 15 日 23:59 | 同伴评分（Canvas Quiz） |
-| 11 月 22 日 23:59 | 小组报告、数据和代码，以及个人报告 |
+| Lao Zhongjie（A） | 项目负责人：研究方案、共享框架与实验流程、SUMO 构建与 OVM 实现、模型验证、项目网站 |
+| Foo Guowei（B） | 车辆模型；环形道路实验 |
+| Lim Yixiang（C） | 城市路网：MFD、拥堵团簇、扩散与临界点分析；LTA 数据 |
+| Cheong Zihao Daniel（D） | 规划情景与 Braess 检验 |
+| Shen Hongfang（E） | IDM 平衡态与线性稳定性；PeMS 高速公路数据分析；讨论 |
 
-## 项目网站
-
-[打开项目网站](https://laozhongjie.github.io/agent-based-traffic-modeling/)
-
-网站支持中英文切换。首页展示研究问题、主要发现和全部结果：根据导出的结果表绘制的交互图表、城市路网运行回放和规划地图。模型页面用交互图解介绍 NaSch、OVM 和 IDM。
-
-小组工作页面（任务、时间线、进度和实验指南）保留在 [hub.html](https://laozhongjie.github.io/agent-based-traffic-modeling/hub.html)，直到报告截止。
-
-## 仓库目录
-
-以下为目标目录结构。目前仓库已有项目概览、网站和第一个环路场景；其他目录在开始实现时按需添加。目录名称表示文件职责，不代表团队分工。
+## 仓库结构
 
 ```text
 .
-├── README.md / README_zh.md
-├── GUIDE.md / GUIDE_zh.md      # 实验手册 Markdown 版，内容与 docs/guide.html 一致
-├── Project_Overview.md / Project_Overview_EN.md
-├── environment.yml             # 可复现的 Python 环境
-├── pyproject.toml              # 让 src/traffic_project 可以导入（pip install -e .）
-├── .github/workflows/          # 网站部署及后续自动检查
-├── research/                   # 决策记录和验证结果
-├── sumo/
-│   ├── version.txt             # 固定的上游 SUMO commit
-│   ├── check_nasch.py          # 用 p = 0 的精确解检查 SUMO 的 NaSch
-│   ├── ovm/                    # MSCFModel_OVM.h/.cpp 完整源文件及 check_ovm.py
-│   └── patches/                # 在 SUMO 中注册 OVM 的少量改动
-├── scenarios/                  # 固定不变的 SUMO 输入及其生成脚本
-│   ├── ring/                   # 环路及瓶颈变体
-│   ├── grid/                   # 验证流程的 4×4 网格
-│   └── city/                   # 基准、封路和新增连接变体
-├── configs/                    # 参数、扫描组合、种子和运行时长
-│   ├── validation/
-│   ├── ring/
-│   ├── network/
-│   └── planning/
-├── src/traffic_project/        # 共用的模拟和分析代码
-│   ├── config.py               # 读取实验配置（TOML）
-│   ├── io.py                   # 读取 SUMO 输出，写结果表格
-│   ├── runner.py               # SUMO/TraCI 运行与实验记录
-│   ├── demand.py               # 目的地、路线及车辆数控制
-│   ├── measurements.py         # 统一指标定义
-│   ├── results.py              # 交给分析使用的结果数据格式
-│   ├── nasch.py                # NaSch 在 p = 0 时的理论与参考元胞自动机
-│   ├── ovm.py                  # OVM 理论与参考积分器
-│   ├── analysis/               # 临界点、涨落及拥堵簇分析
-│   └── export_web.py           # 导出精简网页数据
-├── scripts/                    # 命令行入口
-├── tests/                      # 模型、控制器和指标检查
-├── data/                       # 外部数据，与实验输出分开
-│   ├── raw/                    # OSM、PeMS、highD 或 LTA 原始数据（不进 git）
-│   └── processed/              # 清洗后的外部数据
-├── runs/                       # 每次运行一个目录：输入、记录、日志和输出（不进 git）
-├── sandbox/                    # 个人试验代码（不进 git）
-├── results/                    # 汇总统计和图表（进 git，保持精简）
-├── reports/                    # 报告和幻灯片源文件
-└── docs/                       # 发布的网站，保留现有结构
-    ├── index.html
-    ├── guide.html              # 实验手册（全组共用规范）
-    ├── assets/                 # 共用样式、脚本和原理演示
-    ├── models/                 # NaSch、OVM 和 IDM 介绍
-    ├── lab/                    # 环路、路网和规划结果页面
-    └── data/
-        ├── project.js          # 网站时间安排和进度
-        ├── ring/               # 环路实验导出结果
-        ├── network/            # 路网实验导出结果
-        └── planning/           # 规划实验导出对照
+├── sumo/                 # 固定的 SUMO 版本、OVM 源文件、补丁和验证脚本
+├── src/traffic_project/  # 共享 Python 包：配置、运行、测量、密度控制器
+├── configs/              # 每个实验一个 TOML 文件（参数、密度、随机种子）
+├── scenarios/            # 环路、网格和 Bugis 路网，以及生成它们的脚本
+├── scripts/              # 扫描、分析和作图的命令行入口
+├── results/              # 所有有效运行的汇总表、时间序列和图
+├── data/processed/       # 处理后的外部数据（LTA 速度带）
+├── notebooks/            # 组员的分析 notebook
+├── tests/                # 自动化测试（pytest）
+└── docs/                 # 项目网站（GitHub Pages）
 ```
 
-- `scenarios/` 只放各次运行共用、固定不变的输入（路网、信号方案）及生成它们的脚本。为某一次运行生成的文件（车辆初始位置、`.sumocfg`、输出）一律放进 `runs/<run-id>/`。`configs/` 定义实验组合。环路上的三种模型共用运行和分析流程。
-- `runs/<run-id>/` 保存本次运行的完整配置、随机种子、项目与 SUMO 版本、场景标识、验证结果、日志和输出。`results/` 汇总这些运行；每个发布的数据点应保留来源运行编号。
-- git 跟踪代码、场景、配置、`results/` 和 `docs/`，不跟踪 `runs/` 和 `data/raw/`（见 `.gitignore`）。大文件通过外部存储共享，并记录获取方式。
-- `docs/data/` 存放由有效实验结果生成的精简数据。GitHub Pages 会发布整个 `docs/`，完整轨迹、私有数据和实验输入应保存在该目录之外。
-- 实验手册 `docs/guide.html` 是全组做实验的唯一依据（单位、运行编号、目录、检查项）；`GUIDE.md`（英文）和 `GUIDE_zh.md`（中文）是内容相同的 Markdown 版。`research/` 记录这些决定的由来和验证结果。
-- 上游 SUMO 源码和编译目录放在仓库之外。`sumo/version.txt` 记录版本，`sumo/ovm/` 保存 OVM 新增的源文件，`sumo/patches/` 保存对 SUMO 原有文件的改动。
+运行目录（`runs/`）和原始数据体积较大，没有纳入 Git。`results/` 中的每一行都记录了来源运行的 ID，每次运行都可以用对应的配置文件和随机种子复现。共享约定（单位、运行 ID、检查）见 [GUIDE_zh.md](GUIDE_zh.md)。
 
-## 实验工作流程
+## 复现结果
 
-1. 确定实验协议和配置：单位、模型参数、密度网格、种子、初态、预热与观测时长，以及拥堵判据。固定包含 OVM 的 SUMO 构建。
-2. 通过命令行验证：NaSch 对照确定性解析结果，OVM 对照稳定性预测，城市控制器先在 4×4 网格验证。检查车辆数、非负速度和车辆重叠。
-3. 通过命令行批量运行 SUMO：先做环路比较，再做城市路网密度扫描，最后比较规划方案。规划实验沿用基准的密度网格和种子组，并记录各方案的车道总长度与车辆数。
-4. 按运行编号保存输出，检查有效性并保留失败诊断。排除预热段后计算统计量，汇总重复运行，在候选临界区间附近加密密度取点。
-5. 生成报告图表，同时将对应精简数据导出到 `docs/data/ring/`、`docs/data/network/` 和 `docs/data/planning/`。
-6. 检查网页展示与导出结果一致，再提交并推送。结果页控件用于选择已有计算组合或回放时刻；新参数组合需要重新通过命令行运行并导出。浏览器原理演示用于教学说明。
+```bash
+conda env create -f environment.yml
+conda activate traffic
+```
 
-环路实验的命令行工具已按此流程实现，具体命令和新增实验的方法见 `docs/guide.html`。其他场景的工具尚待实现。
+NaSch 和 IDM 只需要官方 SUMO 1.28.0。C++ 版 OVM 需要用 `sumo/ovm/` 中的文件和 `sumo/patches/register-ovm.patch` 构建 SUMO 1.28.0（见 `sumo/version.txt`）。
+
+```bash
+# 模型验证
+python sumo/check_nasch.py
+python sumo/ovm/check_ovm.py
+pytest
+
+# 城市路网
+python scripts/city_sweep.py    --config configs/city/bugis_all_controller.toml
+python scripts/city_measures.py --config configs/city/bugis_all_controller.toml
+
+# 规划情景（先分别运行各个 bugis_all_<variant>_controller.toml）
+python scripts/planning_figures.py \
+    --extra base=bugis_all_base_controller_seeds4to10 \
+    --extra newlink=bugis_all_newlink_controller_seeds4to10
+```
+
+环形道路的扫描在分支 `gw/self-experiment` 上，IDM 稳定性和 PeMS 的 notebook 在分支 `add-critical-density-analysis` 上。完整命令见报告附录。
+
+## 数据来源
+
+- 道路网络：© [OpenStreetMap](https://www.openstreetmap.org/copyright) 贡献者，ODbL 许可。
+- 新加坡速度带：包含来自 LTA DataMall 的 Traffic Speed Bands 信息，依据[新加坡开放数据许可 1.0](https://data.gov.sg/open-data-licence) 提供。
+- 高速公路检测器数据：加州交通局性能测量系统（PeMS）。
