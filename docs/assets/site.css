@@ -274,3 +274,9 @@ th { background: transparent; color: var(--muted); font-size: 13px; font-weight:
 #approach .grid.two:has(.fig-card) { gap: 0 40px; }
 @media (max-width: 640px) { .result-block .fig-row, #approach .fig-card { padding: 14px; margin: 0 -14px; } }
 #findings .rq p:not(.tag):not(.finding-num) { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+
+/* Hero rhythm: more air between the lines of the title and around it. */
+.hero h1 { font-size: clamp(40px, 5.4vw, 58px); line-height: 1.12; letter-spacing: -.015em; font-weight: 600; margin: 0 0 32px; }
+:lang(zh-CN) .hero h1 { font-size: clamp(34px, 4.4vw, 50px); line-height: 1.28; letter-spacing: 0; }
+.hero .eyebrow { margin-bottom: 22px; }
+.hero .lede { line-height: 1.55; margin-bottom: 40px; }
