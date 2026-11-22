@@ -219,3 +219,20 @@ th { background: transparent; color: var(--muted); font-size: 13px; font-weight:
 .band .fig-card { background: transparent; }
 :lang(zh-CN) body { letter-spacing: 0; }
 @media (max-width: 640px) { .card .finding-num { min-height: 0; } }
+
+/* Key findings, stacked: one full-width tile per question; number and title on the left, text on the right. */
+#findings .grid.three { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+#findings .rq {
+  display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); grid-template-rows: auto auto 1fr auto;
+  column-gap: 56px; padding: 40px 44px 32px;
+}
+#findings .rq .tag { grid-column: 1; grid-row: 1; }
+#findings .rq .finding-num { grid-column: 1; grid-row: 2; min-height: 0; font-size: 32px; }
+#findings .rq h3 { grid-column: 1; grid-row: 3; align-self: start; }
+#findings .rq p:not(.tag):not(.finding-num) { grid-column: 2; grid-row: 1 / 4; font-size: 17px; line-height: 1.55; align-self: start; padding-top: 2px; }
+#findings .rq .exp-foot { grid-column: 2; grid-row: 4; padding-top: 18px; }
+@media (max-width: 760px) {
+  #findings .rq { grid-template-columns: minmax(0, 1fr); padding: 28px 24px 22px; }
+  #findings .rq > * { grid-column: 1 !important; grid-row: auto !important; }
+  #findings .rq .finding-num { font-size: 26px; }
+}
