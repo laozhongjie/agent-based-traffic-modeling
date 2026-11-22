@@ -273,3 +273,4 @@ th { background: transparent; color: var(--muted); font-size: 13px; font-weight:
 }
 #approach .grid.two:has(.fig-card) { gap: 0 40px; }
 @media (max-width: 640px) { .result-block .fig-row, #approach .fig-card { padding: 14px; margin: 0 -14px; } }
+#findings .rq p:not(.tag):not(.finding-num) { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
