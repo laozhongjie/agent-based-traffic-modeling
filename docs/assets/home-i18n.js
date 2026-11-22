@@ -158,12 +158,10 @@ window.I18N = {
       "valid.ovmAlt": "我们实现的 OVM 在三个密度下的时空图。",
       "valid.ovm": "我们实现的 OVM：在理论预测的不稳定区间（29.3–84.5 veh/km）之外，小扰动逐渐消失；在区间之内，扰动发展成向后移动的拥堵。",
 
-      "code.h": "代码与报告",
+      "code.h": "代码",
       "code.repoH": "代码仓库",
       "code.repoText": "包含加入 OVM 的 SUMO 构建、共用的 Python 框架、所有实验配置、结果表，以及复现每张图的命令。",
       "code.repoOpen": "在 GitHub 上打开",
-      "code.reportH": "报告",
-      "code.reportText": "完整报告（包括推导、全部图表和局限性讨论）将在 2026 年 11 月 22 日提交后放在这里。",
       "footer.course": "PC5253 小组项目 · 新加坡国立大学 · 2026",
       "footer.hub": "小组工作台",
 
