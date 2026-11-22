@@ -1,0 +1,21 @@
+# Network critical point and capacity of the city sweep, for the network page's critical density summary
+# (GUIDE section 6, "Website files": the entry CRITICAL["network/<name>"]). Member E's method, as the group
+# agreed it on 30-31 Oct 2026; C fills the city network with it until E's estimator exists (GUIDE section 6).
+# Read by scripts/city_critical.py only, not by the sweep, so the sweep's own config (and its hash) stays as it is.
+# Run, on the computer that ran the sweep, after it finished from a clean commit:
+#   python scripts/city_critical.py --config configs/city/bugis_all_critical.toml
+# It writes docs/data/network/critical_bugis_all_controller.js, the entry CRITICAL["network/bugis_all_controller"].
+name = "bugis_all_critical"
+scenario = "city"
+model = "IDM"
+
+[critical]
+sweep_config = "configs/city/bugis_all_controller.toml"   # the sweep whose valid runs are read; its name keys the entry
+extra_configs = []                 # sweeps that add seeds or densities on the same settings, read with it, e.g. ["configs/city/bugis_all_controller_seeds4to6.toml"]
+near_empty_density_veh_km = 2.5    # veh/km; near-empty speed v0 = the seed-mean network speed at this density, the lowest swept one (member D's rule, agreed 31 Oct)
+speed_ratio = 0.5                  # (ratio, no unit) critical density k_c: where the seed-mean speed falls to this x v0 (member E's half-speed density, 31 Oct)
+capacity_window_veh_km = [20, 40]  # veh/km; q_max = the top of a quadratic fitted to every valid run in this window, fixed before the data (member E, 30 Oct)
+interval = 0.95                    # (share, no unit) the range given for k_c and for q_max
+bootstrap_draws = 10000            # resamples of the runs at each density
+bootstrap_seed_k_c = 20261031      # random seed of the k_c bootstrap (C's half-speed estimate of 31 Oct)
+bootstrap_seed_q_max = 20261029    # random seed of the q_max bootstrap (C's capacity estimate sent to member E on 30 Oct)
