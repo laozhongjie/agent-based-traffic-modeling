@@ -236,3 +236,15 @@ th { background: transparent; color: var(--muted); font-size: 13px; font-weight:
   #findings .rq > * { grid-column: 1 !important; grid-row: auto !important; }
   #findings .rq .finding-num { font-size: 26px; }
 }
+
+/* Finding numbers: a large light figure, with the symbol and the unit small and grey beside it. */
+#findings .rq .finding-num {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; min-height: 0;
+  font-size: 17px; font-weight: 500; line-height: 1.1; letter-spacing: 0; color: var(--muted); margin: 4px 0 18px;
+}
+.fn-val {
+  font-size: 60px; font-weight: 300; letter-spacing: -.035em; line-height: 1; color: var(--text);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.fn-sym, .fn-unit { white-space: nowrap; }
+@media (max-width: 760px) { .fn-val { font-size: 48px; } }
