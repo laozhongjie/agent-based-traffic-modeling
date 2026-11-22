@@ -70,7 +70,7 @@ h1 { font-size: clamp(40px, 6vw, 64px); line-height: 1.06; letter-spacing: -.025
 :lang(zh-CN) h1 { font-size: clamp(34px, 4.6vw, 52px); line-height: 1.2; letter-spacing: 0; }
 .lede { font-size: 21px; line-height: 1.45; color: var(--muted); max-width: 680px; margin: 0 auto 32px; }
 .hero-actions { justify-content: center; gap: 14px; }
-.hero .lede { text-align: center; }
+.hero .lede { text-align: center; text-wrap: balance; }
 .btn { border-radius: 980px; padding: 11px 22px; font-size: 17px; font-weight: 400; border: 0; background: transparent; color: var(--accent); }
 .btn.primary { background: var(--accent); color: #fff; }
 .btn:not(.primary)::after { content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .4em; border-top: .1em solid currentColor; border-right: .1em solid currentColor; transform: rotate(45deg); }
