@@ -22,11 +22,11 @@ PC5253 final project, National University of Singapore. We treat the onset of tr
 
 | Member | Main work |
 |---|---|
-| Lao Zhongjie (A) | Project lead: research plan, shared framework and pipeline, SUMO build and OVM implementation, model validation, website |
-| Foo Guowei (B) | Vehicle models; ring-road experiments |
-| Lim Yixiang (C) | City network: MFD, clusters, spreading and critical-point analyses; LTA data |
-| Cheong Zihao Daniel (D) | Planning scenarios and Braess test |
-| Shen Hongfang (E) | IDM equilibrium and linear stability; PeMS freeway analysis; discussion |
+| A | Project lead: research plan, shared framework and pipeline, SUMO build and OVM implementation, model validation, website |
+| B | Vehicle models; ring-road experiments |
+| C | City network: MFD, clusters, spreading and critical-point analyses; LTA data |
+| D | Planning scenarios and Braess test |
+| E | IDM equilibrium and linear stability; PeMS freeway analysis; discussion |
 
 ## Repository layout
 
