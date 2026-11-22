@@ -38,7 +38,7 @@
 ├── scenarios/            # 环路、网格和 Bugis 路网，以及生成它们的脚本
 ├── scripts/              # 扫描、分析和作图的命令行入口
 ├── results/              # 所有有效运行的汇总表、时间序列和图
-├── data/processed/       # 处理后的外部数据（LTA 速度带）
+├── data/processed/       # 处理后的外部数据（LTA 速度带、PeMS 站点）
 ├── notebooks/            # 组员的分析 notebook
 ├── tests/                # 自动化测试（pytest）
 └── docs/                 # 项目网站（GitHub Pages）
@@ -71,7 +71,7 @@ python scripts/planning_figures.py \
     --extra newlink=bugis_all_newlink_controller_seeds4to10
 ```
 
-环形道路的扫描在分支 `gw/self-experiment` 上，IDM 稳定性和 PeMS 的 notebook 在分支 `add-critical-density-analysis` 上。完整命令见报告附录。
+环形道路的扫描使用 `scripts/ring_sweep.py` 和 `configs/ring/` 中的配置文件，环路理论和 PeMS 分析在 `notebooks/e/` 中。`notebooks/e/model_comparisons.ipynb` 读取的 SUMO 轨迹（约 150 MB）保留在分支 `add-critical-density-analysis` 上。完整命令见报告附录。
 
 ## 数据来源
 

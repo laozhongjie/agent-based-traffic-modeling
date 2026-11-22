@@ -38,7 +38,7 @@ We treat the onset of traffic congestion as a nonequilibrium phase transition an
 ├── scenarios/            # Ring, grid and Bugis networks and the scripts that build them
 ├── scripts/              # Command-line entry points for sweeps, analyses and figures
 ├── results/              # Summary tables, time series and figures of all valid runs
-├── data/processed/       # Processed external data (LTA speed bands)
+├── data/processed/       # Processed external data (LTA speed bands, PeMS stations)
 ├── notebooks/            # Analysis notebooks of the members
 ├── tests/                # Automated tests (pytest)
 └── docs/                 # Project website (GitHub Pages)
@@ -71,7 +71,7 @@ python scripts/planning_figures.py \
     --extra newlink=bugis_all_newlink_controller_seeds4to10
 ```
 
-The ring-road sweeps are on the branch `gw/self-experiment`, and the IDM stability and PeMS notebooks on `add-critical-density-analysis`. The report's appendix lists every command in full.
+The ring-road sweeps use `scripts/ring_sweep.py` with the files in `configs/ring/`, and the ring theory and PeMS analyses are in `notebooks/e/`. The SUMO trajectories read by `notebooks/e/model_comparisons.ipynb` (about 150 MB) are kept on the branch `add-critical-density-analysis`. The report's appendix lists every command in full.
 
 ## Data sources
 
