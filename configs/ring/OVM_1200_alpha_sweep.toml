@@ -1,0 +1,50 @@
+# TraCI Bando OVM relaxation-rate sweep at fixed density.
+# Run: python scripts/alpha_sweep.py --config configs/ring/OVM_1200_alpha_sweep.toml
+
+name = "OVM_1200_alpha_sweep"
+scenario = "ring"
+model = "OVM"
+implementation = "traci"
+variant = "traci-dt0p1-alpha-base"
+
+[ring]
+length_m = 1200
+
+[run]
+end_s = 1800
+step_s = 0.2
+warmup_s = 600
+fcd_every_s = 1.0
+fcd_begin_s = 0.0
+
+[initial]
+mode = "uniform_jitter"
+jitter_m = 0.5
+
+[sweep]
+# 36 vehicles / 1.2 km = 30 vehicles/km.
+vehicles = [36]
+seeds = [501, 502, 503]
+
+[vtype]
+# SUMO insertion placeholder; Python/TraCI controls longitudinal speeds.
+carFollowModel = "Krauss"
+length = 5.0
+minGap = 2.0
+accel = 1.0
+decel = 1.5
+sigma = 0.0
+tau = 1.0
+maxSpeed = 30.0
+speedDev = 0
+speedFactor = 1
+
+[ovm]
+# alpha is replaced by scripts/alpha_sweep.py for each experiment.
+alpha = 1.0
+h_c = 25.0
+h_scale = 5.0
+
+[measure]
+jam_speed_mps = 15.0
+timeseries_every_s = 10

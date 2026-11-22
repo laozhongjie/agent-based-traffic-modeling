@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-10-14T09:27:01.500032+08:00 by Eclipse SUMO netconvert 1.28.0
+<netconvertConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <node-files value="/Users/astra/PC5253 Traffic Project Cloned/agent-based-traffic-modeling/scenarios/ring/ring_600.nod.xml"/>
+        <edge-files value="/Users/astra/PC5253 Traffic Project Cloned/agent-based-traffic-modeling/scenarios/ring/ring_600.edg.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/Users/astra/PC5253 Traffic Project Cloned/agent-based-traffic-modeling/scenarios/ring/ring_600.net.xml"/>
+    </output>
+
+    <junctions>
+        <no-internal-links value="true"/>
+    </junctions>
+
+</netconvertConfiguration>
+-->
+
+<net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="95.49,95.49" convBoundary="0.00,0.00,190.99,190.99" origBoundary="-95.49,-95.49,95.49,95.49" projParameter="!"/>
+
+    <edge id="e0" from="n0" to="n1" priority="-1" length="150.00" shape="190.99,95.49 190.17,107.96 187.73,120.21 183.72,132.04 178.19,143.24 171.25,153.62 163.02,163.02 153.62,171.25 143.24,178.19 132.04,183.72 120.21,187.73 107.96,190.17 95.49,190.99">
+        <lane id="e0_0" index="0" speed="30.00" length="150.00" shape="192.59,95.59 191.76,108.17 189.28,120.62 185.20,132.65 179.58,144.04 172.52,154.60 164.15,164.15 154.60,172.52 144.04,179.58 132.65,185.20 120.62,189.28 108.17,191.76 95.59,192.59"/>
+    </edge>
+    <edge id="e1" from="n1" to="n2" priority="-1" length="150.00" shape="95.49,190.99 83.03,190.17 70.78,187.73 58.95,183.72 47.75,178.19 37.36,171.25 27.97,163.02 19.73,153.62 12.79,143.24 7.27,132.04 3.25,120.21 0.82,107.96 0.00,95.49">
+        <lane id="e1_0" index="0" speed="30.00" length="150.00" shape="95.38,192.59 82.82,191.76 70.37,189.28 58.34,185.20 46.95,179.58 36.38,172.52 26.84,164.15 18.46,154.60 11.40,144.04 5.79,132.65 1.70,120.62 -0.77,108.17 -1.60,95.59"/>
+    </edge>
+    <edge id="e2" from="n2" to="n3" priority="-1" length="150.00" shape="0.00,95.49 0.82,83.03 3.25,70.78 7.27,58.95 12.79,47.75 19.73,37.36 27.97,27.97 37.36,19.73 47.75,12.79 58.95,7.27 70.78,3.25 83.03,0.82 95.49,0.00">
+        <lane id="e2_0" index="0" speed="30.00" length="150.00" shape="-1.60,95.38 -0.77,82.82 1.70,70.37 5.79,58.34 11.40,46.95 18.46,36.38 26.84,26.84 36.38,18.46 46.95,11.40 58.34,5.79 70.37,1.70 82.82,-0.77 95.38,-1.60"/>
+    </edge>
+    <edge id="e3" from="n3" to="n0" priority="-1" length="150.00" shape="95.49,0.00 107.96,0.82 120.21,3.25 132.04,7.27 143.24,12.79 153.62,19.73 163.02,27.97 171.25,37.36 178.19,47.75 183.72,58.95 187.73,70.78 190.17,83.03 190.99,95.49">
+        <lane id="e3_0" index="0" speed="30.00" length="150.00" shape="95.59,-1.60 108.17,-0.77 120.62,1.70 132.65,5.79 144.04,11.40 154.60,18.46 164.15,26.84 172.52,36.38 179.58,46.95 185.20,58.34 189.28,70.37 191.76,82.82 192.59,95.38"/>
+    </edge>
+
+    <junction id="n0" type="priority" x="190.99" y="95.49" incLanes="e3_0" intLanes="" shape="194.18,95.28 190.99,95.49 194.18,95.70 194.19,95.54 194.19,95.49 194.19,95.37">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+    <junction id="n1" type="priority" x="95.49" y="190.99" incLanes="e0_0" intLanes="" shape="95.70,194.18 95.49,190.99 95.28,194.18 95.44,194.19 95.49,194.19 95.61,194.19">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+    <junction id="n2" type="priority" x="0.00" y="95.49" incLanes="e1_0" intLanes="" shape="-3.19,95.70 0.00,95.49 -3.19,95.28 -3.20,95.44 -3.20,95.49 -3.20,95.61">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+    <junction id="n3" type="priority" x="95.49" y="0.00" incLanes="e2_0" intLanes="" shape="95.49,0.00 95.70,-3.19 95.54,-3.20 95.49,-3.20 95.37,-3.20">
+        <request index="0" response="0" foes="0"/>
+    </junction>
+
+    <connection from="e0" to="e1" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from="e1" to="e2" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from="e2" to="e3" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from="e3" to="e0" fromLane="0" toLane="0" dir="s" state="M"/>
+
+</net>

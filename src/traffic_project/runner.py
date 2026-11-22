@@ -22,9 +22,12 @@ import contextlib
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
+from pathlib import Path
 
 from . import ROOT
 
@@ -35,6 +38,21 @@ def _sh(*cmd):
 
 def sumo_version():
     return _sh("sumo", "--version").stdout.splitlines()[0]
+
+
+def sumo_has_model(model):
+    """Return whether the SUMO executable on PATH accepts a car-following model."""
+    if shutil.which("sumo") is None:
+        return False
+    with tempfile.TemporaryDirectory() as tmp:
+        additional = Path(tmp) / "model.add.xml"
+        additional.write_text(
+            f'<additional><vType id="probe" carFollowModel="{model}"/></additional>\n'
+        )
+        net = ROOT / "scenarios" / "ring" / "ring_600.net.xml"
+        result = _sh("sumo", "-n", str(net), "-a", str(additional),
+                     "--end", "1", "--no-step-log")
+    return result.returncode == 0
 
 
 def git_commit():

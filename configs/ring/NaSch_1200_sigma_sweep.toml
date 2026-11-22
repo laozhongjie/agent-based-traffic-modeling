@@ -1,0 +1,42 @@
+# Ring-road density sweep with NaSch Model.
+# Run:  python scripts/ring_sweep.py --config configs/ring/NaSch_1200_sigma_sweep.toml
+# Plot: python scripts/plot_ring.py  --config configs/ring/NaSch_1200_sigma_sweep.toml
+# Vehicles use lattice-aligned initial positions; dynamic randomness is controlled by sigma and seed.
+# At the critical point to determine if breaking affects 
+
+name = "NaSch_1200"
+scenario = "ring"
+model = "NaSch"
+
+[ring]
+length_m = 1200 
+
+[run]
+end_s = 1800
+step_s = 1.0
+warmup_s = 600
+
+[initial]
+mode = "nasch_lattice"
+
+[sweep]
+vehicles = [30] # This corresponds to critical at 25
+seeds = [501, 502, 503]
+
+[vtype]
+carFollowModel = "NaSch"
+length = 7.5
+minGap = 0.0
+accel = 7.5
+decel = 30.0
+emergencyDecel = 30.0
+tau = 1.0
+maxSpeed = 30.0
+sigma = 0.0
+speedDev = 0
+speedFactor = 1
+
+# Modified here
+[measure]
+jam_speed_mps = 15.0       
+timeseries_every_s = 10   

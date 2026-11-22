@@ -1,0 +1,46 @@
+# Closed two-lane ring with the shared IDM parameter set.
+# Run: python scripts/different_track_sweep.py --config configs/ring/idm_multi_ring_4800.toml
+# Total density matches the one-lane experiments; per-lane density is half.
+
+name = "idm_multi_ring_4800"
+scenario = "different_track"
+model = "IDM"
+
+[run]
+end_s = 1800
+step_s = 1.0
+jitter_m = 0.5
+
+[vtype]
+carFollowModel = "IDM"
+length = 5.0
+minGap = 2.0
+accel = 1.0
+decel = 1.5
+tau = 1.5
+delta = 4
+maxSpeed = 30.0
+speedDev = 0
+speedFactor = 1
+emergencyDecel = 9.0
+stepping = 0.25
+
+[measure]
+jam_speed_mps = 15.0
+timeseries_every_s = 10
+
+[sweep]
+# Total densities of 10, 15, 20, ..., 65 vehicles/km.
+# These correspond to 5, 7.5, 10, ..., 32.5 vehicles/km/lane.
+vehicles = [120, 144, 168, 192, 216, 240, 264, 288, 312]
+seeds = [501, 502, 503]
+
+[network]
+type = "ring"
+length_m = 4800
+lanes = 2
+speed_limit_mps = 30.0
+straight_length_m = 1800.0
+
+[lane_change]
+enabled = false
