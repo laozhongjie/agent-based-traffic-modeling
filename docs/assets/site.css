@@ -254,3 +254,22 @@ th { background: transparent; color: var(--muted); font-size: 13px; font-weight:
 .result-text, .result-list li, .section-intro, .fig-row figcaption, .table-card .note, #models .note {
   text-align: justify; hyphens: auto; -webkit-hyphens: auto;
 }
+
+/* Figures and their captions: on hover the block rises as a soft panel. The panel reaches 20px beyond
+   the content on each side (negative margin, matching padding), so nothing moves. */
+.result-block .fig-row, #approach .fig-card {
+  padding: 20px; margin: 0 -20px; border-radius: 22px; background: transparent;
+  transition: background-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+@media (hover: hover) {
+  .result-block .card.fig-row:hover, #approach .card.fig-card:hover {
+    background: var(--surface);
+    box-shadow: 0 10px 34px rgba(0, 0, 0, .09), 0 1px 3px rgba(0, 0, 0, .05);
+  }
+  :root[data-theme="dark"] .result-block .card.fig-row:hover, :root[data-theme="dark"] #approach .card.fig-card:hover { box-shadow: 0 10px 34px rgba(0, 0, 0, .7); }
+}
+@media (hover: hover) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .result-block .card.fig-row:hover, :root:not([data-theme="light"]) #approach .card.fig-card:hover { box-shadow: 0 10px 34px rgba(0, 0, 0, .7); }
+}
+#approach .grid.two:has(.fig-card) { gap: 0 40px; }
+@media (max-width: 640px) { .result-block .fig-row, #approach .fig-card { padding: 14px; margin: 0 -14px; } }
