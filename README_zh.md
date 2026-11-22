@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README_zh.md)
 
-新加坡国立大学 PC5253 课程期末项目。我们把交通拥堵的出现看作非平衡相变，从单车道环形道路出发，扩展到新加坡武吉士（Bugis）片区的道路网络，再研究该路网的规划改动。所有模拟都是基于智能体的，在 [SUMO](https://eclipse.dev/sumo/) 中运行，使用三种跟驰模型：Nagel–Schreckenberg（NaSch）、优化速度模型（OVM，由我们用 C++ 实现）和智能驾驶模型（IDM）。
+我们把交通拥堵的出现看作非平衡相变，从单车道环形道路出发，扩展到新加坡武吉士（Bugis）片区的道路网络，再研究该路网的规划改动。所有模拟都是基于智能体的，在 [SUMO](https://eclipse.dev/sumo/) 中运行，使用三种跟驰模型：Nagel–Schreckenberg（NaSch）、优化速度模型（OVM，由我们用 C++ 实现）和智能驾驶模型（IDM）。
 
 **[项目网站](https://laozhongjie.github.io/agent-based-traffic-modeling/)**：模型的交互式讲解，以及环路、城市路网和规划情景的全部结果，提供中英文两种语言。
 

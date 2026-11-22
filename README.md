@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README_zh.md)
 
-PC5253 final project, National University of Singapore. We treat the onset of traffic congestion as a nonequilibrium phase transition and follow it from a single-lane ring road to the road network of Singapore's Bugis district, and to planning changes of that network. All simulations are agent-based and run in [SUMO](https://eclipse.dev/sumo/) with three car-following models: Nagel–Schreckenberg (NaSch), the optimal velocity model (OVM, implemented by us in C++) and the intelligent driver model (IDM).
+We treat the onset of traffic congestion as a nonequilibrium phase transition and follow it from a single-lane ring road to the road network of Singapore's Bugis district, and to planning changes of that network. All simulations are agent-based and run in [SUMO](https://eclipse.dev/sumo/) with three car-following models: Nagel–Schreckenberg (NaSch), the optimal velocity model (OVM, implemented by us in C++) and the intelligent driver model (IDM).
 
 **[Project website](https://laozhongjie.github.io/agent-based-traffic-modeling/)**: interactive model explanations and all ring, city and planning results, in English and Chinese.
 
