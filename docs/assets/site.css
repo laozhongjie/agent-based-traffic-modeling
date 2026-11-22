@@ -248,3 +248,9 @@ th { background: transparent; color: var(--muted); font-size: 13px; font-weight:
 }
 .fn-sym, .fn-unit { white-space: nowrap; }
 @media (max-width: 760px) { .fn-val { font-size: 48px; } }
+
+/* Wide text blocks fill the content width and are justified, so both edges line up with the figures. */
+.result-text, .result-list, .section-intro, .fig-row figcaption, .fig-card figcaption, .chart-card figcaption, .table-card .note, #models .note { max-width: none; }
+.result-text, .result-list li, .section-intro, .fig-row figcaption, .table-card .note, #models .note {
+  text-align: justify; hyphens: auto; -webkit-hyphens: auto;
+}
