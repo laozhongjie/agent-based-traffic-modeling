@@ -1,50 +1,45 @@
-# Agent-Based Modeling of Traffic Congestion on Road Networks
+# Agent-Based Traffic Modeling
 
-[English](README.md) | [中文](README_zh.md)
+**At what density does free-flowing traffic tip into a jam?** We simulate every vehicle, first on a ring road, then on the real road network of Singapore's Bugis district, and then on planning variants of that network.
 
-We treat the onset of traffic congestion as a nonequilibrium phase transition and follow it from a single-lane ring road to the road network of Singapore's Bugis district, and to planning changes of that network. All simulations are agent-based and run in [SUMO](https://eclipse.dev/sumo/) with three car-following models: Nagel–Schreckenberg (NaSch), the optimal velocity model (OVM, implemented by us in C++) and the intelligent driver model (IDM).
+[**Website**](https://laozhongjie.github.io/agent-based-traffic-modeling/) · [Model explainers](#explore-the-website) · [Reproduce](#reproducing-the-results) · [中文](README_zh.md)
 
-**[Project website](https://laozhongjie.github.io/agent-based-traffic-modeling/)**: interactive model explanations and all ring, city and planning results, in English and Chinese.
+![SUMO 1.28.0](https://img.shields.io/badge/SUMO-1.28.0-2b6cb0) ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776ab) ![Models: NaSch · OVM · IDM](https://img.shields.io/badge/models-NaSch%20%C2%B7%20OVM%20%C2%B7%20IDM-555)
 
-## Research questions
+![Congestion on the Bugis road network at 10, 15 and 30 veh/km](docs/assets/img/city/congestion_maps.png)
 
-1. **Highway.** What is the critical density on a road without traffic lights, and does the transition behave like a phase transition? How does it depend on the model, randomness and system size, and does it match real highway data?
-2. **City network.** Does a city network have a density at which total throughput peaks and then falls? Do local jams merge into large congested regions, and how does network structure decide where congestion starts?
-3. **Planning.** Do road closures or new links raise or lower the network's critical density and maximum flow? Can adding a road make things worse (Braess's paradox)?
+<sub>Congestion on the Bugis network below the critical point (10 veh/km), just past it (15) and on the flow plateau (30). Red marks the largest connected jam.</sub>
 
-## Main results
+## At a glance
 
-- **Ring road.** Free flow breaks into backward-moving stop-and-go waves above a critical density of about 20–25 veh/km (NaSch), 25 veh/km (OVM) and 30–35 veh/km (IDM), with no visible dependence on ring length between 600 and 4800 m. Linear stability analysis places the IDM threshold at 32.9 veh/km. Less randomness or faster driver response moves the onset to higher density. Freeway data (PeMS) peak in flow at 19–21 veh/km per lane and show signs of hysteresis.
-- **City network.** The mean speed of the Bugis network halves at 13.3 veh/km per lane, while the flow levels off at about 171 veh/h per lane. Neither fluctuations nor recovery time peak there, so it is a smooth crossover rather than a critical point. Local jams merge into one large cluster between 20 and 25 veh/km; edge betweenness barely predicts where congestion starts once traffic load is controlled for.
-- **Planning.** Closing the most central removable road segment lowers the critical density by 0.45 veh/km (3.4%). A lane cut and a new link change it by less than the seed-to-seed spread, and no network-wide Braess paradox is found.
+| Scale | Question | Finding |
+|---|---|---|
+| **Ring road** | Where does free flow break down, and does it behave like a phase transition? | Stop-and-go waves appear above **20–25 veh/km** (NaSch), **25** (OVM) and **30–35** (IDM), with no visible dependence on ring length between 600 and 4800 m. Linear stability analysis places the IDM threshold at 32.9 veh/km. |
+| **City network** | Does the Bugis network have a density where throughput peaks, and where does congestion start? | Mean speed halves at **13.3 veh/km per lane**; flow levels off at about **171 veh/h per lane**. This is a smooth crossover, not a critical point. |
+| **Planning** | Do closures, lane cuts or new links shift the critical density? Is there a Braess paradox? | Closing the most central removable segment lowers it by **0.45 veh/km (3.4%)**. Other changes stay within seed-to-seed spread, and **no network-wide Braess paradox** appears. |
 
-## Team
+## What's inside
 
-| Member | Main work |
+- **Three car-following models in one pipeline.** NaSch and IDM use SUMO's built-in versions. **OVM is our own C++ model for SUMO**, with a patch and checks against theory.
+- **One study at three scales.** A single-lane ring, the Bugis network from OpenStreetMap, and three planning changes to it (a road closure, a lane cut and a new link), all measured the same way.
+- **Real data alongside the simulations.** PeMS freeway detectors for the ring results, and 12 days of LTA speed bands from the same district for the city.
+- **Reproducible by design.** Each experiment is one TOML file. Every row in `results/` keeps the ID of the run it came from, and any run can be repeated from its config and seed.
+- **An interactive bilingual website.** A NaSch ring runs live in the browser, each model has its own page, and all results are shown with their figures, in English and Chinese.
+
+## Explore the website
+
+| Page | What you get |
 |---|---|
-| A | Project lead: research plan, shared framework and pipeline, SUMO build and OVM implementation, model validation, website |
-| B | Vehicle models; ring-road experiments |
-| C | City network: MFD, clusters, spreading and critical-point analyses; LTA data |
-| D | Planning scenarios and Braess test |
-| E | IDM equilibrium and linear stability; PeMS freeway analysis; discussion |
+| [Home](https://laozhongjie.github.io/agent-based-traffic-modeling/) | Live ring demo with a density slider, and all ring, city and planning results |
+| [NaSch](https://laozhongjie.github.io/agent-based-traffic-modeling/models/nasch.html) | The four rules, a ring demo and the exact fundamental diagram |
+| [OVM](https://laozhongjie.github.io/agent-based-traffic-modeling/models/ovm.html) | The rule, why uniform flow breaks down, and our SUMO implementation |
+| [IDM](https://laozhongjie.github.io/agent-based-traffic-modeling/models/idm.html) | The acceleration law, why uniform flow can break down, and SUMO's built-in version |
 
-## Repository layout
+## Key results in detail
 
-```text
-.
-├── sumo/                 # Pinned SUMO version, OVM source files, patch, validation checks
-├── src/traffic_project/  # Shared Python package: configs, runner, measurements, controller
-├── configs/              # One TOML file per experiment (parameters, densities, seeds)
-├── scenarios/            # Ring, grid and Bugis networks and the scripts that build them
-├── scripts/              # Command-line entry points for sweeps, analyses and figures
-├── results/              # Summary tables, time series and figures of all valid runs
-├── data/processed/       # Processed external data (LTA speed bands, PeMS stations)
-├── notebooks/            # Analysis notebooks of the members
-├── tests/                # Automated tests (pytest)
-└── docs/                 # Project website (GitHub Pages)
-```
-
-Run directories (`runs/`) and raw data are not tracked because of their size. Every row in `results/` keeps the ID of the run it came from, and each run can be repeated from its configuration file and seed. The shared conventions (units, run IDs, checks) are in [GUIDE.md](GUIDE.md).
+- **Ring road.** Less randomness or faster driver response moves the onset of jams to higher density. Freeway data (PeMS) peak in flow at 19–21 veh/km per lane and show signs of hysteresis.
+- **City network.** Neither fluctuations nor recovery time peak at the speed-halving density. Local jams merge into one large cluster between 20 and 25 veh/km. Once traffic load is controlled for, edge betweenness barely predicts where congestion starts.
+- **Planning.** A lane cut and a new link both change the critical density by less than the seed-to-seed spread.
 
 ## Reproducing the results
 
@@ -71,7 +66,35 @@ python scripts/planning_figures.py \
     --extra newlink=bugis_all_newlink_controller_seeds4to10
 ```
 
-The ring-road sweeps use `scripts/ring_sweep.py` with the files in `configs/ring/`, and the ring theory and PeMS analyses are in `notebooks/e/`. The SUMO trajectories read by `notebooks/e/model_comparisons.ipynb` (about 150 MB) are kept on the branch `add-critical-density-analysis`. The report's appendix lists every command in full.
+The ring-road sweeps use `scripts/ring_sweep.py` with the files in `configs/ring/`. The ring theory and PeMS analyses are in `notebooks/e/`. The SUMO trajectories read by `notebooks/e/model_comparisons.ipynb` (about 150 MB) are kept on the branch `add-critical-density-analysis`. The report's appendix lists every command in full.
+
+## Repository layout
+
+```text
+.
+├── sumo/                 # Pinned SUMO version, OVM source files, patch, validation checks
+├── src/traffic_project/  # Shared Python package: configs, runner, measurements, controller
+├── configs/              # One TOML file per experiment (parameters, densities, seeds)
+├── scenarios/            # Ring, grid and Bugis networks and the scripts that build them
+├── scripts/              # Command-line entry points for sweeps, analyses and figures
+├── results/              # Summary tables, time series and figures of all valid runs
+├── data/processed/       # Processed external data (LTA speed bands, PeMS stations)
+├── notebooks/            # Analysis notebooks of the members
+├── tests/                # Automated tests (pytest)
+└── docs/                 # Project website (GitHub Pages)
+```
+
+Run directories (`runs/`) and raw data are not tracked because of their size. The shared conventions (units, run IDs, checks) are in [GUIDE.md](GUIDE.md).
+
+## Team
+
+| Member | Main work |
+|---|---|
+| A | Project lead: research plan, shared framework and pipeline, SUMO build and OVM implementation, model validation, website |
+| B | Vehicle models; ring-road experiments |
+| C | City network: MFD, clusters, spreading and critical-point analyses; LTA data |
+| D | Planning scenarios and Braess test |
+| E | IDM equilibrium and linear stability; PeMS freeway analysis; discussion |
 
 ## Data sources
 
