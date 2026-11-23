@@ -325,22 +325,72 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var
 .demo-controls label, .viz-controls label { font-size: 14px; }
 .legend .ramp { height: 2px; }
 
-/* ---------- Hover: a thin line runs once around the edge and closes ---------- */
+/* ---------- Button hover: a thin line runs once around the button, just outside it, and closes ---------- */
 @property --trace { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-.result-block .fig-row, #approach .fig-card, .chart-card, .exp-card { position: relative; }
-.result-block .fig-row::after, #approach .fig-card::after, .chart-card::after, .exp-card::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none;
+.btn, .demo-row button { position: relative; }
+.btn::before, .demo-row button::before {
+  content: ""; position: absolute; inset: -4px; border-radius: 980px; padding: 1.5px; pointer-events: none;
   background: conic-gradient(from 0deg, var(--text) var(--trace), transparent 0);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  opacity: 0; transition: --trace .9s cubic-bezier(.4, 0, .2, 1), opacity .25s ease;
+  opacity: 0; transition: --trace .6s cubic-bezier(.4, 0, .2, 1), opacity .2s ease;
 }
 @media (hover: hover) {
-  .result-block .fig-row:hover::after, #approach .fig-card:hover::after, .chart-card:hover::after, .exp-card:hover::after { --trace: 360deg; opacity: 1; }
-  /* The line replaces the earlier lift, panel and shadow. */
-  .result-block .card.fig-row:hover, #approach .card.fig-card:hover { background: transparent; box-shadow: none !important; }
-  .exp-card:hover { transform: none; box-shadow: none; }
+  .btn:hover::before, .demo-row button:hover::before { --trace: 360deg; opacity: 1; }
 }
+.btn:focus-visible::before, .demo-row button:focus-visible::before { --trace: 360deg; opacity: 1; }
+.btn:focus-visible, .demo-row button:focus-visible { outline: none; }
 @media (prefers-reduced-motion: reduce) {
-  .result-block .fig-row::after, #approach .fig-card::after, .chart-card::after, .exp-card::after { transition: opacity .2s; }
+  .btn::before, .demo-row button::before { transition: opacity .2s; }
 }
+
+/* Buttons, final: no frame at rest; the main or selected button keeps a thin static outline (no fill);
+   on hover a line runs round the button's own edge and closes. */
+.btn, .demo-row button { border-color: transparent; background: transparent; color: var(--text); }
+.btn.primary, .btn[aria-pressed="true"] { background: transparent; color: var(--text); border-color: color-mix(in srgb, var(--text) 35%, transparent); }
+@media (hover: hover) {
+  .btn:hover, .demo-row button:hover { border-color: transparent; background: transparent; }
+  .btn.primary:hover, .btn[aria-pressed="true"]:hover { background: transparent; color: var(--text); border-color: color-mix(in srgb, var(--text) 35%, transparent); }
+}
+.btn::before, .demo-row button::before { inset: -1px; padding: 1px; }
+
+/* Variant: every button keeps a light outline at rest; the hover line runs over that same outline, darker. */
+.btn, .demo-row button { border-color: color-mix(in srgb, var(--text) 16%, transparent); }
+@media (hover: hover) {
+  .btn:hover, .demo-row button:hover { border-color: color-mix(in srgb, var(--text) 16%, transparent); }
+}
+
+/* Key findings: rounder corners. */
+#findings .rq { border-radius: 30px; }
+
+/* Demo panel: the left and right sides bow out in a shallow arc (elliptical corners), not straight edges. */
+.demo { border-radius: 110px / 50%; padding: 40px 72px; }
+@media (max-width: 760px) { .demo { border-radius: 28px; padding: 24px; } }
+
+/* Hero, domed: the two buttons sit inside the demo panel, under a half-ellipse top. */
+.hero { gap: 48px; }
+.hero-text .lede { margin-bottom: 0; }
+.demo {
+  grid-template-areas: "actions actions" "canvas tag" "canvas controls" "canvas caption";
+  grid-template-rows: auto auto auto auto;
+  border-radius: 50% 50% 120px 120px / 230px 230px 200px 200px;
+  padding: 56px 80px 56px;
+}
+.demo .hero-actions { grid-area: actions; justify-content: center; margin: 0 0 44px; }
+@media (max-width: 760px) {
+  .demo { grid-template-areas: "actions" "tag" "canvas" "controls" "caption"; border-radius: 40% 40% 28px 28px / 90px 90px 28px 28px; padding: 40px 24px 24px; }
+  .demo .hero-actions { margin-bottom: 24px; }
+}
+
+/* Hero panel, final shape: an ellipse cut flat at the bottom. The ellipse's centre sits below the middle,
+   so its top and sides frame the buttons and the demo and the panel's bottom edge cuts it straight. */
+.demo {
+  max-width: 780px; border-radius: 0; padding: 84px 64px 60px;
+  clip-path: ellipse(50% 63% at 50% 63%);
+}
+@media (max-width: 760px) { .demo { clip-path: none; border-radius: 28px; padding: 32px 24px 24px; } }
+
+/* The domed panel stands on the grey Key findings band: no gap between them, same grey. */
+.hero { padding-bottom: 0; }
+.hero + #findings.band { margin-top: 0; }
+@media (max-width: 760px) { .hero { padding-bottom: 32px; } }
