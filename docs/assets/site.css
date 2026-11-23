@@ -408,12 +408,12 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var
 /* The slash inside units (veh/km, km/h): smaller, so it no longer splits the unit in two. Set by common.js. */
 .u-sl { font-size: .8em; padding: 0 .04em; }
 
-/* Links on hover: no underline. Card links ("Explore this model ›", "See the results ⌄") nudge their chevron
-   towards where they lead; plain text links only deepen their colour. */
+/* Links, monochrome: text colour, medium weight, a thin chevron; on hover the link only fades. No underline,
+   no movement. Matches the monochrome buttons. */
 a:hover, .exp-card:hover .exp-open { text-decoration: none; }
-.exp-open::after, .more::after { transition: transform .25s cubic-bezier(.4, 0, .2, 1); }
+.exp-open, main a:not(.btn):not(.exp-card):not(.fig-cell) { color: var(--text); font-weight: 500; transition: opacity .25s ease; }
+.exp-open::after, .more::after, .res-list a::after { border-top-width: .085em; border-right-width: .085em; }
+.back::before { border-bottom-width: .085em; border-left-width: .085em; }
 @media (hover: hover) {
-  .exp-card:hover .exp-open::after, a.more:hover::after { transform: translateX(3px) rotate(45deg); }
-  .exp-card:hover .exp-open.down::after { transform: translateY(3px) rotate(135deg); }
-  main a:not(.btn):not(.exp-card):not(.fig-cell):hover { color: color-mix(in srgb, var(--accent) 70%, var(--text)); }
+  .exp-card:hover .exp-open, main a:not(.btn):not(.exp-card):not(.fig-cell):hover { opacity: .5; }
 }
