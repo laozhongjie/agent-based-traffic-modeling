@@ -395,14 +395,6 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var
 .hero + #findings.band { margin-top: 0; }
 @media (max-width: 760px) { .hero { padding-bottom: 32px; } }
 
-/* The findings band under the hero: its top corners sweep down to the page edges in a wide arc. */
-.hero + #findings.band {
-  clip-path: inset(0 calc(50% - 50vw) round min(260px, 20vw) min(260px, 20vw) 0 0 / 150px 150px 0 0);
-}
-@media (max-width: 760px) {
-  .hero + #findings.band { clip-path: inset(0 calc(50% - 50vw) round 40px 40px 0 0); }
-}
-
 /* Hero panel as part of a true circle (not an ellipse): diameter = panel width, top touching the panel's top,
    cut flat at the bottom. 50cqw is half the hero's width, which the panel fills up to its 780px cap. */
 .hero { container-type: inline-size; }
