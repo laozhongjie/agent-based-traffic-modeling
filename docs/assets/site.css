@@ -273,7 +273,9 @@ th { background: transparent; color: var(--muted); font-size: 13px; font-weight:
 }
 #approach .grid.two:has(.fig-card) { gap: 0 40px; }
 @media (max-width: 640px) { .result-block .fig-row, #approach .fig-card { padding: 14px; margin: 0 -14px; } }
-#findings .rq p:not(.tag):not(.finding-num) { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+/* Key findings text: the column is too narrow to justify without stretched gaps and split words, so it is
+   left-aligned with balanced line breaks instead. */
+#findings .rq p:not(.tag):not(.finding-num) { text-align: left; hyphens: manual; -webkit-hyphens: manual; text-wrap: pretty; letter-spacing: 0; }
 
 /* Hero rhythm: more air between the lines of the title and around it. */
 .hero h1 { font-size: clamp(40px, 5.4vw, 58px); line-height: 1.12; letter-spacing: -.015em; font-weight: 600; margin: 0 0 32px; }
@@ -403,3 +405,6 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var
   clip-path: circle(min(390px, 50cqw) at 50% min(390px, 50cqw));
 }
 @media (max-width: 760px) { .demo { clip-path: none; padding-top: 32px; } }
+
+/* The slash inside units (veh/km, km/h): smaller, so it no longer splits the unit in two. Set by common.js. */
+.u-sl { font-size: .8em; padding: 0 .04em; }
