@@ -1,3 +1,5 @@
+<div align="center">
+
 # Agent-Based Traffic Modeling
 
 **At what density does free-flowing traffic tip into a jam?** We simulate every vehicle, first on a ring road, then on the real road network of Singapore's Bugis district, and then on planning variants of that network.
@@ -6,9 +8,11 @@
 
 ![SUMO 1.28.0](https://img.shields.io/badge/SUMO-1.28.0-2b6cb0) ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776ab) ![Models: NaSch · OVM · IDM](https://img.shields.io/badge/models-NaSch%20%C2%B7%20OVM%20%C2%B7%20IDM-555)
 
-![Congestion on the Bugis road network at 10, 15 and 30 veh/km](docs/assets/img/city/congestion_maps.png)
+<img src="docs/assets/img/city/measured_hour.gif" alt="One simulated hour on the Bugis road network at 10, 25 and 40 veh/km">
 
-<sub>Congestion on the Bugis network below the critical point (10 veh/km), just past it (15) and on the flow plateau (30). Red marks the largest connected jam.</sub>
+<sub>One simulated hour on the Bugis network at 10, 25 and 40 veh/km, each car coloured by its speed. Below the critical point jams stay scattered; at higher density, red jammed roads join across the district.</sub>
+
+</div>
 
 ## At a glance
 

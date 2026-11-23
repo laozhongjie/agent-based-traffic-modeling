@@ -1,3 +1,5 @@
+<div align="center">
+
 # 道路网络交通拥堵的智能体建模
 
 **畅行的车流，在什么密度下会变成拥堵？** 我们模拟每一辆车：先在环形道路上，再到新加坡武吉士（Bugis）片区的真实路网，最后到这片路网的规划改动。
@@ -6,9 +8,11 @@
 
 ![SUMO 1.28.0](https://img.shields.io/badge/SUMO-1.28.0-2b6cb0) ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776ab) ![Models: NaSch · OVM · IDM](https://img.shields.io/badge/models-NaSch%20%C2%B7%20OVM%20%C2%B7%20IDM-555)
 
-![Bugis 路网在 10、15 和 30 veh/km 下的拥堵](docs/assets/img/city/congestion_maps.png)
+<img src="docs/assets/img/city/measured_hour.gif" alt="Bugis 路网在 10、25 和 40 veh/km 下的一小时模拟">
 
-<sub>Bugis 路网在临界点以下（10 veh/km）、刚过临界点（15）和流量平台上（30）的拥堵分布。红色是最大的连通拥堵团簇。</sub>
+<sub>Bugis 路网在 10、25 和 40 veh/km 下的一小时模拟，每辆车的颜色表示车速。临界点以下，拥堵零散分布；密度更高时，红色的拥堵道路在全区连成一片。</sub>
+
+</div>
 
 ## 一览
 
